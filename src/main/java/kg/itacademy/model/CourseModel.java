@@ -1,0 +1,21 @@
+package kg.itacademy.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+public class CourseModel {
+    private Long id;
+    private Long categoryId;
+    private String courseName;
+    private String email;
+    private String phoneNumber;
+    private String courseInfo;
+    private String courseInfoUrl;
+    private Long userId;
+}

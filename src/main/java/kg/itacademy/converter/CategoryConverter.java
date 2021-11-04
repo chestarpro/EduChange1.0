@@ -1,0 +1,28 @@
+package kg.itacademy.converter;
+
+import kg.itacademy.entity.Category;
+import kg.itacademy.model.CategoryModel;
+
+public class CategoryConverter extends BaseConverter<CategoryModel, Category> {
+
+    public CategoryConverter() {
+        super(CategoryConverter::convertToEntity, CategoryConverter::convertToModel);
+    }
+
+    private static CategoryModel convertToModel(Category entityToConvert) {
+        if (entityToConvert == null) return null;
+
+        return CategoryModel.builder()
+                .id(entityToConvert.getId())
+                .categoryName(entityToConvert.getCategoryName())
+                .build();
+    }
+
+    private static Category convertToEntity(CategoryModel modelToConvert) {
+        if (modelToConvert == null) return null;
+
+        return Category.builder()
+                .categoryName(modelToConvert.getCategoryName())
+                .build();
+    }
+}
