@@ -5,12 +5,13 @@ import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserCourseMapping;
 import kg.itacademy.repository.CourseRepository;
 import kg.itacademy.repository.UserCourseMappingRepository;
-import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserCourseMappingService;
 import kg.itacademy.service.UserService;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
 
@@ -20,18 +21,6 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     private final UserService userService;
 
-    private final CourseService courseService;
-
-    public UserCourseMappingServiceImpl(UserCourseMappingRepository userCourseMappingRepository,
-                                        CourseRepository courseRepository,
-                                        UserService userService, CourseService courseService) {
-
-        this.userCourseMappingRepository = userCourseMappingRepository;
-        this.courseRepository = courseRepository;
-        this.userService = userService;
-        this.courseService = courseService;
-    }
-
     @Override
     public UserCourseMapping create(UserCourseMapping userCourseMapping) {
         return userCourseMappingRepository.save(userCourseMapping);
@@ -39,7 +28,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     @Override
     public UserCourseMapping getById(Long id) {
-        return null;
+        return userCourseMappingRepository.getById(id);
     }
 
     @Override
@@ -49,11 +38,12 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     @Override
     public UserCourseMapping update(UserCourseMapping userCourseMapping) {
-        return null;
+
+        return userCourseMappingRepository.save(userCourseMapping);
     }
 
     @Override
-    public List<Course> findAllMyPurchasedCourses() {
+    public List<Course> findAllPurchasedCourses() {
         return userCourseMappingRepository
                 .findAllCourseByUser_Id(userService.getCurrentUser().getId());
     }

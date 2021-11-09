@@ -1,26 +1,21 @@
 package kg.itacademy.service.impl;
 
 import kg.itacademy.entity.Course;
-import kg.itacademy.repository.CategoryRepository;
 import kg.itacademy.repository.CourseRepository;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
+    private final UserService userService;
 
     @Override
     public Course create(Course course) {
@@ -32,6 +27,9 @@ public class CourseServiceImpl implements CourseService {
             throw new IllegalArgumentException("Нет указан рабочий номер телефона");
         if (course.getCourseInfo() == null)
             throw new IllegalArgumentException("Нет описания курса");
+        if (course.getPrice().doubleValue() < 0) {
+            throw new IllegalArgumentException("Не корректная цена курса");
+        }
         course.setUser(userService.getCurrentUser());
         return courseRepository.save(course);
     }
@@ -49,7 +47,9 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course update(Course course) {
         Course updateCourse = courseRepository.findById(course.getId()).orElse(null);
-
+        if (course.getPrice().doubleValue() < 0) {
+            throw new IllegalArgumentException("Не корректная цена курса");
+        }
         if (updateCourse != null) {
             return courseRepository.save(updateCourse);
         }
@@ -73,7 +73,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> findAllMyCourse() {
+    public List<Course> findAllCreatedCourses() {
         return courseRepository.findAllByUser_Id(userService.getCurrentUser().getId());
     }
 

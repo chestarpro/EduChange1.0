@@ -1,11 +1,7 @@
 package kg.itacademy.entity;
 
 import lombok.*;
-
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "users_authorization_logs")
@@ -18,4 +14,7 @@ public class UserAuthorizLog extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "is_success")
+    private Boolean isSuccess;
 }

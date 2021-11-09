@@ -8,5 +8,5 @@ public interface UserImageService extends BaseService<UserImage> {
 //    UserImage saveAvatar(String url);
     UserImage saveImage(MultipartFile file);
     UserImage updateImage(MultipartFile file);
-    UserImage deleteImage();
+    UserImage deleteImage(String url);
 }

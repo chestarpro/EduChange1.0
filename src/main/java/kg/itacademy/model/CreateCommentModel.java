@@ -5,15 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
-
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class UserAuthorizLogModel {
-    private Long id;
-    private Long userId;
-    private Boolean isSuccess;
-    private LocalDateTime createDate;
+public class CreateCommentModel {
+    private String comment;
+    private Long courseId;
 }

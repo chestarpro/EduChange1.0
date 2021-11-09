@@ -52,13 +52,13 @@ public class UserImageController {
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseMessage<UserImageModel> deleteAvatar() {
+    @DeleteMapping("/delete/{token}")
+    public ResponseMessage<UserImageModel> deleteAvatar(@PathVariable String token) {
         ResponseMessage<UserImageModel> responseMessage = new ResponseMessage<>();
         try {
             return responseMessage.
                     prepareSuccessMessage(new UserImageConverter()
-                            .convertFromEntity(userImageService.deleteImage()));
+                            .convertFromEntity(userImageService.deleteImage(token)));
         } catch (IllegalArgumentException e) {
             return responseMessage.prepareFailMessage(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         } catch (Exception e) {

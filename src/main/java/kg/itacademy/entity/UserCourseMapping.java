@@ -1,8 +1,6 @@
 package kg.itacademy.entity;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;

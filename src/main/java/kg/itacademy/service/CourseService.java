@@ -8,6 +8,6 @@ public interface CourseService extends BaseService<Course> {
     List<Course> findAllByCourseName(String courseName);
     List<Course> findAllByCourseCategoryName(String courseName);
     List<Course> findAllByCategoryId(Long id);
-    List<Course> findAllMyCourse();
+    List<Course> findAllCreatedCourses();
     Course deleteCourseById(Long id);
 }

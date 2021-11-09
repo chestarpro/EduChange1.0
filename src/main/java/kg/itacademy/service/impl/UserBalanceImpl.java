@@ -1,28 +1,41 @@
 package kg.itacademy.service.impl;
 
 import kg.itacademy.entity.UserBalance;
+import kg.itacademy.repository.UserBalanceRepository;
 import kg.itacademy.service.UserBalanceService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+
+import java.math.BigDecimal;
 import java.util.List;
 
+@RequiredArgsConstructor
+@Service
 public class UserBalanceImpl implements UserBalanceService {
+
+    private final UserBalanceRepository userBalanceRepository;
+
     @Override
     public UserBalance create(UserBalance userBalance) {
-        return null;
+        return userBalanceRepository.save(userBalance);
     }
 
     @Override
     public UserBalance getById(Long id) {
-        return null;
+        return userBalanceRepository.getById(id);
     }
 
     @Override
     public List<UserBalance> getAll() {
-        return null;
+        return userBalanceRepository.findAll();
     }
 
     @Override
     public UserBalance update(UserBalance userBalance) {
-        return null;
+        if (userBalance.getBalance().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Не корректный баланс");
+        }
+        return userBalanceRepository.save(userBalance);
     }
 }

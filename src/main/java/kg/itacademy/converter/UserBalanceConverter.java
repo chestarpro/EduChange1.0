@@ -16,7 +16,7 @@ public class UserBalanceConverter extends BaseConverter<UserBalanceModel, UserBa
         return UserBalanceModel.builder()
                 .id(entityToConvert.getId())
                 .userId(entityToConvert.getUser().getId())
-                .userBalance(entityToConvert.getUserBalance())
+                .userBalance(entityToConvert.getBalance())
                 .build();
     }
 
@@ -28,7 +28,7 @@ public class UserBalanceConverter extends BaseConverter<UserBalanceModel, UserBa
 
         return UserBalance.builder()
                 .user(user)
-                .userBalance(modelToConvert.getUserBalance())
+                .balance(modelToConvert.getUserBalance())
                 .build();
     }
 }

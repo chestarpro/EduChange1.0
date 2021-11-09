@@ -6,6 +6,7 @@ import kg.itacademy.entity.UserImage;
 import kg.itacademy.repository.UserImageRepository;
 import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,16 +20,14 @@ import java.util.Map;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserImageImpl implements UserImageService {
 
     private static final String CLOUDINARY_URL = "cloudinary://827555593978177:78pUgYEkWqkpkugwcNsNwSUyD-o@dv7jsl0n7";
 
-    @Autowired
     private UserImageRepository userImageRepository;
 
-    @Autowired
     private UserService userService;
-
 
     @Override
     public UserImage create(UserImage userImage) throws IllegalArgumentException {
@@ -86,7 +85,12 @@ public class UserImageImpl implements UserImageService {
     }
 
     @Override
-    public UserImage deleteImage() {
+    public UserImage deleteImage(String token) {
+        try {
+            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(token);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("");
+        }
         UserImage deleteAvatar = userImageRepository.findByUser_Id(userService.getCurrentUser().getId());
         if(deleteAvatar == null)
             throw new IllegalArgumentException("Изображение профиля не существует");

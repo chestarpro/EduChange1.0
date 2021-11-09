@@ -1,9 +1,8 @@
 package kg.itacademy.entity;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "courses")
@@ -31,6 +30,9 @@ public class Course extends BaseEntity {
 
     @Column(name = "course_info_url")
     private String courseInfoUrl;
+
+    @Column(nullable = false)
+    private BigDecimal price;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

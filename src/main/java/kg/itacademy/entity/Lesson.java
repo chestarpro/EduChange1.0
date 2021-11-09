@@ -1,8 +1,6 @@
 package kg.itacademy.entity;
 
 import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import javax.persistence.*;
 
 @Entity
@@ -13,7 +11,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 public class Lesson extends BaseEntity {
-    @Column(name = "lesson_info")
+    @Column(name = "lesson_info", nullable = false)
     private String lessonInfo;
 
     @Column(name = "lesson_url")

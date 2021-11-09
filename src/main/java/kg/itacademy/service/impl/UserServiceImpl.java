@@ -6,12 +6,12 @@ import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserRole;
 import kg.itacademy.model.UserAuthorizModel;
 import kg.itacademy.repository.UserAuthorizLogRepository;
-import kg.itacademy.repository.UserBalanceRepository;
 import kg.itacademy.repository.UserRepository;
 import kg.itacademy.repository.UserRoleRepository;
+import kg.itacademy.service.UserBalanceService;
 import kg.itacademy.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,22 +22,22 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRoleRepository userRoleRepository;
 
-    @Autowired
-    private UserBalanceRepository userBalanceRepository;
+    private final UserRoleRepository userRoleRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserAuthorizLogRepository userAuthorizLogRepository;
+    private final UserBalanceService userBalanceService;
+
+
+    private final PasswordEncoder passwordEncoder;
+
+
+    private final UserAuthorizLogRepository userAuthorizLogRepository;
 
     @Override
     public User create(User user) {
@@ -62,8 +62,8 @@ public class UserServiceImpl implements UserService {
 
         UserBalance userBalance = new UserBalance();
         userBalance.setUser(user);
-        userBalance.setUserBalance(new BigDecimal(0));
-        userBalanceRepository.save(userBalance);
+//        userBalance.setUserBalance(new BigDecimal(0)); //TODO add
+        userBalanceService.create(userBalance);
 
         return user;
     }
@@ -96,12 +96,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user) {
-        User userUpdate = userRepository.findById(user.getId()).orElse(null);
 
-        if (userUpdate != null)
-            return userRepository.save(userUpdate);
-
-        return null;
+        return userRepository.save(user);
     }
 
     @Override
@@ -109,15 +105,26 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(userAuthorizModel.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("Не верный логин или пароль"));
 
-
         boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
 
-        if (!isPasswordIsCorrect)
-            throw new IllegalArgumentException("Неверный логин или пароль");
+        if(user.getIsActive() == 0)
+            throw new IllegalArgumentException("Вы забанены");
 
+        if (!isPasswordIsCorrect) {
+            userAuthorizLogRepository.save(new UserAuthorizLog(user, false));
+
+            boolean needToBan = userAuthorizLogRepository.hasThreeFailsInARowByUserId(user.getId());
+            if(needToBan) {
+                user.setIsActive(0L);
+                userRepository.save(user);
+            }
+            throw new IllegalArgumentException("Неверный логин или пароль");
+        }
         String usernamePasswordPair = userAuthorizModel.getUsername() + ":" + userAuthorizModel.getPassword();
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
-        userAuthorizLogRepository.save(new UserAuthorizLog(user));
+        userAuthorizLogRepository.save(new UserAuthorizLog(user, true));
+
+
         return "Basic " + authHeader;
     }
 

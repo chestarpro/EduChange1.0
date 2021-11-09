@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -17,5 +19,6 @@ public class CourseModel {
     private String phoneNumber;
     private String courseInfo;
     private String courseInfoUrl;
+    private BigDecimal price;
     private Long userId;
 }
