@@ -22,6 +22,7 @@ public class UserConverter extends BaseConverter<UserModel, User> {
     }
 
     private static User convertToEntity(UserModel modelToConvert) {
+
         throw new UnsupportedOperationException("Conversation from ClientModel to Client is not supported");
     }
 }

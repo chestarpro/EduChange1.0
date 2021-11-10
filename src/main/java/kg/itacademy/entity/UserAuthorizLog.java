@@ -12,9 +12,9 @@ import javax.persistence.*;
 @Builder
 public class UserAuthorizLog extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "is_success")
+    @Column(name = "is_success", nullable = false)
     private Boolean isSuccess;
 }

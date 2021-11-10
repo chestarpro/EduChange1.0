@@ -5,12 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 public interface UserAuthorizLogRepository extends JpaRepository<UserAuthorizLog, Long> {
-//    List<UserAuthorizLog> getAllByUser_IdAndIsSuccessTrueAnCreateDateBetween(
-//            Long userId, Boolean isSuccess, LocalDateTime dateStart, LocalDateTime datEnd);
 
     @Query(nativeQuery = true,
             value = "select\n" +
@@ -33,4 +30,7 @@ public interface UserAuthorizLogRepository extends JpaRepository<UserAuthorizLog
                     "\tlogs.is_success = false and logs.create_date between now() - interval '1 HOUR' and now();"
     )
     Boolean hasThreeFailsInARowByUserId(@Param("userId") Long userId);
+
+    @Query(nativeQuery = true, value = "select * from users_authorization_logs where user_id = :userId order by id desc limit 1")
+    Optional<UserAuthorizLog> findLastLogByUserId(@Param("userId") Long userId);
 }

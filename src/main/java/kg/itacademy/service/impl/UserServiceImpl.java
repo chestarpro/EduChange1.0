@@ -5,10 +5,10 @@ import kg.itacademy.entity.UserAuthorizLog;
 import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserRole;
 import kg.itacademy.model.UserAuthorizModel;
-import kg.itacademy.repository.UserAuthorizLogRepository;
 import kg.itacademy.repository.UserRepository;
-import kg.itacademy.repository.UserRoleRepository;
+import kg.itacademy.service.UserAuthrizLogService;
 import kg.itacademy.service.UserBalanceService;
+import kg.itacademy.service.UserRoleService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
 import java.util.Base64;
 import java.util.List;
 
@@ -30,50 +28,43 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-
-    private final UserRoleRepository userRoleRepository;
-
+    private final UserRoleService userRoleService;
 
     private final UserBalanceService userBalanceService;
 
-
     private final PasswordEncoder passwordEncoder;
 
-
-    private final UserAuthorizLogRepository userAuthorizLogRepository;
+    private final UserAuthrizLogService userAuthrizLogService;
 
     @Override
     public User create(User user) {
-        User dataUserByUserName = getByUsername(user.getUsername());
-        User dataUserByEmail = getByUsername(user.getUsername());
+        checkForVariables(user);
+        checkCorrectLengthVariables(user);
+        checkUsernameAndEmail(user);
 
-        if (dataUserByUserName != null)
-            throw new IllegalArgumentException("Такой пользователь " + dataUserByUserName.getUsername() + " уже существует");
-
-        if (dataUserByEmail != null)
-            throw new IllegalArgumentException("Электронная почта " + dataUserByEmail.getEmail() + " уже используется");
-
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsActive(1L);
         userRepository.save(user);
 
-        UserRole userRole = new UserRole();
-        userRole.setRoleName("ROLE_USER");
-        userRole.setUser(user);
-        userRoleRepository.save(userRole);
+        userRoleService.create(UserRole.builder()
+                .roleName("ROLE_USER")
+                .user(user)
+                .build());
 
-        UserBalance userBalance = new UserBalance();
-        userBalance.setUser(user);
-        userBalance.setBalance(new BigDecimal(0));
-        userBalanceService.create(userBalance);
+        userBalanceService.create(UserBalance.builder()
+                .user(user)
+                .balance(new BigDecimal(0))
+                .build());
 
         return user;
     }
 
     @Override
     public List<User> getAll() {
-        return userRepository.findAll();
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty())
+            throw new IllegalArgumentException("Пользователей не найдено");
+        return users;
     }
 
     @Override
@@ -99,6 +90,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user) {
+        if (user.getId() == null)
+            throw new IllegalArgumentException("Не указан Id пользователя");
+
+        checkCorrectLengthVariablesFotUpdateUser(user);
 
         return userRepository.save(user);
     }
@@ -110,39 +105,97 @@ public class UserServiceImpl implements UserService {
 
         boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
 
-        if (user.getIsActive() == 0) {
-//            UserAuthorizLog userAuthorizLog = userAuthorizLogRepository.getById(user.getId());
-//            LocalDateTime dateNow = LocalDateTime.now();
-//            System.out.println(userAuthorizLog.getCreateDate());
-//            if (dateNow.isAfter(userAuthorizLog.getCreateDate().plusMinutes(1))) {
-//                user.setIsActive(1L);
-//                userRepository.save(user);
-//            }
-            throw new IllegalArgumentException("Вы за банены на 1 мин");
-        }
+        checkBaningStatus(user);
 
-        if (!isPasswordIsCorrect) {
-            userAuthorizLogRepository.save(new UserAuthorizLog(user, false));
+        checkFailPassword(isPasswordIsCorrect, user);
 
-            boolean needToBan = userAuthorizLogRepository.hasThreeFailsInARowByUserId(user.getId());
-
-            if (needToBan) {
-                user.setIsActive(0L);
-                userRepository.save(user);
-            }
-            throw new IllegalArgumentException("Неверный логин или пароль");
-        }
         String usernamePasswordPair = userAuthorizModel.getUsername() + ":" + userAuthorizModel.getPassword();
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
-        userAuthorizLogRepository.save(new UserAuthorizLog(user, true));
+        userAuthrizLogService.create(new UserAuthorizLog(user, true));
 
         return "Basic " + authHeader;
     }
 
     @Override
-    public User setInActiveUser() {
-        User user = getCurrentUser();
-        user.setIsActive(-1L);
+    public User setInActiveUser(User user, Long status) {
+        user.setIsActive(status);
         return update(user);
+    }
+
+    private void checkForVariables(User user) {
+        if (user.getFullName() == null)
+            throw new IllegalArgumentException("Не заполнен full name");
+        if (user.getUsername() == null)
+            throw new IllegalArgumentException("Не заполнен username");
+        if (user.getEmail() == null)
+            throw new IllegalArgumentException("Не заполнен email");
+        if (user.getPassword() == null)
+            throw new IllegalArgumentException("Не заполнен password");
+    }
+
+    private void checkUsernameAndEmail(User user) {
+        User dataUserByUserName = getByUsername(user.getUsername());
+        User dataUserByEmail = getByEmail(user.getEmail());
+
+        if (dataUserByUserName != null)
+            throw new IllegalArgumentException("Такой пользователь " + dataUserByUserName.getUsername() + " уже существует");
+
+        if (dataUserByEmail != null)
+            throw new IllegalArgumentException("Электронная почта " + dataUserByEmail.getEmail() + " уже используется");
+    }
+
+    private void checkBaningStatus(User user) {
+        if (user.getIsActive() == 0) {
+            UserAuthorizLog userAuthorizLog = userAuthrizLogService.getLastLogByUserId(user.getId());
+            if (LocalDateTime.now().isAfter(userAuthorizLog.getCreateDate().plusMinutes(5)))
+                setInActiveUser(user, 1L);
+            else throw new IllegalArgumentException("Вы за банены на 5 мин");
+        }
+    }
+
+    private void checkFailPassword(boolean isPasswordIsCorrect, User user) {
+        if (!isPasswordIsCorrect) {
+            userAuthrizLogService.create(new UserAuthorizLog(user, false));
+
+            boolean needToBan = userAuthrizLogService.hasThreeFailsLastsLogsByUserId(user.getId());
+
+            if (needToBan)
+                setInActiveUser(user, 0L);
+            throw new IllegalArgumentException("Неверный логин или пароль");
+        }
+    }
+
+    private void checkCorrectLengthVariables(User user) {
+        if (user.getFullName().length() > 100)
+            throw new IllegalArgumentException("Вы превысили лимит(50) символов full name");
+        if (user.getUsername().length() > 50)
+            throw new IllegalArgumentException("Вы превысили лимит(50) символов username");
+        if (user.getEmail().length() > 50)
+            throw new IllegalArgumentException("Вы превысили лимит(50) символов email");
+        if (user.getPassword().length() > 50)
+            throw new IllegalArgumentException("Вы превысили лимит(50) символов password");
+        if (user.getPassword().length() < 6)
+            throw new IllegalArgumentException("Количество символов password должна быть больше 5");
+    }
+
+    private void checkCorrectLengthVariablesFotUpdateUser(User user) {
+        if (user.getFullName() != null) {
+            if (user.getFullName().length() > 100)
+                throw new IllegalArgumentException("Вы превысили лимит(50) символов full name");
+        }
+        if (user.getUsername() != null) {
+            if (user.getUsername().length() > 50)
+                throw new IllegalArgumentException("Вы превысили лимит(50) символов username");
+        }
+        if (user.getEmail() != null) {
+            if (user.getEmail().length() > 50)
+                throw new IllegalArgumentException("Вы превысили лимит(50) символов email");
+        }
+        if (user.getPassword() != null) {
+            if (user.getPassword().length() > 50)
+                throw new IllegalArgumentException("Вы превысили лимит(50) символов password");
+            else if (user.getPassword().length() < 6)
+                throw new IllegalArgumentException("Количество символов password должна быть больше 5");
+        }
     }
 }

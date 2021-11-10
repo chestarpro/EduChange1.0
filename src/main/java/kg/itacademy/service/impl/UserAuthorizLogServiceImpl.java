@@ -4,9 +4,13 @@ import kg.itacademy.entity.UserAuthorizLog;
 import kg.itacademy.repository.UserAuthorizLogRepository;
 import kg.itacademy.service.UserAuthrizLogService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
+@Service
 @RequiredArgsConstructor
 public class UserAuthorizLogServiceImpl implements UserAuthrizLogService {
 
@@ -19,12 +23,25 @@ public class UserAuthorizLogServiceImpl implements UserAuthrizLogService {
 
     @Override
     public UserAuthorizLog getById(Long id) {
-        return userAuthorizLogRepository.getById(id);
+        return userAuthorizLogRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<UserAuthorizLog> getAll() {
-        return userAuthorizLogRepository.findAll();
+        List<UserAuthorizLog> authorizLogs = userAuthorizLogRepository.findAll();
+        if (authorizLogs.isEmpty())
+            throw new IllegalArgumentException("Записей не найдено");
+        return authorizLogs;
+    }
+
+    @Override
+    public Boolean hasThreeFailsLastsLogsByUserId(Long id) {
+        return userAuthorizLogRepository.hasThreeFailsInARowByUserId(id);
+    }
+
+    @Override
+    public UserAuthorizLog getLastLogByUserId(Long id) {
+        return userAuthorizLogRepository.findLastLogByUserId(id).orElse(null);
     }
 
     @Override

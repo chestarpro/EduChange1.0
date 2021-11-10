@@ -4,14 +4,15 @@ import kg.itacademy.entity.UserBalance;
 import kg.itacademy.repository.UserBalanceRepository;
 import kg.itacademy.service.UserBalanceService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 
 import java.math.BigDecimal;
 import java.util.List;
 
-@RequiredArgsConstructor
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserBalanceImpl implements UserBalanceService {
 
     private final UserBalanceRepository userBalanceRepository;

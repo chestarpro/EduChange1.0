@@ -5,6 +5,7 @@ import kg.itacademy.entity.UserImage;
 import kg.itacademy.model.UserImageModel;
 
 public class UserImageConverter extends BaseConverter<UserImageModel, UserImage> {
+
     public UserImageConverter() {
         super(UserImageConverter::convertToEntity, UserImageConverter::convertToModel);
 
@@ -19,15 +20,18 @@ public class UserImageConverter extends BaseConverter<UserImageModel, UserImage>
                 .build();
     }
 
-    private static UserImage convertToEntity(UserImageModel entityToModel) {
-        if (entityToModel == null) return null;
+    private static UserImage convertToEntity(UserImageModel modelToConvert) {
+        if (modelToConvert == null) return null;
 
-        User user = new User();
-        user.setId(entityToModel.getUserId());
+        UserImage userImage = new UserImage();
+        userImage.setId(modelToConvert.getId());
+        userImage.setUserImageUrl(modelToConvert.getUserImageUrl());
 
-        return UserImage.builder()
-                .userImageUrl(entityToModel.getUserImageUrl())
-                .user(user)
-                .build();
+        if (modelToConvert.getUserId() != null) {
+            User user = new User();
+            user.setId(modelToConvert.getUserId());
+            userImage.setUser(user);
+        }
+        return userImage;
     }
 }

@@ -6,6 +6,7 @@ import kg.itacademy.entity.User;
 import kg.itacademy.model.LikeModel;
 
 public class LikeConverter extends BaseConverter<LikeModel, Like> {
+
     public LikeConverter() {
         super(LikeConverter::convertToEntity, LikeConverter::convertToModel);
     }
@@ -23,14 +24,20 @@ public class LikeConverter extends BaseConverter<LikeModel, Like> {
     private static Like convertToEntity(LikeModel modelToConvert) {
         if (modelToConvert == null) return null;
 
-        User user = new User();
-        user.setId(modelToConvert.getUserId());
-        Course course = new Course();
-        course.setId(modelToConvert.getCourseId());
+        Like like = new Like();
+        like.setId(modelToConvert.getId());
 
-        return Like.builder()
-                .user(user)
-                .course(course)
-                .build();
+        if (modelToConvert.getUserId() != null) {
+            User user = new User();
+            user.setId(modelToConvert.getUserId());
+            like.setUser(user);
+        }
+
+        if (modelToConvert.getCourseId() != null) {
+            Course course = new Course();
+            course.setId(modelToConvert.getCourseId());
+            like.setCourse(course);
+        }
+        return like;
     }
 }

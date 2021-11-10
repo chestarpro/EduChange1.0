@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Builder
 public class UserBalance extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "balance", nullable = false)

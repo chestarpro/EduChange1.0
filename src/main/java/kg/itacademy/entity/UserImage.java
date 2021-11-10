@@ -11,10 +11,10 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 public class UserImage extends BaseEntity {
-    @Column(name = "user_image_url")
+    @Column(name = "user_image_url", nullable = false)
     private String userImageUrl;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

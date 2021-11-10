@@ -35,20 +35,22 @@ public class CourseConverter extends BaseConverter<CourseModel, Course> {
         course.setCourseName(modelToConvert.getCourseName());
         course.setEmail(modelToConvert.getEmail());
         course.setPhoneNumber(modelToConvert.getPhoneNumber());
+        course.setCourseShortInfo(modelToConvert.getCourseShortInfo());
         course.setCourseInfo(modelToConvert.getCourseInfo());
         course.setCourseInfoUrl(modelToConvert.getCourseInfoUrl());
         course.setPrice(modelToConvert.getPrice());
 
-        Category category = new Category();
-        category.setId(modelToConvert.getCategoryId());
-
-        User user = new User();
-        user.setId(modelToConvert.getUserId());
-
-        if (modelToConvert.getCategoryId() != null)
+        if (modelToConvert.getCategoryId() != null) {
+            Category category = new Category();
+            category.setId(modelToConvert.getCategoryId());
             course.setCategory(category);
-        if (modelToConvert.getUserId() != null)
+        }
+
+        if (modelToConvert.getUserId() != null) {
+            User user = new User();
+            user.setId(modelToConvert.getUserId());
             course.setUser(user);
+        }
 
         return course;
     }

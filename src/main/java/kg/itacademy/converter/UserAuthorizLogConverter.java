@@ -5,6 +5,7 @@ import kg.itacademy.entity.UserAuthorizLog;
 import kg.itacademy.model.UserAuthorizLogModel;
 
 public class UserAuthorizLogConverter extends BaseConverter<UserAuthorizLogModel, UserAuthorizLog> {
+
     public UserAuthorizLogConverter() {
         super(UserAuthorizLogConverter::convertToEntity, UserAuthorizLogConverter::convertToModel);
     }
@@ -21,11 +22,16 @@ public class UserAuthorizLogConverter extends BaseConverter<UserAuthorizLogModel
     private static UserAuthorizLog convertToEntity(UserAuthorizLogModel modelToConvert) {
         if (modelToConvert == null) return null;
 
-        User user = new User();
-        user.setId(modelToConvert.getId());
+        UserAuthorizLog userAuthorizLog = new UserAuthorizLog();
+        userAuthorizLog.setId(modelToConvert.getId());
+        userAuthorizLog.setCreateDate(modelToConvert.getCreateDate());
+        userAuthorizLog.setIsSuccess(modelToConvert.getIsSuccess());
 
-        return UserAuthorizLog.builder()
-                .user(user)
-                .build();
+        if (modelToConvert.getUserId() != null) {
+            User user = new User();
+            user.setId(modelToConvert.getId());
+            userAuthorizLog.setUser(user);
+        }
+        return userAuthorizLog;
     }
 }

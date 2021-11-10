@@ -24,14 +24,18 @@ public class UserCourseMappingConverter extends BaseConverter<UserCourseMappingM
     private static UserCourseMapping convertToEntity(UserCourseMappingModel modelToConvert) {
         if (modelToConvert == null) return null;
 
-        User user = new User();
-        Course course = new Course();
-        user.setId(modelToConvert.getUserId());
-        course.setId(modelToConvert.getCourseId());
+        UserCourseMapping userCourseMapping = new UserCourseMapping();
+        if (modelToConvert.getUserId() != null) {
+            User user = new User();
+            user.setId(modelToConvert.getUserId());
+            userCourseMapping.setUser(user);
+        }
+        if (modelToConvert.getCourseId() != null) {
+            Course course = new Course();
+            course.setId(modelToConvert.getCourseId());
+            userCourseMapping.setCourse(course);
+        }
 
-        return UserCourseMapping.builder()
-                .user(user)
-                .course(course)
-                .build();
+        return userCourseMapping;
     }
 }

@@ -18,6 +18,6 @@ public class Lesson extends BaseEntity {
     private String lessonUrl;
 
     @ManyToOne
-    @JoinColumn(name = "course_id")
+    @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 }

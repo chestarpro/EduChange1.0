@@ -25,15 +25,21 @@ public class CommentConverter extends BaseConverter<CommentModel, Comment> {
     private static Comment convertToEntity(CommentModel modelToConvert) {
         if (modelToConvert == null) return null;
 
-        User user = new User();
-        user.setId(modelToConvert.getUserId());
-        Course course = new Course();
-        course.setId(modelToConvert.getCourseId());
+        Comment comment = new Comment();
+        comment.setId(modelToConvert.getId());
+        comment.setComment(modelToConvert.getComment());
 
-        return Comment.builder()
-                .comment(modelToConvert.getComment())
-                .user(user)
-                .course(course)
-                .build();
+        if (modelToConvert.getCourseId() != null) {
+            Course course = new Course();
+            course.setId(modelToConvert.getCourseId());
+            comment.setCourse(course);
+        }
+
+        if (modelToConvert.getUserId() != null) {
+            User user = new User();
+            user.setId(modelToConvert.getUserId());
+            comment.setUser(user);
+        }
+        return comment;
     }
 }

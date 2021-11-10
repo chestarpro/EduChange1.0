@@ -24,13 +24,16 @@ public class LessonConverter extends BaseConverter<LessonModel, Lesson> {
     private static Lesson convertToEntity(LessonModel modelToConvert) {
         if (modelToConvert == null) return null;
 
-        Course course = new Course();
-        course.setId(modelToConvert.getCourseId());
+        Lesson lesson = new Lesson();
+        lesson.setId(modelToConvert.getId());
+        lesson.setLessonInfo(modelToConvert.getLessonInfo());
+        lesson.setLessonUrl(modelToConvert.getLessonUrl());
 
-        return Lesson.builder()
-                .lessonInfo(modelToConvert.getLessonInfo())
-                .lessonUrl(modelToConvert.getLessonUrl())
-                .course(course)
-                .build();
+        if (modelToConvert.getCourseId() != null) {
+            Course course = new Course();
+            course.setId(modelToConvert.getCourseId());
+            lesson.setCourse(course);
+        }
+        return lesson;
     }
 }

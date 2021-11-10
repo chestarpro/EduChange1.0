@@ -23,12 +23,15 @@ public class UserRoleConverter extends BaseConverter<UserRoleModel, UserRole> {
     private static UserRole convertToEntity(UserRoleModel modelToConvert) {
         if (modelToConvert == null) return null;
 
-        User user = new User();
-        user.setId(modelToConvert.getUserId());
+        UserRole userRole = new UserRole();
+        userRole.setId(modelToConvert.getId());
+        userRole.setRoleName(modelToConvert.getRoleName());
 
-        return UserRole.builder()
-                .user(user)
-                .roleName(modelToConvert.getRoleName())
-                .build();
+        if (modelToConvert.getUserId() != null) {
+            User user = new User();
+            user.setId(modelToConvert.getUserId());
+            userRole.setUser(user);
+        }
+        return userRole;
     }
 }

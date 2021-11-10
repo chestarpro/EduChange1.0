@@ -12,10 +12,10 @@ import javax.persistence.*;
 @Builder
 public class UserRole extends BaseEntity {
 
-    @Column(name = "role_name")
+    @Column(name = "role_name", nullable = false)
     private String roleName;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

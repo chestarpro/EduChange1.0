@@ -21,9 +21,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/sign-up")
-    public ResponseMessage<UserModel> saveUser(@RequestBody UserModel userModel) {
+    public ResponseMessage<UserModel> saveUser(@RequestBody User user) {
         ResponseMessage<UserModel> responseMessage = new ResponseMessage<>();
-        User user = new UserConverter().convertFromModel(userModel);
         try {
             return responseMessage
                     .prepareSuccessMessage(new UserConverter()
@@ -49,7 +48,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/get-all")
+    @GetMapping("/admin/get-all")
     public List<UserModel> getAllUser() {
         List<UserModel> userModels = new ArrayList<>();
 
@@ -78,8 +77,11 @@ public class UserController {
     @DeleteMapping("/delete")
     public ResponseMessage<UserModel> deleteUser() {
         ResponseMessage<UserModel> responseMessage = new ResponseMessage<>();
+        User user = userService.getCurrentUser();
         try {
-            return responseMessage.prepareSuccessMessage(new UserConverter().convertFromEntity(userService.setInActiveUser()));
+            return responseMessage
+                    .prepareSuccessMessage(new UserConverter()
+                            .convertFromEntity(userService.setInActiveUser(user, -1L)));
         } catch (IllegalArgumentException e) {
             return responseMessage.prepareFailMessage(HttpStatus.BAD_REQUEST.value(), e.getMessage());
         } catch (Exception e) {

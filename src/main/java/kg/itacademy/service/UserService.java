@@ -4,7 +4,7 @@ import kg.itacademy.entity.User;
 import kg.itacademy.model.UserAuthorizModel;
 
 public interface UserService extends BaseService<User> {
-    User setInActiveUser();
+    User setInActiveUser(User user, Long status);
 
     User getCurrentUser();
 

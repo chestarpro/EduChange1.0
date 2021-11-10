@@ -23,12 +23,15 @@ public class UserBalanceConverter extends BaseConverter<UserBalanceModel, UserBa
     private static UserBalance convertToModel(UserBalanceModel modelToConvert) {
         if (modelToConvert == null) return null;
 
-        User user = new User();
-        user.setId(modelToConvert.getUserId());
+        UserBalance userBalance = new UserBalance();
+        userBalance.setId(modelToConvert.getId());
+        userBalance.setBalance(modelToConvert.getUserBalance());
 
-        return UserBalance.builder()
-                .user(user)
-                .balance(modelToConvert.getUserBalance())
-                .build();
+        if (modelToConvert.getUserId() != null) {
+            User user = new User();
+            user.setId(modelToConvert.getUserId());
+            userBalance.setUser(user);
+        }
+        return userBalance;
     }
 }

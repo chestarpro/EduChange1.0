@@ -8,7 +8,6 @@ import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,7 +45,7 @@ public class UserImageImpl implements UserImageService {
     }
 
     @Override
-    public UserImage update(UserImage userImage)throws IllegalArgumentException {
+    public UserImage update(UserImage userImage) throws IllegalArgumentException {
         return userImageRepository.save(userImage);
     }
 
@@ -92,7 +91,7 @@ public class UserImageImpl implements UserImageService {
             throw new IllegalArgumentException("");
         }
         UserImage deleteAvatar = userImageRepository.findByUser_Id(userService.getCurrentUser().getId());
-        if(deleteAvatar == null)
+        if (deleteAvatar == null)
             throw new IllegalArgumentException("Изображение профиля не существует");
         userImageRepository.delete(deleteAvatar);
         return deleteAvatar;

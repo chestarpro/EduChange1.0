@@ -10,10 +10,12 @@ import kg.itacademy.service.CommentService;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
@@ -31,6 +33,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment createCommentByCourseId(CreateCommentModel createCommentModel) {
+        if (createCommentModel.getComment().equals("")
+                || createCommentModel.getComment().isEmpty()
+                || createCommentModel.getComment() == null)
+            throw new IllegalArgumentException("Комментарий пустой");
+
         Course course = courseService.getById(createCommentModel.getCourseId());
         User user = userService.getCurrentUser();
         return create(new Comment(createCommentModel.getComment(), user, course));
@@ -38,7 +45,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment getById(Long id) {
-        return commentRepository.getById(id);
+        return commentRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -53,6 +60,9 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment updateByUpdateCommentModel(UpdateCommentModel updateCommentModel) {
+        if (updateCommentModel.getId() == null)
+            throw new IllegalArgumentException("Не указан id комментария");
+
         Comment comment = new Comment();
         Course course = courseService.getById(updateCommentModel.getCourseId());
         User user = userService.getCurrentUser();
