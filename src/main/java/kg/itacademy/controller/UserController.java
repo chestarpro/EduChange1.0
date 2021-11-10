@@ -21,9 +21,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/sign-up")
-    public ResponseMessage<UserModel> saveUser(@RequestBody UserModel userModel) {
+    public ResponseMessage<UserModel> saveUser(@RequestBody User user) {
         ResponseMessage<UserModel> responseMessage = new ResponseMessage<>();
-        User user = new UserConverter().convertFromModel(userModel);
         try {
             return responseMessage
                     .prepareSuccessMessage(new UserConverter()
