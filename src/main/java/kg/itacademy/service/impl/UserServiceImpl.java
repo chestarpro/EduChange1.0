@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User create(User user) {
         User dataUserByUserName = getByUsername(user.getUsername());
-        User dataUserByEmail = getByUsername(user.getEmail());
+        User dataUserByEmail = getByEmail(user.getEmail());
 
         if (dataUserByUserName != null)
             throw new IllegalArgumentException("Такой пользователь " + dataUserByUserName.getUsername() + " уже существует");
