@@ -12,7 +12,6 @@ public class UserAuthorizLogServiceImpl implements UserAuthrizLogService {
 
     private final UserAuthorizLogRepository userAuthorizLogRepository;
 
-
     @Override
     public UserAuthorizLog create(UserAuthorizLog userAuthorizLog) {
         return userAuthorizLogRepository.save(userAuthorizLog);

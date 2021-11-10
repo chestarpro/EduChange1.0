@@ -17,6 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.util.Base64;
 import java.util.List;
 
@@ -62,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
         UserBalance userBalance = new UserBalance();
         userBalance.setUser(user);
-//        userBalance.setUserBalance(new BigDecimal(0)); //TODO add
+        userBalance.setBalance(new BigDecimal(0));
         userBalanceService.create(userBalance);
 
         return user;
@@ -107,14 +110,23 @@ public class UserServiceImpl implements UserService {
 
         boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
 
-        if(user.getIsActive() == 0)
-            throw new IllegalArgumentException("Вы забанены");
+        if (user.getIsActive() == 0) {
+//            UserAuthorizLog userAuthorizLog = userAuthorizLogRepository.getById(user.getId());
+//            LocalDateTime dateNow = LocalDateTime.now();
+//            System.out.println(userAuthorizLog.getCreateDate());
+//            if (dateNow.isAfter(userAuthorizLog.getCreateDate().plusMinutes(1))) {
+//                user.setIsActive(1L);
+//                userRepository.save(user);
+//            }
+            throw new IllegalArgumentException("Вы за банены на 1 мин");
+        }
 
         if (!isPasswordIsCorrect) {
             userAuthorizLogRepository.save(new UserAuthorizLog(user, false));
 
             boolean needToBan = userAuthorizLogRepository.hasThreeFailsInARowByUserId(user.getId());
-            if(needToBan) {
+
+            if (needToBan) {
                 user.setIsActive(0L);
                 userRepository.save(user);
             }
@@ -124,14 +136,13 @@ public class UserServiceImpl implements UserService {
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
         userAuthorizLogRepository.save(new UserAuthorizLog(user, true));
 
-
         return "Basic " + authHeader;
     }
 
     @Override
     public User setInActiveUser() {
         User user = getCurrentUser();
-        user.setIsActive(0L);
+        user.setIsActive(-1L);
         return update(user);
     }
 }
