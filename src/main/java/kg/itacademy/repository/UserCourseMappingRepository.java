@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface UserCourseMappingRepository extends JpaRepository<UserCourseMapping, Long> {
-    List<Course> findAllCourseByUser_Id(Long id);
+    List<UserCourseMapping> findAllByUser_Id(Long id);
 }

@@ -4,10 +4,12 @@ import kg.itacademy.entity.Category;
 import kg.itacademy.repository.CategoryRepository;
 import kg.itacademy.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {

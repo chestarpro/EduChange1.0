@@ -8,9 +8,14 @@ import kg.itacademy.repository.UserCourseMappingRepository;
 import kg.itacademy.service.UserCourseMappingService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
+@Service
 @RequiredArgsConstructor
 public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
@@ -23,6 +28,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     @Override
     public UserCourseMapping create(UserCourseMapping userCourseMapping) {
+
         return userCourseMappingRepository.save(userCourseMapping);
     }
 
@@ -45,7 +51,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     @Override
     public List<Course> findAllPurchasedCourses() {
         return userCourseMappingRepository
-                .findAllCourseByUser_Id(userService.getCurrentUser().getId());
+                .findAllByUser_Id(userService.getCurrentUser().getId()).stream().map(UserCourseMapping::getCourse).collect(Collectors.toList());
     }
 
     @Override

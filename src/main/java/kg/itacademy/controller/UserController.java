@@ -49,7 +49,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/get-all")
+    @GetMapping("/admin/get-all")
     public List<UserModel> getAllUser() {
         List<UserModel> userModels = new ArrayList<>();
 

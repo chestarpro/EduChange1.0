@@ -10,10 +10,12 @@ import kg.itacademy.service.CommentService;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {

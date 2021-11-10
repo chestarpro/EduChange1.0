@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 
@@ -62,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
         UserBalance userBalance = new UserBalance();
         userBalance.setUser(user);
-//        userBalance.setUserBalance(new BigDecimal(0)); //TODO add
+        userBalance.setBalance(new BigDecimal(0));
         userBalanceService.create(userBalance);
 
         return user;
@@ -107,9 +108,9 @@ public class UserServiceImpl implements UserService {
 
         boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
 
-        if(user.getIsActive() == 0)
+        if(user.getIsActive() == 0) {
             throw new IllegalArgumentException("Вы забанены");
-
+        }
         if (!isPasswordIsCorrect) {
             userAuthorizLogRepository.save(new UserAuthorizLog(user, false));
 
