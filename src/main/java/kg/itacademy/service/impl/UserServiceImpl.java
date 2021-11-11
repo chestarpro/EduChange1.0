@@ -119,7 +119,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User setInActiveUser(User user, Long status) {
         user.setIsActive(status);
-        return update(user);
+        return userRepository.save(user);
     }
 
     private void checkForVariables(User user) {
