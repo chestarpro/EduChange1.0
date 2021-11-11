@@ -123,13 +123,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkForVariables(User user) {
-        if (user.getFullName() == null)
+        if (user.getFullName() == null || user.getFullName().isEmpty())
             throw new IllegalArgumentException("Не заполнен full name");
-        if (user.getUsername() == null)
+        if (user.getUsername() == null || user.getUsername().isEmpty())
             throw new IllegalArgumentException("Не заполнен username");
-        if (user.getEmail() == null)
+        if (user.getEmail() == null || user.getEmail().isEmpty())
             throw new IllegalArgumentException("Не заполнен email");
-        if (user.getPassword() == null)
+        if (user.getPassword() == null || user.getPassword().isEmpty())
             throw new IllegalArgumentException("Не заполнен password");
     }
 
