@@ -106,7 +106,6 @@ public class UserServiceImpl implements UserService {
         boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
 
         checkBaningStatus(user);
-
         checkFailPassword(isPasswordIsCorrect, user);
 
         String usernamePasswordPair = userAuthorizModel.getUsername() + ":" + userAuthorizModel.getPassword();
@@ -121,6 +120,8 @@ public class UserServiceImpl implements UserService {
         user.setIsActive(status);
         return update(user);
     }
+
+
 
     private void checkForVariables(User user) {
         if (user.getFullName() == null)
