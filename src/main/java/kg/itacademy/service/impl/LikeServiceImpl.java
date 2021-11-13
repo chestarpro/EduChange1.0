@@ -17,7 +17,7 @@ public class LikeServiceImpl implements LikeService {
     private final LikeRepository likeRepository;
 
     @Override
-    public Like create(Like like) {
+    public Like save(Like like) {
         Like dataLike = getById(like.getId());
         if (dataLike != null)
             throw new IllegalArgumentException("Like уже существует");

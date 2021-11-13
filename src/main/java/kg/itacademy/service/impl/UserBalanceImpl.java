@@ -18,7 +18,7 @@ public class UserBalanceImpl implements UserBalanceService {
     private final UserBalanceRepository userBalanceRepository;
 
     @Override
-    public UserBalance create(UserBalance userBalance) {
+    public UserBalance save(UserBalance userBalance) {
         return userBalanceRepository.save(userBalance);
     }
 

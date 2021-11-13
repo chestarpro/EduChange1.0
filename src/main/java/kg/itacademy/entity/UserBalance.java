@@ -1,11 +1,14 @@
 package kg.itacademy.entity;
 
 import lombok.*;
+import org.hibernate.annotations.Check;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "users_balances")
+@Check(constraints = "balance >= 0")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -1,13 +1,27 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.Course;
+import kg.itacademy.model.CourseModel;
+import kg.itacademy.model.UserModel;
 
 import java.util.List;
 
 public interface CourseService extends BaseService<Course> {
-    List<Course> findAllByCourseName(String courseName);
-    List<Course> findAllByCourseCategoryName(String courseName);
-    List<Course> findAllByCategoryId(Long id);
+    CourseModel createCourse(CourseModel courseModel);
+
+    List<CourseModel> getAllByCourseName(String courseName);
+
+    List<CourseModel> getAllByCourseCategoryName(String courseName);
+
+    List<CourseModel> getAllByCategoryId(Long id);
+
+    List<CourseModel> getAllCourseModel();
+
+    CourseModel updateCourse(CourseModel courseModel);
+
     List<Course> findAllCreatedCourses();
-    Course deleteCourseById(Long id);
+
+    public CourseModel getCourseModelById(Long id);
+
+    CourseModel deleteCourseById(Long id);
 }

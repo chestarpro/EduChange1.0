@@ -9,6 +9,7 @@ import kg.itacademy.repository.CommentRepository;
 import kg.itacademy.service.CommentService;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
+import kg.itacademy.util.VariableValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CommentServiceImpl implements CommentService {
+public class CommentServiceImpl implements CommentService, VariableValidation<Comment> {
 
     private final CommentRepository commentRepository;
 
@@ -27,7 +28,7 @@ public class CommentServiceImpl implements CommentService {
     private final UserService userService;
 
     @Override
-    public Comment create(Comment comment) {
+    public Comment save(Comment comment) {
         return commentRepository.save(comment);
     }
 
@@ -40,7 +41,7 @@ public class CommentServiceImpl implements CommentService {
 
         Course course = courseService.getById(createCommentModel.getCourseId());
         User user = userService.getCurrentUser();
-        return create(new Comment(createCommentModel.getComment(), user, course));
+        return save(new Comment(createCommentModel.getComment(), user, course));
     }
 
     @Override
@@ -67,7 +68,7 @@ public class CommentServiceImpl implements CommentService {
         Course course = courseService.getById(updateCommentModel.getCourseId());
         User user = userService.getCurrentUser();
         comment.setId(updateCommentModel.getId());
-        comment.setComment(updateCommentModel.getComment());
+        comment.setCourseComment(updateCommentModel.getComment());
         comment.setCourse(course);
         comment.setUser(user);
         return update(comment);
@@ -78,5 +79,25 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = getById(id);
         commentRepository.delete(comment);
         return comment;
+    }
+
+    @Override
+    public void validateLengthVariables(Comment comment) {
+
+    }
+
+    @Override
+    public void validateVariablesForNullOrIsEmpty(Comment comment) {
+
+    }
+
+    @Override
+    public void validateLengthVariablesForUpdateUser(Comment comment) {
+
+    }
+
+    @Override
+    public void validateVariablesForNullOrIsEmptyUpdate(Comment comment) {
+
     }
 }

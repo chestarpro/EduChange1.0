@@ -3,6 +3,7 @@ package kg.itacademy.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import kg.itacademy.entity.UserImage;
+import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.repository.UserImageRepository;
 import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -29,7 +31,7 @@ public class UserImageImpl implements UserImageService {
     private UserService userService;
 
     @Override
-    public UserImage create(UserImage userImage) throws IllegalArgumentException {
+    public UserImage save(UserImage userImage) throws IllegalArgumentException {
 
         return userImageRepository.save(userImage);
     }
@@ -51,18 +53,18 @@ public class UserImageImpl implements UserImageService {
 
     @Override
     public String saveImageInCloudinary(MultipartFile multipartFile) {
-        File file;
         try {
-            file = Files.createTempFile(System.currentTimeMillis() + "",
-                    multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().length() - 4)).toFile();
+            if (multipartFile.getOriginalFilename() == null)
+                throw new ApiFailException("Файл пуст");
+
+            File file = Files.createTempFile(System.currentTimeMillis() + "",
+                    Objects.requireNonNull(multipartFile.getOriginalFilename()).substring(multipartFile.getOriginalFilename().indexOf('.'))).toFile();
             multipartFile.transferTo(file);
             Cloudinary cloudinary = new Cloudinary(CLOUDINARY_URL);
             Map uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
             return ((String) uploadResult.get("url"));
-
         } catch (IOException e) {
-            log.error("ImageService.createImage: " + e.getMessage());
-            return null;
+            throw new ApiFailException(e.getMessage());
         }
     }
 
@@ -72,7 +74,7 @@ public class UserImageImpl implements UserImageService {
         String savedImageUrl = saveImageInCloudinary(file);
         userImage.setUserImageUrl(savedImageUrl);
         userImage.setUser(userService.getCurrentUser());
-        return create(userImage);
+        return save(userImage);
     }
 
     @Override
@@ -84,15 +86,15 @@ public class UserImageImpl implements UserImageService {
     }
 
     @Override
-    public UserImage deleteImage(String token) {
+    public UserImage deleteImage(String url) {
         try {
-            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(token);
+            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(url);
         } catch (Exception e) {
             throw new IllegalArgumentException("");
         }
         UserImage deleteAvatar = userImageRepository.findByUser_Id(userService.getCurrentUser().getId());
         if (deleteAvatar == null)
-            throw new IllegalArgumentException("Изображение профиля не существует");
+            throw new ApiFailException("Изображение профиля не существует");
         userImageRepository.delete(deleteAvatar);
         return deleteAvatar;
     }

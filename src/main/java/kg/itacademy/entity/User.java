@@ -4,6 +4,7 @@ import lombok.*;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "users")
@@ -15,6 +16,9 @@ import javax.persistence.Table;
 public class User extends BaseEntity {
     @Column(name = "full_name", length = 100, nullable = false)
     private String fullName;
+
+    @Column(name = "birth_day")
+    private LocalDate birthDay;
 
     @Column(name = "username", length = 50, nullable = false, unique = true)
     private String username;

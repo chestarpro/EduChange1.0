@@ -20,6 +20,7 @@ public class CourseConverter extends BaseConverter<CourseModel, Course> {
                 .courseName(entityToConvert.getCourseName())
                 .email(entityToConvert.getEmail())
                 .phoneNumber(entityToConvert.getPhoneNumber())
+                .courseShortInfo(entityToConvert.getCourseShortInfo())
                 .courseInfo(entityToConvert.getCourseInfo())
                 .courseInfoUrl(entityToConvert.getCourseInfoUrl())
                 .price(entityToConvert.getPrice())

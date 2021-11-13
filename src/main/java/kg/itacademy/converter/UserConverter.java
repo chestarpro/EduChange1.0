@@ -15,6 +15,7 @@ public class UserConverter extends BaseConverter<UserModel, User> {
         return UserModel.builder()
                 .id(entityToConvert.getId())
                 .fullName(entityToConvert.getFullName())
+                .birthDay(entityToConvert.getBirthDay())
                 .username(entityToConvert.getUsername())
                 .email(entityToConvert.getEmail())
                 .isActive(entityToConvert.getIsActive())

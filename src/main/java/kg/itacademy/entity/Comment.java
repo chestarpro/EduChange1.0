@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Builder
 public class Comment extends BaseEntity {
     @Column(name = "comment", nullable = false)
-    private String comment;
+    private String courseComment;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

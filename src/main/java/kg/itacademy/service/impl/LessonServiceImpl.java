@@ -17,7 +17,7 @@ public class LessonServiceImpl implements LessonService {
     private final LessonRepository lessonRepository;
 
     @Override
-    public Lesson create(Lesson lesson) {
+    public Lesson save(Lesson lesson) {
         if (lesson.getLessonInfo() == null)
             throw new IllegalArgumentException("Нет описания урока");
         return lessonRepository.save(lesson);
@@ -37,7 +37,7 @@ public class LessonServiceImpl implements LessonService {
     public Lesson update(Lesson lesson) {
         if (lesson.getId() == null)
             throw new IllegalArgumentException("Не указан id урока");
-        return create(lesson);
+        return save(lesson);
     }
 
     @Override
