@@ -10,7 +10,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserAuthorizLog extends BaseEntity {
+public class UserLog extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

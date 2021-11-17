@@ -1,44 +1,54 @@
 package kg.itacademy.service.impl;
 
+import kg.itacademy.converter.CourseConverter;
 import kg.itacademy.entity.Course;
+import kg.itacademy.exception.ApiFailException;
+import kg.itacademy.model.CourseModel;
 import kg.itacademy.repository.CourseRepository;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
+import kg.itacademy.util.VariableValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CourseServiceImpl implements CourseService {
+public class CourseServiceImpl implements CourseService, VariableValidation<Course> {
 
     private final CourseRepository courseRepository;
 
     private final UserService userService;
 
     @Override
-    public Course create(Course course) {
-        if (course.getCategory() == null)
-            throw new IllegalArgumentException("Не выбрана категория");
-        if (course.getCourseName() == null)
-            throw new IllegalArgumentException("Нет названия курса");
-        if (course.getPhoneNumber() == null)
-            throw new IllegalArgumentException("Нет указан рабочий номер телефона");
-        if (course.getCourseInfo() == null)
-            throw new IllegalArgumentException("Нет описания курса");
-        if (course.getPrice().doubleValue() < 0) {
-            throw new IllegalArgumentException("Не корректная цена курса");
-        }
+    public Course save(Course course) {
+        validateLengthVariables(course);
+        validateVariablesForNullOrIsEmpty(course);
         course.setUser(userService.getCurrentUser());
         return courseRepository.save(course);
     }
 
     @Override
+    public CourseModel createCourse(CourseModel courseModel) {
+        save(new CourseConverter().convertFromModel(courseModel));
+        return courseModel;
+    }
+
+    @Override
     public Course getById(Long id) {
-        return courseRepository.getById(id);
+        Course course = courseRepository.findById(id).orElse(null);
+        if (course == null)
+            throw new ApiFailException("Курс под id: " + id + " не найден");
+        return course;
+    }
+
+    @Override
+    public CourseModel getCourseModelById(Long id) {
+        return new CourseConverter().convertFromEntity(getById(id));
     }
 
     @Override
@@ -47,45 +57,121 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public List<CourseModel> getAllCourseModel() {
+        List<CourseModel> list = new ArrayList<>();
+        for (Course course : courseRepository.findAll()) {
+            list.add(new CourseConverter().convertFromEntity(course));
+        }
+        return list;
+    }
+
+    @Override
     public Course update(Course course) {
-        Course updateCourse = courseRepository.findById(course.getId()).orElse(null);
-        if (course.getPrice().doubleValue() < 0) {
-            throw new IllegalArgumentException("Не корректная цена курса");
+        if (course.getId() == null)
+            throw new ApiFailException("Не указан id course");
+        validateLengthVariablesForUpdate(course);
+        validateVariablesForNullOrIsEmptyUpdate(course);
+        return courseRepository.save(course);
+    }
+
+    @Override
+    public CourseModel updateCourse(CourseModel courseModel) {
+        update(new CourseConverter().convertFromModel(courseModel));
+        return courseModel;
+    }
+
+    @Override
+    public List<CourseModel> getAllByCourseName(String courseName) {
+        List<CourseModel> list = new ArrayList<>();
+        for (Course course : courseRepository.findAllByCourseName(courseName)) {
+            list.add(new CourseConverter().convertFromEntity(course));
         }
-        if (updateCourse != null) {
-            return courseRepository.save(updateCourse);
+        return list;
+    }
+
+    @Override
+    public List<CourseModel> getAllByCourseCategoryName(String categoryName) {
+        List<CourseModel> list = new ArrayList<>();
+        for (Course course : courseRepository.findAllByCategoryName(categoryName)) {
+            list.add(new CourseConverter().convertFromEntity(course));
         }
-
-        return null;
+        return list;
     }
 
     @Override
-    public List<Course> findAllByCourseName(String courseName) {
-        return courseRepository.findAllByCourseName(courseName);
+    public List<CourseModel> getAllByCategoryId(Long id) {
+        List<CourseModel> list = new ArrayList<>();
+        for (Course course : courseRepository.findAllByCategory_Id(id)) {
+            list.add(new CourseConverter().convertFromEntity(course));
+        }
+        return list;
     }
 
     @Override
-    public List<Course> findAllByCourseCategoryName(String categoryName) {
-        return courseRepository.findAllByCategory_CategoryName(categoryName);
-    }
-
-    @Override
-    public List<Course> findAllByCategoryId(Long id) {
-        return courseRepository.findAllByCategory_Id(id);
-    }
-
-    @Override
-    public List<Course> findAllCreatedCourses() {
+    public List<Course> findAllCreatedCoursesByUserId() {
         return courseRepository.findAllByUser_Id(userService.getCurrentUser().getId());
     }
 
     @Override
-    public Course deleteCourseById(Long id) {
+    public CourseModel deleteCourseById(Long id) {
         Course deleteCourse = courseRepository.findById(id).orElse(null);
         if (deleteCourse == null)
-            throw new IllegalArgumentException("ID курса не существует");
+            throw new ApiFailException("ID курса не существует");
         courseRepository.delete(deleteCourse);
 
-        return deleteCourse;
+        return new CourseConverter().convertFromEntity(deleteCourse);
+    }
+
+    @Override
+    public void validateLengthVariables(Course course) {
+        if (course.getCourseShortInfo().length() > 50)
+            throw new ApiFailException("Превышен лимит 50 символов");
+    }
+
+    @Override
+    public void validateLengthVariablesForUpdate(Course course) {
+        if (course.getCourseShortInfo() != null && course.getCourseShortInfo().length() > 50)
+            throw new ApiFailException("Превышен лимит 50 символов");
+    }
+
+    @Override
+    public void validateVariablesForNullOrIsEmpty(Course course) {
+        if (course.getCategory() == null)
+            throw new ApiFailException("Не выбрана категория");
+
+        if (course.getCourseName() == null || course.getCourseName().isEmpty())
+            throw new ApiFailException("Нет названия курса");
+
+        if (course.getPhoneNumber() == null || course.getPhoneNumber().isEmpty())
+            throw new ApiFailException("Не указан рабочий номер телефона");
+
+        if (course.getCourseShortInfo() == null || course.getCourseShortInfo().isEmpty())
+            throw new ApiFailException("Нет короткой описании курса");
+
+        if (course.getCourseInfo() == null || course.getCourseInfo().isEmpty())
+            throw new ApiFailException("Нет описания курса");
+
+        if (course.getPrice().doubleValue() < 0) {
+            throw new ApiFailException("Не корректная цена курса");
+        }
+    }
+
+    @Override
+    public void validateVariablesForNullOrIsEmptyUpdate(Course course) {
+        if (course.getCourseName() != null && course.getCourseName().isEmpty())
+            throw new ApiFailException("Нет названия курса");
+
+        if (course.getPhoneNumber() != null && course.getPhoneNumber().isEmpty())
+            throw new ApiFailException("Нет указан рабочий номер телефона");
+
+        if (course.getCourseShortInfo() != null && course.getCourseShortInfo().isEmpty())
+            throw new ApiFailException("Нет короткой описании курса");
+
+        if (course.getCourseInfo() != null && course.getCourseInfo().isEmpty())
+            throw new ApiFailException("Нет описания курса");
+
+        if (course.getPrice() != null && course.getPrice().doubleValue() < 0) {
+            throw new ApiFailException("Не корректная цена курса");
+        }
     }
 }

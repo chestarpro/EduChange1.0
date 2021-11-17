@@ -1,22 +1,22 @@
 package kg.itacademy.entity;
 
 import lombok.*;
+
 import javax.persistence.*;
 
 @Entity
-@Table(name = "comments")
+@Table(name = "course_program")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment extends BaseEntity {
-    @Column(name = "comment", nullable = false)
-    private String courseComment;
+public class CourseProgram extends BaseEntity {
+    @Column(nullable = false, length = 100)
+    private String title;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(nullable = false, length = 1000)
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)

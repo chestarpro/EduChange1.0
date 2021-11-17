@@ -1,12 +1,9 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.converter.CourseConverter;
-import kg.itacademy.entity.Course;
 import kg.itacademy.model.CourseModel;
 import kg.itacademy.model.ResponseMessage;
 import kg.itacademy.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,50 +16,50 @@ public class CourseController {
     private CourseService courseService;
 
     @PostMapping("/create")
-    public ResponseMessage<CourseModel> saveCourse(@RequestBody CourseModel courseModel) {
-        ResponseMessage<CourseModel> responseMessage = new ResponseMessage<>();
-        try {
-            Course course = new CourseConverter().convertFromModel(courseModel);
-            return responseMessage
-                    .prepareSuccessMessage(new CourseConverter()
-                            .convertFromEntity(courseService.create(course)));
-        } catch (IllegalArgumentException e) {
-            return responseMessage.prepareFailMessage(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        } catch (Exception e) {
-            return responseMessage.prepareFailMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
-        }
+    public ResponseMessage<CourseModel> save(@RequestBody CourseModel courseModel) {
+        return new ResponseMessage<CourseModel>()
+                .prepareSuccessMessage(courseService.createCourse(courseModel));
     }
 
     @PutMapping("/update")
-    public ResponseMessage<CourseModel> updateCourse(@RequestBody CourseModel courseModel) {
-        ResponseMessage<CourseModel> responseMessage = new ResponseMessage<>();
-        try {
-            Course course = new CourseConverter().convertFromModel(courseModel);
-            return responseMessage.prepareSuccessMessage(new CourseConverter()
-                    .convertFromEntity(courseService.update(course)));
-        } catch (IllegalArgumentException e) {
-            return responseMessage.prepareFailMessage(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        } catch (Exception e) {
-            return responseMessage.prepareFailMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
-        }
+    public ResponseMessage<CourseModel> update(@RequestBody CourseModel courseModel) {
+        return new ResponseMessage<CourseModel>()
+                .prepareSuccessMessage(courseService.updateCourse(courseModel));
+    }
+
+    @GetMapping("/get/by-id/{id}")
+    public ResponseMessage<CourseModel> getById(@PathVariable Long id) {
+        return new ResponseMessage<CourseModel>()
+                .prepareSuccessMessage(courseService.getCourseModelById(id));
     }
 
     @GetMapping("/get-all")
-    public List<Course> getAll() {
-        return courseService.getAll();
+    public ResponseMessage<List<CourseModel>> getAll() {
+        return new ResponseMessage<List<CourseModel>>()
+                .prepareSuccessMessage(courseService.getAllCourseModel());
+    }
+
+    @GetMapping("get-all/by-name/{courseName}")
+    public ResponseMessage<List<CourseModel>> getAllByCourseName(@PathVariable String courseName) {
+        return new ResponseMessage<List<CourseModel>>()
+                .prepareSuccessMessage(courseService.getAllByCourseName(courseName));
+    }
+
+    @GetMapping("/get-all/by-category-id/{id}")
+    public ResponseMessage<List<CourseModel>> getAllByCourseId(@PathVariable Long id) {
+        return new ResponseMessage<List<CourseModel>>()
+                .prepareSuccessMessage(courseService.getAllByCategoryId(id));
+    }
+
+    @GetMapping("/get-all/by-category-name/{categoryName}")
+    public ResponseMessage<List<CourseModel>> getAllByCategoryName(@PathVariable String categoryName) {
+        return new ResponseMessage<List<CourseModel>>()
+                .prepareSuccessMessage(courseService.getAllByCourseCategoryName(categoryName));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<CourseModel> delete(@PathVariable Long id) {
-        ResponseMessage<CourseModel> responseMessage = new ResponseMessage<>();
-        try {
-            return responseMessage
-                    .prepareSuccessMessage(new CourseConverter()
-                            .convertFromEntity(courseService.deleteCourseById(id)));
-        } catch (IllegalArgumentException e) {
-            return responseMessage.prepareFailMessage(HttpStatus.BAD_REQUEST.value(), e.getMessage());
-        } catch (Exception e) {
-            return responseMessage.prepareFailMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
-        }
+        return new ResponseMessage<CourseModel>()
+                .prepareSuccessMessage(courseService.deleteCourseById(id));
     }
 }

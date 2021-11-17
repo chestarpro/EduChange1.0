@@ -5,17 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserModel {
-    private Long id;
-    private String fullName;
-    private LocalDate birthDay;
+public class UpdateUserBalanceModel {
     private String username;
-    private String email;
-    private Long isActive;
+    private BigDecimal balance;
 }

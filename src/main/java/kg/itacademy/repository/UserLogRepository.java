@@ -1,13 +1,14 @@
 package kg.itacademy.repository;
 
-import kg.itacademy.entity.UserAuthorizLog;
+import kg.itacademy.entity.UserLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface UserAuthorizLogRepository extends JpaRepository<UserAuthorizLog, Long> {
+public interface UserLogRepository extends JpaRepository<UserLog, Long> {
 
     @Query(nativeQuery = true,
             value = "select\n" +
@@ -32,5 +33,7 @@ public interface UserAuthorizLogRepository extends JpaRepository<UserAuthorizLog
     Boolean hasThreeFailsInARowByUserId(@Param("userId") Long userId);
 
     @Query(nativeQuery = true, value = "select * from users_authorization_logs where user_id = :userId order by id desc limit 1")
-    Optional<UserAuthorizLog> findLastLogByUserId(@Param("userId") Long userId);
+    Optional<UserLog> findLastLogByUserId(@Param("userId") Long userId);
+
+    List<UserLog> findAllByUser_Id(Long id);
 }

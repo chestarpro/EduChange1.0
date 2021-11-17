@@ -1,11 +1,18 @@
 package kg.itacademy.service;
 
-
-import kg.itacademy.entity.Course;
 import kg.itacademy.entity.UserCourseMapping;
+import kg.itacademy.model.CourseModel;
+import kg.itacademy.model.UserCourseMappingModel;
 
 import java.util.List;
+
 public interface UserCourseMappingService extends BaseService<UserCourseMapping> {
-    List<Course> findAllPurchasedCourses();
-    UserCourseMapping createByIdCourse(Long id);
+
+    UserCourseMappingModel getUserCourseMappingModelById(Long id);
+
+    List<UserCourseMappingModel> getAllUserCourseMappingModel();
+
+    List<CourseModel> getAllPurchasedCourses();
+
+    UserCourseMappingModel createByIdCourse(Long id);
 }

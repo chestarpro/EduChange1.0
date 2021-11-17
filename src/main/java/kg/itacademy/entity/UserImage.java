@@ -4,7 +4,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "users_avatars")
+@Table(name = "users_images")
 @Getter
 @Setter
 @NoArgsConstructor

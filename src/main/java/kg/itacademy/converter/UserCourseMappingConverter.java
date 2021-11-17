@@ -25,6 +25,8 @@ public class UserCourseMappingConverter extends BaseConverter<UserCourseMappingM
         if (modelToConvert == null) return null;
 
         UserCourseMapping userCourseMapping = new UserCourseMapping();
+        userCourseMapping.setId(modelToConvert.getId());
+
         if (modelToConvert.getUserId() != null) {
             User user = new User();
             user.setId(modelToConvert.getUserId());

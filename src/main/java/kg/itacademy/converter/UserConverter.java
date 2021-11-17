@@ -1,6 +1,7 @@
 package kg.itacademy.converter;
 
 import kg.itacademy.entity.User;
+import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.model.UserModel;
 
 public class UserConverter extends BaseConverter<UserModel, User> {
@@ -15,6 +16,7 @@ public class UserConverter extends BaseConverter<UserModel, User> {
         return UserModel.builder()
                 .id(entityToConvert.getId())
                 .fullName(entityToConvert.getFullName())
+                .birthDay(entityToConvert.getBirthDay())
                 .username(entityToConvert.getUsername())
                 .email(entityToConvert.getEmail())
                 .isActive(entityToConvert.getIsActive())
@@ -22,7 +24,6 @@ public class UserConverter extends BaseConverter<UserModel, User> {
     }
 
     private static User convertToEntity(UserModel modelToConvert) {
-
-        throw new UnsupportedOperationException("Conversation from ClientModel to Client is not supported");
+        throw new ApiErrorException("Conversation from ClientModel to Client is not supported");
     }
 }

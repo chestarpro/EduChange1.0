@@ -5,17 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserModel {
+@SuperBuilder
+public class UserLogModel {
     private Long id;
-    private String fullName;
-    private LocalDate birthDay;
-    private String username;
-    private String email;
-    private Long isActive;
+    private Long userId;
+    private Boolean isSuccess;
+    private LocalDateTime createDate;
 }

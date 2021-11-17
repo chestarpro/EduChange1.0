@@ -21,8 +21,10 @@ public class CategoryConverter extends BaseConverter<CategoryModel, Category> {
     private static Category convertToEntity(CategoryModel modelToConvert) {
         if (modelToConvert == null) return null;
 
-        return Category.builder()
-                .categoryName(modelToConvert.getCategoryName())
-                .build();
+        Category category = new Category();
+        category.setId(modelToConvert.getId());
+        category.setCategoryName(modelToConvert.getCategoryName());
+
+        return category;
     }
 }

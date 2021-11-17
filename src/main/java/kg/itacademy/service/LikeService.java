@@ -1,7 +1,13 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.Like;
+import kg.itacademy.model.LikeModel;
+
+import java.util.List;
 
 public interface LikeService extends BaseService<Like> {
-    Like deleteLike(Long id);
+    LikeModel createLikeByCourseId(Long courseId);
+    LikeModel getLikeModelById(Long id);
+    List<LikeModel> getAllLikeModelByCourseId(Long id);
+    LikeModel deleteLike(Long id);
 }
