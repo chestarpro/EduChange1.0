@@ -39,6 +39,12 @@ public class CourseController {
                 .prepareSuccessMessage(courseService.getAllCourseModel());
     }
 
+    @GetMapping("/get-all/by-user-id/{userId}")
+    public ResponseMessage<List<CourseModel>> gatAllByUserId(@PathVariable Long userId) {
+        return new ResponseMessage<List<CourseModel>>()
+                .prepareSuccessMessage(courseService.getAllByUserId());
+    }
+
     @GetMapping("get-all/by-name/{courseName}")
     public ResponseMessage<List<CourseModel>> getAllByCourseName(@PathVariable String courseName) {
         return new ResponseMessage<List<CourseModel>>()

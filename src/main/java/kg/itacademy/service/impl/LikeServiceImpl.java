@@ -13,8 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,7 +31,7 @@ public class LikeServiceImpl implements LikeService {
     public Like save(Like like) {
         Like dataLike = getById(like.getId());
         if (dataLike != null)
-            throw new IllegalArgumentException("Like уже существует");
+            throw new IllegalArgumentException("\"Like\" already exists");
         return likeRepository.save(like);
     }
 
@@ -47,7 +47,10 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public Like getById(Long id) {
-        return likeRepository.findById(id).orElse(null);
+        Like like = likeRepository.findById(id).orElse(null);
+        if (like == null)
+            throw new ApiFailException("Like by ID(" + id + ") not found");
+        return like;
     }
 
     @Override
@@ -57,18 +60,19 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public List<Like> getAll() {
-        return likeRepository.findAll();
+        return null;
     }
 
     @Override
     public List<LikeModel> getAllLikeModelByCourseId(Long id) {
         List<Like> likes = likeRepository.findAllByCourse_Id(id);
-        if (likes == null)
-            throw new ApiFailException("Likes по курсу (id: " + id + ") не найдены");
-        List<LikeModel> likeModels = new ArrayList<>();
-        for (Like like : likes)
-            likeModels.add(new LikeConverter().convertFromEntity(like));
-        return likeModels;
+        if (!likes.isEmpty()) {
+            LikeConverter converter = new LikeConverter();
+            return likes.stream()
+                    .map(converter::convertFromEntity)
+                    .collect(Collectors.toList());
+        }
+        return null;
     }
 
     @Override
@@ -79,8 +83,6 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public LikeModel deleteLike(Long id) {
         Like like = getById(id);
-        if (like == null)
-            throw new ApiFailException("Like под id: " + id + " не найден");
         likeRepository.delete(like);
         return new LikeConverter().convertFromEntity(like);
     }

@@ -1,5 +1,6 @@
 package kg.itacademy.service.impl;
 
+import kg.itacademy.converter.UserConverter;
 import kg.itacademy.converter.UserLogConverter;
 import kg.itacademy.entity.UserLog;
 import kg.itacademy.exception.ApiFailException;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -27,7 +29,10 @@ public class UserLogServiceImpl implements UserLogService {
 
     @Override
     public UserLog getById(Long id) {
-        return userLogRepository.findById(id).orElse(null);
+        UserLog userLog = userLogRepository.findById(id).orElse(null);
+        if (userLog == null)
+            throw new ApiFailException("Log by ID(" + id + ") not found");
+        return userLog;
     }
 
     @Override
@@ -37,18 +42,13 @@ public class UserLogServiceImpl implements UserLogService {
 
     @Override
     public List<UserLogModel> getAllByUserId(Long id) {
-        List<UserLog> logList = userLogRepository.findAllByUser_Id(id);
-        if (logList == null) {
-            throw new ApiFailException("Записи по пользователю (id: " + id + ") не найдены");
-        }
-        List<UserLogModel> logModelList = new ArrayList<>();
-        for (UserLog userLog : logList)
-            logModelList.add(new UserLogConverter().convertFromEntity(userLog));
-        return logModelList;
+        UserLogConverter converter = new UserLogConverter();
+        return getAll().stream()
+                .map(converter::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
-    public Boolean hasThreeFailsLastsLogsByUserId(Long id) {
+    public boolean hasThreeFailsLastsLogsByUserId(Long id) {
         return userLogRepository.hasThreeFailsInARowByUserId(id);
     }
 

@@ -13,14 +13,11 @@ import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserCourseMappingService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserCourseMappingServiceImpl implements UserCourseMappingService {
@@ -36,14 +33,14 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
         Course course = courseService.getById(userCourseMapping.getCourse().getId());
         User user = userService.getCurrentUser();
         if (course.getUser().getId().equals(user.getId()))
-            throw new ApiFailException("Пользователь " + user.getUsername() + " является автором курса");
+            throw new ApiFailException("User " + user.getUsername() + " is the author of the course");
         return userCourseMappingRepository.save(userCourseMapping);
     }
 
     @Override
-    public UserCourseMappingModel createByIdCourse(Long id) {
+    public UserCourseMappingModel createByCourseId(Long courseId) {
         User user = userService.getCurrentUser();
-        Course course = courseService.getById(id);
+        Course course = courseService.getById(courseId);
 
         return new UserCourseMappingConverter()
                 .convertFromEntity(save(new UserCourseMapping(user, course)));
@@ -53,7 +50,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     public UserCourseMapping getById(Long id) {
         UserCourseMapping userCourseMapping = userCourseMappingRepository.findById(id).orElse(null);
         if (userCourseMapping == null)
-            throw new ApiFailException("Не найдена связка по id: " + id);
+            throw new ApiFailException("The purchase by ID(" + id + ") not found");
         return userCourseMapping;
     }
 
@@ -70,10 +67,23 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     @Override
     public List<UserCourseMappingModel> getAllUserCourseMappingModel() {
-        List<UserCourseMappingModel> mappingModels = new ArrayList<>();
-        for (UserCourseMapping mapping : getAll())
-            mappingModels.add(new UserCourseMappingConverter().convertFromEntity(mapping));
-        return mappingModels;
+        UserCourseMappingConverter converter = new UserCourseMappingConverter();
+        return getAll().stream()
+                .map(converter::convertFromEntity).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseModel> getAllPurchasedCourses() {
+        List<Course> purchasedCourses = userCourseMappingRepository
+                .findAllByUser_Id(userService.getCurrentUser().getId())
+                .stream().map(UserCourseMapping::getCourse)
+                .collect(Collectors.toList());
+
+        if (!purchasedCourses.isEmpty()) {
+            CourseConverter converter = new CourseConverter();
+            return purchasedCourses.stream().map(converter::convertFromEntity).collect(Collectors.toList());
+        }
+        return null;
     }
 
     @Override
@@ -82,20 +92,9 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     }
 
     @Override
-    public List<CourseModel> getAllPurchasedCourses() {
-        List<Course> purchasedCourses = userCourseMappingRepository
-                .findAllByUser_Id(
-                        userService
-                                .getCurrentUser()
-                                .getId())
-                .stream()
-                .map(UserCourseMapping::getCourse)
-                .collect(Collectors.toList()
-                );
-
-        List<CourseModel> courseModels = new ArrayList<>();
-        for (Course course : purchasedCourses)
-            courseModels.add(new CourseConverter().convertFromEntity(course));
-        return courseModels;
+    public UserCourseMappingModel deleteMapping(Long id) {
+        UserCourseMapping mapping = getById(id);
+        userCourseMappingRepository.delete(mapping);
+        return new UserCourseMappingConverter().convertFromEntity(mapping);
     }
 }

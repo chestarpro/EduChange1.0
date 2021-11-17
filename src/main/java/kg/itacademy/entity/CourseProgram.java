@@ -12,7 +12,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 public class CourseProgram extends BaseEntity {
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     private String title;
 
     @Column(nullable = false, length = 1000)

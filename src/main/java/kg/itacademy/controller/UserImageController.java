@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/image")
+@RequestMapping("/api/user-image")
 public class UserImageController {
 
     @Autowired
@@ -29,7 +29,7 @@ public class UserImageController {
     @PutMapping("/update")
     public ResponseMessage<UserImageModel> update(@RequestParam(name = "file") MultipartFile file) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(userImageService.updateImage(file));
+                .prepareSuccessMessage(userImageService.updateUserImage(file));
     }
 
     @DeleteMapping("/delete/{url}")

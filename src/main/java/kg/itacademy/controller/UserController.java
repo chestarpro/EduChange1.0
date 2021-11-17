@@ -15,22 +15,22 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/sign-up")
+    @PostMapping("/sign-up/")
     public ResponseMessage<UserModel> save(@RequestBody User user) {
         return new ResponseMessage<UserModel>()
                 .prepareSuccessMessage(userService.createUser(user));
-    }
-
-    @GetMapping("/get-by-id/{id}")
-    public ResponseMessage<UserModel> getById(@PathVariable Long id) {
-        return new ResponseMessage<UserModel>()
-                .prepareSuccessMessage(userService.getUserModelById(id));
     }
 
     @PostMapping("/sign-in")
     public ResponseMessage<String> getAuthHeader(@RequestBody UserAuthorizModel userAuthorizModel) {
         String authHeader = userService.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
         return new ResponseMessage<String>().prepareSuccessMessage(authHeader);
+    }
+
+    @GetMapping("/get-by-id/{id}")
+    public ResponseMessage<UserModel> getById(@PathVariable Long id) {
+        return new ResponseMessage<UserModel>()
+                .prepareSuccessMessage(userService.getUserModelById(id));
     }
 
     @GetMapping("/get-current")

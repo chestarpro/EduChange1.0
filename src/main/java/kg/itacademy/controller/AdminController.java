@@ -30,6 +30,12 @@ public class AdminController {
     @Autowired
     private UserImageService userImageService;
 
+    @Autowired
+    private CourseImageService courseImageService;
+
+    @Autowired
+    private UserCourseMappingService userCourseMappingService;
+
     @PostMapping("/category/create")
     public ResponseMessage<Category> saveCategory(@RequestBody Category category) {
         return new ResponseMessage<Category>()
@@ -40,12 +46,6 @@ public class AdminController {
     public ResponseMessage<Category> updateCategory(@RequestBody Category category) {
         return new ResponseMessage<Category>()
                 .prepareSuccessMessage(categoryService.update(category));
-    }
-
-    @DeleteMapping("/category/delete/{id}")
-    public ResponseMessage<Category> deleteCategory(@PathVariable Long id) {
-        return new ResponseMessage<Category>()
-                .prepareSuccessMessage(categoryService.deleteCategory(id));
     }
 
     @GetMapping("/user/get-all")
@@ -76,5 +76,23 @@ public class AdminController {
     public ResponseMessage<List<UserImageModel>> getAllUserImageModel() {
         return new ResponseMessage<List<UserImageModel>>()
                 .prepareSuccessMessage(userImageService.getAllUserImageModel());
+    }
+
+    @DeleteMapping("/user/delete/{id}")
+    public ResponseMessage<UserModel> deleteUser(@PathVariable Long id) {
+        return new ResponseMessage<UserModel>()
+                .prepareSuccessMessage(userService.deleteUserByAdmin(id));
+    }
+
+    @DeleteMapping("/category/delete/{id}")
+    public ResponseMessage<Category> deleteCategory(@PathVariable Long id) {
+        return new ResponseMessage<Category>()
+                .prepareSuccessMessage(categoryService.deleteCategory(id));
+    }
+
+    @DeleteMapping("/purchases/delete/{id}")
+    public ResponseMessage<UserCourseMappingModel> delete(@PathVariable Long id) {
+        return new ResponseMessage<UserCourseMappingModel>()
+                .prepareSuccessMessage(userCourseMappingService.deleteMapping(id));
     }
 }

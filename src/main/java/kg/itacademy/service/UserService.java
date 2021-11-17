@@ -9,23 +9,27 @@ import java.util.List;
 public interface UserService extends BaseService<User> {
     UserModel createUser(User user);
 
-    List<UserModel> getAllUserModels();
-
-    User setInActiveUser(User user, Long status);
-
-    UserModel getUserModelById(Long id);
-
-    UserModel deleteUser();
-
     User getCurrentUser();
 
     UserModel getCurrentUserModel();
 
-    UserModel updateUser(User user);
+    List<UserModel> getAllUserModels();
+
+    UserModel getUserModelById(Long id);
 
     User getByUsername(String name);
 
     User getByEmail(String email);
+
+    void validateEmail(String email);
+
+    UserModel updateUser(User user);
+
+    User setInActiveUser(User user, Long status);
+
+    UserModel deleteUser();
+
+    UserModel deleteUserByAdmin(Long userId);
 
     String getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel);
 }

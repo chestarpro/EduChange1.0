@@ -10,15 +10,13 @@ import kg.itacademy.repository.UserBalanceRepository;
 import kg.itacademy.service.UserBalanceService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserBalanceImpl implements UserBalanceService {
@@ -35,7 +33,10 @@ public class UserBalanceImpl implements UserBalanceService {
 
     @Override
     public UserBalance getById(Long id) {
-        return userBalanceRepository.findById(id).orElse(null);
+        UserBalance balance = userBalanceRepository.findById(id).orElse(null);
+        if (balance == null)
+            throw new ApiFailException("User balance by ID(" + id + ") not found");
+        return balance;
     }
 
     @Override
@@ -57,17 +58,14 @@ public class UserBalanceImpl implements UserBalanceService {
 
     @Override
     public List<UserBalanceModel> getAllUserBalanceModel() {
-        List<UserBalanceModel> balanceModels = new ArrayList<>();
-        for (UserBalance userBalance : getAll())
-            balanceModels.add(new UserBalanceConverter().convertFromEntity(userBalance));
-        return balanceModels;
+        UserBalanceConverter converter = new UserBalanceConverter();
+        return getAll().stream()
+                .map(converter::convertFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
     public UserBalance update(UserBalance userBalance) {
-        if (userBalance.getUser() == null)
-            throw new ApiFailException("Поле баланс null");
-
         if (userBalance.getBalance().compareTo(BigDecimal.ZERO) < 0)
             throw new ApiFailException("Баланс (" + userBalance.getBalance() + ") не должен быть меньше 0");
 
@@ -78,7 +76,7 @@ public class UserBalanceImpl implements UserBalanceService {
     public UserBalanceModel updateByUpdateUserBalanceModel(UpdateUserBalanceModel updateUserBalanceModel) {
         User user = userService.getByUsername(updateUserBalanceModel.getUsername());
         if (user == null)
-            throw new ApiFailException("Пользователь (" + updateUserBalanceModel.getUsername() + ") не найден");
+            throw new ApiFailException("User (" + updateUserBalanceModel.getUsername() + ") not found");
         UserBalance userBalance = userBalanceRepository.findByUser_Id(user.getId());
         userBalance.setBalance(updateUserBalanceModel.getBalance());
         return new UserBalanceConverter().convertFromEntity(update(userBalance));

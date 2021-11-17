@@ -11,39 +11,36 @@ import kg.itacademy.repository.UserImageRepository;
 import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserImageImpl implements UserImageService {
 
-    private static final String CLOUDINARY_URL = "cloudinary://827555593978177:78pUgYEkWqkpkugwcNsNwSUyD-o@dv7jsl0n7";
+    private static final String CLOUDINARY_URL = "cloudinary://349958975956714:wJERqVH-qai2mlMdGYqzSY__kFM@du9qubfii";
 
-    private UserImageRepository userImageRepository;
+    private final UserImageRepository userImageRepository;
 
-    private UserService userService;
+    private final UserService userService;
 
     @Override
     public UserImage save(UserImage userImage) {
-
         return userImageRepository.save(userImage);
     }
 
     @Override
     public UserImageModel createUserImage(MultipartFile file) {
-        UserImage userImage = new UserImage();
         String savedImageUrl = saveImageInCloudinary(file);
+        UserImage userImage = new UserImage();
         userImage.setUserImageUrl(savedImageUrl);
         userImage.setUser(userService.getCurrentUser());
         return new UserImageConverter().convertFromEntity(save(userImage));
@@ -52,8 +49,8 @@ public class UserImageImpl implements UserImageService {
     @Override
     public String saveImageInCloudinary(MultipartFile multipartFile) {
         try {
-            if (multipartFile.getOriginalFilename() == null)
-                throw new ApiFailException("Файл пуст");
+            if (multipartFile.getOriginalFilename() == null || multipartFile.getOriginalFilename().isEmpty())
+                throw new ApiFailException("File name not specified");
 
             File file = Files.createTempFile(System.currentTimeMillis() + "",
                     Objects.requireNonNull(multipartFile.getOriginalFilename()).substring(multipartFile.getOriginalFilename().indexOf('.'))).toFile();
@@ -62,18 +59,30 @@ public class UserImageImpl implements UserImageService {
             Map uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
             return ((String) uploadResult.get("url"));
         } catch (IOException e) {
-            throw new ApiFailException(e.getMessage());
+            throw new ApiErrorException(e.getMessage());
         }
     }
 
     @Override
     public UserImage getById(Long id) {
-        return userImageRepository.findById(id).orElse(null);
+        UserImage userImage = userImageRepository.findById(id).orElse(null);
+        if (userImage == null)
+            throw new ApiFailException("UserImage by ID(" + id + ") not found");
+        return userImage;
     }
 
     @Override
     public UserImageModel getUserImageModelById(Long id) {
         return new UserImageConverter().convertFromEntity(getById(id));
+    }
+
+    @Override
+    public UserImageModel getUserImageModelByUserId(Long userId) {
+        UserImage userImage = userImageRepository.findByUser_Id(userId);
+        if (userImage == null) {
+            throw new ApiFailException("User image by user id (" + userId + ") not found");
+        }
+        return new UserImageConverter().convertFromEntity(userImage);
     }
 
     @Override
@@ -83,26 +92,32 @@ public class UserImageImpl implements UserImageService {
 
     @Override
     public List<UserImageModel> getAllUserImageModel() {
-        List<UserImageModel> imageModels = new ArrayList<>();
-        for (UserImage userImage : getAll())
-            imageModels.add(new UserImageConverter().convertFromEntity(userImage));
-        return imageModels;
+        UserImageConverter converter = new UserImageConverter();
+        return getAll().stream()
+                .map(converter::convertFromEntity).collect(Collectors.toList());
     }
-
 
     @Override
     public UserImage update(UserImage userImage) {
+        if (userImage.getId() == null)
+            throw new ApiFailException("User image id not specified");
+
         return userImageRepository.save(userImage);
     }
 
     @Override
-    public UserImageModel updateImage(MultipartFile file) {
+    public UserImageModel updateUserImage(MultipartFile file) {
         try {
-            UserImage updateAvatar = userImageRepository.findByUser_Id(userService.getCurrentUser().getId());
-            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(updateAvatar.getUserImageUrl());
-            updateAvatar.setUserImageUrl(saveImageInCloudinary(file));
-            updateAvatar.setUser(userService.getCurrentUser());
-            return new UserImageConverter().convertFromEntity(update(updateAvatar));
+            Long userId = userService.getCurrentUser().getId();
+            UserImage updateUserImage = userImageRepository.findByUser_Id(userId);
+
+            if (updateUserImage == null)
+                throw new ApiFailException("User image by user id (" + userId + ") not found");
+
+            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(updateUserImage.getUserImageUrl());
+            updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
+
+            return new UserImageConverter().convertFromEntity(update(updateUserImage));
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }
@@ -111,10 +126,16 @@ public class UserImageImpl implements UserImageService {
     @Override
     public UserImageModel deleteImage(String url) {
         try {
+            Long userId = userService.getCurrentUser().getId();
+            UserImage deleteUserImage = userImageRepository.findByUser_Id(userId);
+
+            if (deleteUserImage == null)
+                throw new ApiFailException("User image by user id (" + userId + ") not found");
+
             new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(url);
-            UserImage deleteAvatar = userImageRepository.findByUser_Id(userService.getCurrentUser().getId());
-            userImageRepository.delete(deleteAvatar);
-            return new UserImageConverter().convertFromEntity(deleteAvatar);
+            userImageRepository.delete(deleteUserImage);
+
+            return new UserImageConverter().convertFromEntity(deleteUserImage);
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }

@@ -2,7 +2,6 @@ package kg.itacademy.service;
 
 import kg.itacademy.entity.Course;
 import kg.itacademy.model.CourseModel;
-import kg.itacademy.model.UserModel;
 
 import java.util.List;
 
@@ -19,9 +18,9 @@ public interface CourseService extends BaseService<Course> {
 
     CourseModel updateCourse(CourseModel courseModel);
 
-    List<Course> findAllCreatedCoursesByUserId();
+    List<CourseModel> getAllByUserId();
 
-    public CourseModel getCourseModelById(Long id);
+    CourseModel getCourseModelById(Long id);
 
     CourseModel deleteCourseById(Long id);
 }

@@ -11,8 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,27 +23,28 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
 
     @Override
     public Lesson save(Lesson lesson) {
+        validateLengthVariables(lesson);
         validateVariablesForNullOrIsEmpty(lesson);
         return lessonRepository.save(lesson);
     }
 
     @Override
     public LessonModel createLesson(LessonModel lessonModel) {
-        save(new LessonConverter().convertFromModel(lessonModel));
-        return lessonModel;
+        Lesson lesson = save(new LessonConverter().convertFromModel(lessonModel));
+        return new LessonConverter().convertFromEntity(lesson);
     }
 
     @Override
     public Lesson getById(Long id) {
-        return lessonRepository.findById(id).orElse(null);
+        Lesson lesson = lessonRepository.findById(id).orElse(null);
+        if (lesson == null)
+            throw new ApiFailException("Lesson by ID(" + id + ") not found");
+        return lesson;
     }
 
     @Override
     public LessonModel getLessonModelById(Long id) {
         Lesson lesson = getById(id);
-        if (lesson == null) {
-            throw new ApiFailException("Урок под id: " + id + " не найден");
-        }
         return new LessonConverter().convertFromEntity(lesson);
     }
 
@@ -54,21 +55,22 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
 
     @Override
     public List<LessonModel> getAllLessonModel() {
-        List<LessonModel> lessonModels = new ArrayList<>();
-        for (Lesson lesson : getAll())
-            lessonModels.add(new LessonConverter().convertFromEntity(lesson));
-        return lessonModels;
+        LessonConverter converter = new LessonConverter();
+        return getAll().stream()
+                .map(converter::convertFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<LessonModel> getAllByCourseId(Long id) {
         List<Lesson> lessons = lessonRepository.findAllByCourse_Id(id);
-        if (lessons == null)
-            throw new ApiFailException("Уроки по курсу (id: " + id + ") не найдены");
-        List<LessonModel> lessonModels = new ArrayList<>();
-        for (Lesson lesson : lessons)
-            lessonModels.add(new LessonConverter().convertFromEntity(lesson));
-        return lessonModels;
+        if (!lessons.isEmpty()) {
+            LessonConverter converter = new LessonConverter();
+            return lessons.stream()
+                    .map(converter::convertFromEntity)
+                    .collect(Collectors.toList());
+        }
+        return null;
     }
 
     @Override
@@ -87,31 +89,31 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
     @Override
     public LessonModel deleteLessonById(Long id) {
         Lesson lesson = getById(id);
-        if (lesson == null)
-            throw new ApiFailException("Урок под id: " + id + " не найден");
         lessonRepository.delete(lesson);
         return new LessonConverter().convertFromEntity(lesson);
     }
 
     @Override
     public void validateLengthVariables(Lesson lesson) {
-
+        if (lesson.getLessonInfo().length() > 1000)
+            throw new ApiFailException("Exceeded character limit (1000) for lesson info");
     }
 
     @Override
     public void validateLengthVariablesForUpdate(Lesson lesson) {
-
+        if (lesson.getLessonInfo() != null && lesson.getLessonInfo().length() > 1000)
+            throw new ApiFailException("Exceeded character limit (1000) for lesson info");
     }
 
     @Override
     public void validateVariablesForNullOrIsEmpty(Lesson lesson) {
         if (lesson.getLessonInfo() == null || lesson.getLessonInfo().isEmpty())
-            throw new IllegalArgumentException("Нет описания урока");
+            throw new IllegalArgumentException("The description of the lesson is not specified");
     }
 
     @Override
     public void validateVariablesForNullOrIsEmptyUpdate(Lesson lesson) {
         if (lesson.getLessonInfo() != null && lesson.getLessonInfo().isEmpty())
-            throw new IllegalArgumentException("Нет описания урока");
+            throw new IllegalArgumentException("The description of the lesson is not specified");
     }
 }

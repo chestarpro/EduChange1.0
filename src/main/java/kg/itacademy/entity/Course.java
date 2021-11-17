@@ -28,7 +28,10 @@ public class Course extends BaseEntity {
     @Column(name = "course_short_info", nullable = false)
     private String courseShortInfo;
 
-    @Column(name = "course_info", nullable = false)
+    @Column(name = "course_info_title", length = 50)
+    private String courseInfoTitle;
+
+    @Column(name = "course_info", length = 1000)
     private String courseInfo;
 
     @Column(name = "course_info_url")

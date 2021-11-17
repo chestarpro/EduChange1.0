@@ -1,15 +1,17 @@
 package kg.itacademy.service.impl;
 
+import kg.itacademy.converter.UserRoleConverter;
 import kg.itacademy.entity.UserRole;
+import kg.itacademy.exception.ApiFailException;
+import kg.itacademy.model.UserRoleModel;
 import kg.itacademy.repository.UserRoleRepository;
 import kg.itacademy.service.UserRoleService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserRoleServiceImpl implements UserRoleService {
@@ -23,7 +25,10 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     public UserRole getById(Long id) {
-        return userRoleRepository.getById(id);
+        UserRole role = userRoleRepository.findById(id).orElse(null);
+        if (role == null)
+            throw new ApiFailException("Role by ID(" + id + ") not found");
+        return role;
     }
 
     @Override
@@ -32,7 +37,14 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     @Override
+    public List<UserRoleModel> getAllUserRoleModel() {
+        UserRoleConverter userRoleConverter = new UserRoleConverter();
+        return getAll().stream()
+                .map(userRoleConverter::convertFromEntity).collect(Collectors.toList());
+    }
+
+    @Override
     public UserRole update(UserRole userRole) {
-        return userRoleRepository.save(userRole);
+        return null;
     }
 }

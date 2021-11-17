@@ -19,7 +19,7 @@ public class UserCourseMappingController {
     @GetMapping("/create-by-course-id/{courseId}")
     public ResponseMessage<UserCourseMappingModel> create(@PathVariable Long courseId) {
         return new ResponseMessage<UserCourseMappingModel>()
-                .prepareSuccessMessage(userCourseMappingService.createByIdCourse(courseId));
+                .prepareSuccessMessage(userCourseMappingService.createByCourseId(courseId));
     }
 
     @GetMapping("/get-by-id/{id}")

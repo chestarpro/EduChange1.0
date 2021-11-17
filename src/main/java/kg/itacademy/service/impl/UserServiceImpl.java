@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -44,10 +45,10 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     @Override
     public User save(User user) {
         validateSpace(user);
-        validateVariablesForNullOrIsEmpty(user);
         checkUsernameAndEmail(user);
-        validateEmail(user.getEmail());
         validateLengthVariables(user);
+        validateEmail(user.getEmail());
+        validateVariablesForNullOrIsEmpty(user);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsActive(1L);
@@ -78,17 +79,16 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public List<UserModel> getAllUserModels() {
-        List<UserModel> userModels = new ArrayList<>();
-        for (User user : getAll())
-            userModels.add(new UserConverter().convertFromEntity(user));
-        return userModels;
+        UserConverter converter = new UserConverter();
+        return getAll().stream()
+                .map(converter::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
     public User getById(Long id) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null)
-            throw new ApiFailException("Не найден пользователь по id: " + id);
+            throw new ApiFailException("User by ID(" + id + ") not found");
         return user;
     }
 
@@ -121,29 +121,28 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     @Override
     public User update(User user) {
         if (user.getId() == null)
-            throw new ApiFailException("Не указан Id пользователя");
-        if (user.getEmail() != null) {
+            throw new ApiFailException("User id not specified");
+
+        if (user.getEmail() != null)
             validateEmail(user.getEmail());
-        }
+
         validateSpaceForUpdate(user);
-        validateVariablesForNullOrIsEmptyUpdate(user);
         checkUsernameAndEmailForUpdate(user);
         validateLengthVariablesForUpdate(user);
+        validateVariablesForNullOrIsEmptyUpdate(user);
 
         return userRepository.save(user);
     }
 
     @Override
     public UserModel updateUser(User user) {
-        User updateUser = update(user);
-        return new UserConverter()
-                .convertFromEntity(update(updateUser));
+        return new UserConverter().convertFromEntity((update(user)));
     }
 
     @Override
     public String getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
         User user = userRepository.findByUsername(userAuthorizModel.getUsername())
-                .orElseThrow(() -> new ApiFailException("Не верный логин или пароль"));
+                .orElseThrow(() -> new ApiFailException("Invalid username or password"));
 
         boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
 
@@ -156,7 +155,6 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
         return "Basic " + authHeader;
     }
-
 
     @Override
     public User setInActiveUser(User user, Long status) {
@@ -172,31 +170,73 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
+    public UserModel deleteUserByAdmin(Long userId) {
+        User user = getById(userId);
+        User deleteUser = setInActiveUser(user, -1L);
+        return new UserConverter().convertFromEntity(deleteUser);
+    }
+
+    @Override
     public void validateVariablesForNullOrIsEmpty(User user) {
         if (user.getFullName() == null || user.getFullName().isEmpty())
-            throw new ApiFailException("Не заполнен full name");
+            throw new ApiFailException("Full name is not filled");
         if (user.getUsername() == null || user.getUsername().isEmpty())
-            throw new ApiFailException("Не заполнен username");
+            throw new ApiFailException("Username is not filled");
         if (user.getEmail() == null || user.getEmail().isEmpty())
-            throw new ApiFailException("Не заполнен email");
+            throw new ApiFailException("Email is not filled");
         if (user.getPassword() == null || user.getPassword().isEmpty())
-            throw new ApiFailException("Не заполнен password");
+            throw new ApiFailException("Password is not filled");
     }
 
     @Override
     public void validateVariablesForNullOrIsEmptyUpdate(User user) {
         if (user.getEmail() != null && user.getFullName().isEmpty())
-            throw new ApiFailException("full name не может быть пустым");
+            throw new ApiFailException("Full name is not filled");
 
         if (user.getUsername() != null && user.getUsername().isEmpty())
-            throw new ApiFailException("username не может быть пустым");
+            throw new ApiFailException("Username is not filled");
 
         if (user.getEmail() != null && user.getEmail().isEmpty())
-            throw new ApiFailException("email не может быть пустым");
-
+            throw new ApiFailException("Email is not filled");
 
         if (user.getPassword() != null && user.getPassword().isEmpty())
-            throw new ApiFailException("password не может быть пустым");
+            throw new ApiFailException("Password is not filled");
+    }
+
+    @Override
+    public void validateLengthVariables(User user) {
+        if (user.getFullName().length() > 100)
+            throw new ApiFailException("Exceeded character limit (100) for full name");
+
+        if (user.getUsername().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for username");
+
+        if (user.getEmail().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for email");
+
+        if (user.getPassword().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for password");
+
+        if (user.getPassword().length() < 6)
+            throw new ApiFailException("The number of password characters must be more than 5");
+    }
+
+    @Override
+    public void validateLengthVariablesForUpdate(User user) {
+        if (user.getFullName() != null && user.getFullName().length() > 100)
+            throw new ApiFailException("Exceeded character limit (100) for full name");
+
+        if (user.getUsername() != null && user.getUsername().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for username");
+
+        if (user.getEmail() != null && user.getEmail().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for email");
+
+        if (user.getPassword() != null && user.getPassword().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for password");
+
+        else if (user.getPassword() != null && user.getPassword().length() < 6)
+            throw new ApiFailException("The number of password characters must be more than 5");
     }
 
     private void checkUsernameAndEmail(User user) {
@@ -204,22 +244,21 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
         User dataUserByEmail = getByEmail(user.getEmail());
 
         if (dataUserByUserName != null)
-            throw new ApiFailException("Такой пользователь " + dataUserByUserName.getUsername() + " уже существует");
+            throw new ApiFailException("Such user " + dataUserByUserName.getUsername() + " already exists");
 
         if (dataUserByEmail != null)
-            throw new ApiFailException("Электронная почта " + dataUserByEmail.getEmail() + " уже используется");
+            throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " is already in use");
     }
-
 
     private void checkUsernameAndEmailForUpdate(User user) {
         User dataUserByUserName = getByUsername(user.getUsername());
         User dataUserByEmail = getByEmail(user.getEmail());
 
         if (user.getUsername() != null && dataUserByUserName != null)
-            throw new ApiFailException("Такой пользователь " + dataUserByUserName.getUsername() + " уже существует");
+            throw new ApiFailException("Such user " + dataUserByUserName.getUsername() + " already exists");
 
         if (user.getEmail() != null && dataUserByEmail != null)
-            throw new ApiFailException("Электронная почта " + dataUserByEmail.getEmail() + " уже используется");
+            throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " is already in use");
     }
 
     private void checkBaningStatus(User user) {
@@ -227,7 +266,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
             UserLog userLog = userLogService.getLastLogByUserId(user.getId());
             if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(5)))
                 setInActiveUser(user, 1L);
-            else throw new ApiFailException("Вы за банены на 5 мин");
+            else throw new ApiFailException("You were blocked for 5 minutes");
         }
     }
 
@@ -239,65 +278,31 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
             if (needToBan)
                 setInActiveUser(user, 0L);
-            throw new ApiFailException("Неверный логин или пароль");
+
+            throw new ApiFailException("Invalid username or password");
         }
     }
 
     @Override
-    public void validateLengthVariables(User user) {
-        if (user.getFullName().length() > 100)
-            throw new ApiFailException("Вы превысили лимит(50) символов full name");
-
-        if (user.getUsername().length() > 50)
-
-            throw new ApiFailException("Вы превысили лимит(50) символов username");
-        if (user.getEmail().length() > 50)
-            throw new ApiFailException("Вы превысили лимит(50) символов email");
-
-        if (user.getPassword().length() > 50)
-            throw new ApiFailException("Вы превысили лимит(50) символов password");
-
-        if (user.getPassword().length() < 6)
-            throw new ApiFailException("Количество символов password должна быть больше 5");
-    }
-
-    @Override
-    public void validateLengthVariablesForUpdate(User user) {
-        if (user.getFullName() != null && user.getFullName().length() > 100)
-            throw new ApiFailException("Вы превысили лимит(50) символов full name");
-
-        if (user.getUsername() != null && user.getUsername().length() > 50)
-            throw new ApiFailException("Вы превысили лимит(50) символов username");
-
-        if (user.getEmail() != null && user.getEmail().length() > 50)
-            throw new ApiFailException("Вы превысили лимит(50) символов email");
-
-        if (user.getPassword() != null && user.getPassword().length() > 50)
-            throw new ApiFailException("Вы превысили лимит(50) символов password");
-
-        else if (user.getPassword() != null && user.getPassword().length() < 6)
-            throw new ApiFailException("Количество символов password должна быть больше 5");
-    }
-
-    private void validateEmail(String email) {
+    public void validateEmail(String email) {
         String emailRegex = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
         Matcher matcher = Pattern.compile(emailRegex).matcher(email);
         if (!matcher.matches()) {
-            throw new ApiFailException("Не правильный форма email");
+            throw new ApiFailException("Incorrect email format");
         }
     }
 
     private void validateSpace(User user) {
         if (user.getUsername().contains(" "))
-            throw new ApiFailException("Не правильный формат username");
+            throw new ApiFailException("Invalid username format");
         if (user.getEmail().contains(" "))
-            throw new ApiFailException("Не правильный формат email");
+            throw new ApiFailException("Invalid email format");
     }
 
     private void validateSpaceForUpdate(User user) {
         if (user.getUsername() != null && user.getUsername().contains(" "))
-            throw new ApiFailException("Не правильный формат username");
+            throw new ApiFailException("Invalid username format");
         if (user.getUsername() != null && user.getEmail().contains(" "))
-            throw new ApiFailException("Не правильный формат email");
+            throw new ApiFailException("Invalid email format");
     }
 }

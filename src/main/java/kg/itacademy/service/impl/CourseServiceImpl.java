@@ -26,6 +26,7 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
     @Override
     public Course save(Course course) {
+        validateEmail(course);
         validateLengthVariables(course);
         validateVariablesForNullOrIsEmpty(course);
         course.setUser(userService.getCurrentUser());
@@ -69,6 +70,7 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
     public Course update(Course course) {
         if (course.getId() == null)
             throw new ApiFailException("Не указан id course");
+        validateEmail(course);
         validateLengthVariablesForUpdate(course);
         validateVariablesForNullOrIsEmptyUpdate(course);
         return courseRepository.save(course);
@@ -108,8 +110,14 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
     }
 
     @Override
-    public List<Course> findAllCreatedCoursesByUserId() {
-        return courseRepository.findAllByUser_Id(userService.getCurrentUser().getId());
+    public List<CourseModel> getAllByUserId() {
+        List<Course> courses = courseRepository
+                .findAllByUser_Id(userService.getCurrentUser().getId());
+        List<CourseModel> courseModels = new ArrayList<>();
+        for (Course course : courses) {
+            courseModels.add(new CourseConverter().convertFromEntity(course));
+        }
+        return courseModels;
     }
 
     @Override
@@ -122,15 +130,25 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
         return new CourseConverter().convertFromEntity(deleteCourse);
     }
 
+    private void validateEmail(Course course) {
+        if (course.getEmail() != null)
+            userService.validateEmail(course.getEmail());
+    }
+
     @Override
     public void validateLengthVariables(Course course) {
         if (course.getCourseShortInfo().length() > 50)
+            throw new ApiFailException("Превышен лимит 50 символов");
+        if (course.getCourseInfoTitle().length() > 50)
             throw new ApiFailException("Превышен лимит 50 символов");
     }
 
     @Override
     public void validateLengthVariablesForUpdate(Course course) {
         if (course.getCourseShortInfo() != null && course.getCourseShortInfo().length() > 50)
+            throw new ApiFailException("Превышен лимит 50 символов");
+
+        if (course.getCourseInfoTitle() != null && course.getCourseInfoTitle().length() > 50)
             throw new ApiFailException("Превышен лимит 50 символов");
     }
 
@@ -147,6 +165,9 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
         if (course.getCourseShortInfo() == null || course.getCourseShortInfo().isEmpty())
             throw new ApiFailException("Нет короткой описании курса");
+
+        if (course.getCourseInfoTitle() == null || course.getCourseInfoTitle().isEmpty())
+            throw new ApiFailException("Нет заголовка описания урока");
 
         if (course.getCourseInfo() == null || course.getCourseInfo().isEmpty())
             throw new ApiFailException("Нет описания курса");
@@ -166,6 +187,9 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
         if (course.getCourseShortInfo() != null && course.getCourseShortInfo().isEmpty())
             throw new ApiFailException("Нет короткой описании курса");
+
+        if (course.getCourseInfoTitle() != null && course.getCourseInfoTitle().isEmpty())
+            throw new ApiFailException("Нет заголовка описания урока");
 
         if (course.getCourseInfo() != null && course.getCourseInfo().isEmpty())
             throw new ApiFailException("Нет описания курса");

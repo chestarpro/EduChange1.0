@@ -18,6 +18,7 @@ public class CourseModel {
     private String email;
     private String phoneNumber;
     private String courseShortInfo;
+    private String courseInfoTitle;
     private String courseInfo;
     private String courseInfoUrl;
     private BigDecimal price;

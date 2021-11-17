@@ -21,6 +21,7 @@ public class CourseConverter extends BaseConverter<CourseModel, Course> {
                 .email(entityToConvert.getEmail())
                 .phoneNumber(entityToConvert.getPhoneNumber())
                 .courseShortInfo(entityToConvert.getCourseShortInfo())
+                .courseInfoTitle(entityToConvert.getCourseInfoTitle())
                 .courseInfo(entityToConvert.getCourseInfo())
                 .courseInfoUrl(entityToConvert.getCourseInfoUrl())
                 .price(entityToConvert.getPrice())
@@ -37,6 +38,7 @@ public class CourseConverter extends BaseConverter<CourseModel, Course> {
         course.setEmail(modelToConvert.getEmail());
         course.setPhoneNumber(modelToConvert.getPhoneNumber());
         course.setCourseShortInfo(modelToConvert.getCourseShortInfo());
+        course.setCourseInfoTitle(modelToConvert.getCourseInfoTitle());
         course.setCourseInfo(modelToConvert.getCourseInfo());
         course.setCourseInfoUrl(modelToConvert.getCourseInfoUrl());
         course.setPrice(modelToConvert.getPrice());
@@ -52,7 +54,6 @@ public class CourseConverter extends BaseConverter<CourseModel, Course> {
             user.setId(modelToConvert.getUserId());
             course.setUser(user);
         }
-
         return course;
     }
 }
