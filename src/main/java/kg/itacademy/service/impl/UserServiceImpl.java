@@ -52,11 +52,11 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public User save(User user) {
+        validateVariablesForNullOrIsEmpty(user);
         validateSpace(user);
         checkUsernameAndEmail(user);
         validateLengthVariables(user);
         validateEmail(user.getEmail());
-        validateVariablesForNullOrIsEmpty(user);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsActive(1L);

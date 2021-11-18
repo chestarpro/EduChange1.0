@@ -73,7 +73,7 @@ public class CourseProgramServiceImpl implements CourseProgramService, VariableV
     public CourseProgramModel deleteCourseProgram(Long id) {
         CourseProgram courseProgram = getById(id);
         if (courseProgram == null)
-            throw new ApiFailException("Программа курса с id: " + id + " не найдена");
+            throw new ApiFailException("Course program by user id (" + id + ") not found");
         courseProgramRepository.delete(courseProgram);
         return new CourseProgramConverter().convertFromEntity(courseProgram);
     }
@@ -81,25 +81,25 @@ public class CourseProgramServiceImpl implements CourseProgramService, VariableV
     @Override
     public void validateLengthVariables(CourseProgram courseProgram) {
         if (courseProgram.getTitle().length() > 50)
-            throw new ApiFailException("Заголовок программы превысил 50 символов");
+            throw new ApiFailException("Exceeded character limit (50) for title program");
         if (courseProgram.getDescription().length() > 1000)
-            throw new ApiFailException("Описание программы превысило 1000 символов");
+            throw new ApiFailException("Exceeded character limit (100) for program description");
     }
 
     @Override
     public void validateLengthVariablesForUpdate(CourseProgram courseProgram) {
         if (courseProgram.getTitle() != null && courseProgram.getTitle().length() > 50)
-            throw new ApiFailException("Заголовок программы превысило 50 символов");
+            throw new ApiFailException("Exceeded character limit (50) for title program");
         if (courseProgram.getDescription() != null && courseProgram.getDescription().length() > 1000)
-            throw new ApiFailException("Описание программы превысило 1000 символов");
+            throw new ApiFailException("Exceeded character limit (100) for program description");
     }
 
     @Override
     public void validateVariablesForNullOrIsEmpty(CourseProgram courseProgram) {
         if (courseProgram.getTitle() == null || courseProgram.getTitle().isEmpty())
-            throw new ApiFailException("Не указан заголовок программы");
+            throw new ApiFailException("Title program is not filled");
         if (courseProgram.getDescription() == null || courseProgram.getDescription().isEmpty())
-            throw new ApiFailException("Нет описания программы");
+            throw new ApiFailException("Program description is not filled");
         if (courseProgram.getCourse().getId() == null)
             throw new ApiFailException("Не указан id курса");
     }
@@ -107,8 +107,8 @@ public class CourseProgramServiceImpl implements CourseProgramService, VariableV
     @Override
     public void validateVariablesForNullOrIsEmptyUpdate(CourseProgram courseProgram) {
         if (courseProgram.getTitle() != null && courseProgram.getTitle().isEmpty())
-            throw new ApiFailException("Не указан заголовок программы");
+            throw new ApiFailException("Title program is not filled");
         if (courseProgram.getDescription() != null && courseProgram.getDescription().isEmpty())
-            throw new ApiFailException("Нет описания программы");
+            throw new ApiFailException("Program description is not filled");
     }
 }
