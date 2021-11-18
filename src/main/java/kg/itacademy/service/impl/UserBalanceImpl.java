@@ -33,10 +33,7 @@ public class UserBalanceImpl implements UserBalanceService {
 
     @Override
     public UserBalance getById(Long id) {
-        UserBalance balance = userBalanceRepository.findById(id).orElse(null);
-        if (balance == null)
-            throw new ApiFailException("User balance by ID(" + id + ") not found");
-        return balance;
+        return userBalanceRepository.findById(id).orElse(null);
     }
 
     @Override

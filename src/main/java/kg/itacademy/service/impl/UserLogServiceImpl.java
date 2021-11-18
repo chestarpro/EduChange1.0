@@ -29,10 +29,7 @@ public class UserLogServiceImpl implements UserLogService {
 
     @Override
     public UserLog getById(Long id) {
-        UserLog userLog = userLogRepository.findById(id).orElse(null);
-        if (userLog == null)
-            throw new ApiFailException("Log by ID(" + id + ") not found");
-        return userLog;
+        return userLogRepository.findById(id).orElse(null);
     }
 
     @Override

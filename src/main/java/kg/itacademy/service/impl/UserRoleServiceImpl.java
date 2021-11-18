@@ -25,10 +25,7 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     public UserRole getById(Long id) {
-        UserRole role = userRoleRepository.findById(id).orElse(null);
-        if (role == null)
-            throw new ApiFailException("Role by ID(" + id + ") not found");
-        return role;
+        return userRoleRepository.findById(id).orElse(null);
     }
 
     @Override

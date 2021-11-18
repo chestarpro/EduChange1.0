@@ -1,6 +1,7 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.entity.User;
+import kg.itacademy.model.AuthDataBaseUserModel;
 import kg.itacademy.model.ResponseMessage;
 import kg.itacademy.model.UserAuthorizModel;
 import kg.itacademy.model.UserModel;
@@ -22,9 +23,9 @@ public class UserController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseMessage<String> getAuthHeader(@RequestBody UserAuthorizModel userAuthorizModel) {
-        String authHeader = userService.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
-        return new ResponseMessage<String>().prepareSuccessMessage(authHeader);
+    public ResponseMessage<AuthDataBaseUserModel> getAuthHeader(@RequestBody UserAuthorizModel userAuthorizModel) {
+        AuthDataBaseUserModel authHeader = userService.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
+        return new ResponseMessage<AuthDataBaseUserModel>().prepareSuccessMessage(authHeader);
     }
 
     @GetMapping("/get-by-id/{id}")

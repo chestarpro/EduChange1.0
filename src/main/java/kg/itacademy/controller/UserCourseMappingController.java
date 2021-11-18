@@ -28,9 +28,9 @@ public class UserCourseMappingController {
                 .prepareSuccessMessage(userCourseMappingService.getUserCourseMappingModelById(id));
     }
 
-    @GetMapping("/get-all-purchased-curses")
-    public ResponseMessage<List<CourseModel>> getAllPurchasedCourses() {
+    @GetMapping("/get-all-purchased-curses/{userId}")
+    public ResponseMessage<List<CourseModel>> getAllPurchasedCourses(@PathVariable Long userId) {
         return new ResponseMessage<List<CourseModel>>()
-                .prepareSuccessMessage(userCourseMappingService.getAllPurchasedCourses());
+                .prepareSuccessMessage(userCourseMappingService.getAllPurchasedCourses(userId));
     }
 }

@@ -1,6 +1,7 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.User;
+import kg.itacademy.model.AuthDataBaseUserModel;
 import kg.itacademy.model.UserAuthorizModel;
 import kg.itacademy.model.UserModel;
 
@@ -31,5 +32,5 @@ public interface UserService extends BaseService<User> {
 
     UserModel deleteUserByAdmin(Long userId);
 
-    String getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel);
+    AuthDataBaseUserModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel);
 }

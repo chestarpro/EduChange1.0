@@ -7,12 +7,10 @@ import kg.itacademy.model.CategoryModel;
 import kg.itacademy.repository.CategoryRepository;
 import kg.itacademy.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
@@ -39,8 +37,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryModel getCategoryModelById(Long id) {
         Category dataCategory = getById(id);
-        if (dataCategory == null)
-            throw new ApiFailException("Категории по id " + id + " не найдено");
         return new CategoryConverter().convertFromEntity(dataCategory);
     }
 

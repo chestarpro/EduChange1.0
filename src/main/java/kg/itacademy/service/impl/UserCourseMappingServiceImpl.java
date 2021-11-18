@@ -48,10 +48,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     @Override
     public UserCourseMapping getById(Long id) {
-        UserCourseMapping userCourseMapping = userCourseMappingRepository.findById(id).orElse(null);
-        if (userCourseMapping == null)
-            throw new ApiFailException("The purchase by ID(" + id + ") not found");
-        return userCourseMapping;
+        return userCourseMappingRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -73,9 +70,9 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     }
 
     @Override
-    public List<CourseModel> getAllPurchasedCourses() {
+    public List<CourseModel> getAllPurchasedCourses(Long userId) {
         List<Course> purchasedCourses = userCourseMappingRepository
-                .findAllByUser_Id(userService.getCurrentUser().getId())
+                .findAllByUser_Id(userId)
                 .stream().map(UserCourseMapping::getCourse)
                 .collect(Collectors.toList());
 

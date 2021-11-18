@@ -6,13 +6,12 @@ import kg.itacademy.entity.UserLog;
 import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserRole;
 import kg.itacademy.exception.ApiFailException;
+import kg.itacademy.model.AuthDataBaseUserModel;
+import kg.itacademy.model.CourseModel;
 import kg.itacademy.model.UserAuthorizModel;
 import kg.itacademy.model.UserModel;
 import kg.itacademy.repository.UserRepository;
-import kg.itacademy.service.UserLogService;
-import kg.itacademy.service.UserBalanceService;
-import kg.itacademy.service.UserRoleService;
-import kg.itacademy.service.UserService;
+import kg.itacademy.service.*;
 import kg.itacademy.util.VariableValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,16 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     private final UserLogService userLogService;
 
     @Autowired
+    private UserImageService userImageService;
+
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
     private UserBalanceService userBalanceService;
+
+    @Autowired
+    private UserCourseMappingService userCourseMappingService;
 
     @Override
     public User save(User user) {
@@ -86,10 +94,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public User getById(Long id) {
-        User user = userRepository.findById(id).orElse(null);
-        if (user == null)
-            throw new ApiFailException("User by ID(" + id + ") not found");
-        return user;
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -140,7 +145,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
-    public String getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
+    public AuthDataBaseUserModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
         User user = userRepository.findByUsername(userAuthorizModel.getUsername())
                 .orElseThrow(() -> new ApiFailException("Invalid username or password"));
 
@@ -153,7 +158,9 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
         userLogService.save(new UserLog(user, true));
 
-        return "Basic " + authHeader;
+        String token = "Basic " + authHeader;
+
+        return getAuthDataBaseUser(token, user.getId());
     }
 
     @Override
@@ -304,5 +311,19 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
             throw new ApiFailException("Invalid username format");
         if (user.getUsername() != null && user.getEmail().contains(" "))
             throw new ApiFailException("Invalid email format");
+    }
+
+    private AuthDataBaseUserModel getAuthDataBaseUser(String token, Long userId) {
+        AuthDataBaseUserModel dataBaseModel = new AuthDataBaseUserModel();
+        dataBaseModel.setToken(token);
+        List<CourseModel> userCreateCourses = courseService.getAllByUserId(userId);
+        List<CourseModel> userPurchasedCourses = userCourseMappingService.getAllPurchasedCourses(userId);
+        dataBaseModel.setUser(getUserModelById(userId));
+        dataBaseModel.setUserBalance(userBalanceService.getUserBalanceModelByUserId(userId));
+        dataBaseModel.setUserImage(userImageService.getUserImageModelByUserId(userId));
+        dataBaseModel.setUserCreateCourses(userCreateCourses);
+        dataBaseModel.setUserPurchasedCourses(userPurchasedCourses);
+
+        return dataBaseModel;
     }
 }

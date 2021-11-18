@@ -65,10 +65,7 @@ public class UserImageImpl implements UserImageService {
 
     @Override
     public UserImage getById(Long id) {
-        UserImage userImage = userImageRepository.findById(id).orElse(null);
-        if (userImage == null)
-            throw new ApiFailException("UserImage by ID(" + id + ") not found");
-        return userImage;
+        return userImageRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -79,9 +76,6 @@ public class UserImageImpl implements UserImageService {
     @Override
     public UserImageModel getUserImageModelByUserId(Long userId) {
         UserImage userImage = userImageRepository.findByUser_Id(userId);
-        if (userImage == null) {
-            throw new ApiFailException("User image by user id (" + userId + ") not found");
-        }
         return new UserImageConverter().convertFromEntity(userImage);
     }
 

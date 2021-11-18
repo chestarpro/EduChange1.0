@@ -10,13 +10,11 @@ import kg.itacademy.service.CourseService;
 import kg.itacademy.service.LikeService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
@@ -47,10 +45,7 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public Like getById(Long id) {
-        Like like = likeRepository.findById(id).orElse(null);
-        if (like == null)
-            throw new ApiFailException("Like by ID(" + id + ") not found");
-        return like;
+        return likeRepository.findById(id).orElse(null);
     }
 
     @Override

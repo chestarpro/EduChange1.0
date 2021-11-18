@@ -2,6 +2,7 @@ package kg.itacademy.service.impl;
 
 import kg.itacademy.converter.CourseConverter;
 import kg.itacademy.entity.Course;
+import kg.itacademy.entity.Like;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.CourseModel;
 import kg.itacademy.repository.CourseRepository;
@@ -9,13 +10,11 @@ import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
 import kg.itacademy.util.VariableValidation;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService, VariableValidation<Course> {
@@ -41,10 +40,7 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
     @Override
     public Course getById(Long id) {
-        Course course = courseRepository.findById(id).orElse(null);
-        if (course == null)
-            throw new ApiFailException("Курс под id: " + id + " не найден");
-        return course;
+        return courseRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -59,17 +55,16 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
     @Override
     public List<CourseModel> getAllCourseModel() {
-        List<CourseModel> list = new ArrayList<>();
-        for (Course course : courseRepository.findAll()) {
-            list.add(new CourseConverter().convertFromEntity(course));
-        }
-        return list;
+        CourseConverter converter = new CourseConverter();
+        return getAll().stream()
+                .map(converter::convertFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Course update(Course course) {
         if (course.getId() == null)
-            throw new ApiFailException("Не указан id course");
+            throw new ApiFailException("Course id not specified");
         validateEmail(course);
         validateLengthVariablesForUpdate(course);
         validateVariablesForNullOrIsEmptyUpdate(course);
@@ -84,49 +79,57 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
     @Override
     public List<CourseModel> getAllByCourseName(String courseName) {
-        List<CourseModel> list = new ArrayList<>();
-        for (Course course : courseRepository.findAllByCourseName(courseName)) {
-            list.add(new CourseConverter().convertFromEntity(course));
+        List<Course> courses = courseRepository.findAllByCourseName(courseName);
+        if (!courses.isEmpty()) {
+            CourseConverter converter = new CourseConverter();
+            return courses.stream()
+                    .map(converter::convertFromEntity)
+                    .collect(Collectors.toList());
         }
-        return list;
+        return null;
     }
 
     @Override
     public List<CourseModel> getAllByCourseCategoryName(String categoryName) {
-        List<CourseModel> list = new ArrayList<>();
-        for (Course course : courseRepository.findAllByCategoryName(categoryName)) {
-            list.add(new CourseConverter().convertFromEntity(course));
+        List<Course> courses = courseRepository.findAllByCategoryName(categoryName);
+        if (!courses.isEmpty()) {
+            CourseConverter converter = new CourseConverter();
+            return courses.stream()
+                    .map(converter::convertFromEntity)
+                    .collect(Collectors.toList());
         }
-        return list;
+        return null;
     }
 
     @Override
     public List<CourseModel> getAllByCategoryId(Long id) {
-        List<CourseModel> list = new ArrayList<>();
-        for (Course course : courseRepository.findAllByCategory_Id(id)) {
-            list.add(new CourseConverter().convertFromEntity(course));
+        List<Course> courses = courseRepository.findAllByCategory_Id(id);
+        if (!courses.isEmpty()) {
+            CourseConverter converter = new CourseConverter();
+            return courses.stream()
+                    .map(converter::convertFromEntity)
+                    .collect(Collectors.toList());
         }
-        return list;
+        return null;
     }
 
     @Override
-    public List<CourseModel> getAllByUserId() {
-        List<Course> courses = courseRepository
-                .findAllByUser_Id(userService.getCurrentUser().getId());
-        List<CourseModel> courseModels = new ArrayList<>();
-        for (Course course : courses) {
-            courseModels.add(new CourseConverter().convertFromEntity(course));
+    public List<CourseModel> getAllByUserId(Long userId) {
+        List<Course> courses = courseRepository.findAllByUser_Id(userId);
+        if (!courses.isEmpty()) {
+            CourseConverter converter = new CourseConverter();
+            return courses.stream()
+                    .map(converter::convertFromEntity)
+                    .collect(Collectors.toList());
         }
-        return courseModels;
+        return null;
     }
 
     @Override
     public CourseModel deleteCourseById(Long id) {
-        Course deleteCourse = courseRepository.findById(id).orElse(null);
-        if (deleteCourse == null)
-            throw new ApiFailException("ID курса не существует");
-        courseRepository.delete(deleteCourse);
+        Course deleteCourse = getById(id);
 
+        courseRepository.delete(deleteCourse);
         return new CourseConverter().convertFromEntity(deleteCourse);
     }
 
@@ -138,64 +141,67 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
     @Override
     public void validateLengthVariables(Course course) {
         if (course.getCourseShortInfo().length() > 50)
-            throw new ApiFailException("Превышен лимит 50 символов");
+            throw new ApiFailException("Exceeded character limit (50) for short ifo");
         if (course.getCourseInfoTitle().length() > 50)
-            throw new ApiFailException("Превышен лимит 50 символов");
+            throw new ApiFailException("Exceeded character limit (50) for title ifo");
     }
 
     @Override
     public void validateLengthVariablesForUpdate(Course course) {
         if (course.getCourseShortInfo() != null && course.getCourseShortInfo().length() > 50)
-            throw new ApiFailException("Превышен лимит 50 символов");
+            throw new ApiFailException("Exceeded character limit (50) for short ifo");
 
         if (course.getCourseInfoTitle() != null && course.getCourseInfoTitle().length() > 50)
-            throw new ApiFailException("Превышен лимит 50 символов");
+            throw new ApiFailException("Exceeded character limit (50) for title ifo");
     }
 
     @Override
     public void validateVariablesForNullOrIsEmpty(Course course) {
         if (course.getCategory() == null)
-            throw new ApiFailException("Не выбрана категория");
+            throw new ApiFailException("Category is not filled");
 
         if (course.getCourseName() == null || course.getCourseName().isEmpty())
-            throw new ApiFailException("Нет названия курса");
+            throw new ApiFailException("Course name is not filled");
 
         if (course.getPhoneNumber() == null || course.getPhoneNumber().isEmpty())
-            throw new ApiFailException("Не указан рабочий номер телефона");
+            throw new ApiFailException("Phone number is not filled");
 
         if (course.getCourseShortInfo() == null || course.getCourseShortInfo().isEmpty())
-            throw new ApiFailException("Нет короткой описании курса");
+            throw new ApiFailException("Short info is not filled");
 
         if (course.getCourseInfoTitle() == null || course.getCourseInfoTitle().isEmpty())
-            throw new ApiFailException("Нет заголовка описания урока");
+            throw new ApiFailException("Title info is not filled");
 
         if (course.getCourseInfo() == null || course.getCourseInfo().isEmpty())
-            throw new ApiFailException("Нет описания курса");
+            throw new ApiFailException("Course info is not filled");
 
         if (course.getPrice().doubleValue() < 0) {
-            throw new ApiFailException("Не корректная цена курса");
+            throw new ApiFailException("Wrong balance format");
         }
     }
 
     @Override
     public void validateVariablesForNullOrIsEmptyUpdate(Course course) {
+        if (course.getCategory() != null && course.getCategory().getId() == null)
+            throw new ApiFailException("Category is not filled");
+
         if (course.getCourseName() != null && course.getCourseName().isEmpty())
-            throw new ApiFailException("Нет названия курса");
+            throw new ApiFailException("Course name is not filled");
 
         if (course.getPhoneNumber() != null && course.getPhoneNumber().isEmpty())
-            throw new ApiFailException("Нет указан рабочий номер телефона");
+            throw new ApiFailException("Phone number is not filled");
 
         if (course.getCourseShortInfo() != null && course.getCourseShortInfo().isEmpty())
-            throw new ApiFailException("Нет короткой описании курса");
+            throw new ApiFailException("Short info is not filled");
 
         if (course.getCourseInfoTitle() != null && course.getCourseInfoTitle().isEmpty())
-            throw new ApiFailException("Нет заголовка описания урока");
+            throw new ApiFailException("Title info is not filled");
 
         if (course.getCourseInfo() != null && course.getCourseInfo().isEmpty())
-            throw new ApiFailException("Нет описания курса");
+            throw new ApiFailException("Course info is not filled");
 
         if (course.getPrice() != null && course.getPrice().doubleValue() < 0) {
-            throw new ApiFailException("Не корректная цена курса");
+            throw new ApiFailException("Wrong balance format");
         }
     }
 }

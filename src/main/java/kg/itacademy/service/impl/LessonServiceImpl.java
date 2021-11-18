@@ -36,10 +36,7 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
 
     @Override
     public Lesson getById(Long id) {
-        Lesson lesson = lessonRepository.findById(id).orElse(null);
-        if (lesson == null)
-            throw new ApiFailException("Lesson by ID(" + id + ") not found");
-        return lesson;
+        return lessonRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -76,7 +73,7 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
     @Override
     public Lesson update(Lesson lesson) {
         if (lesson.getId() == null)
-            throw new IllegalArgumentException("Не указан id урока");
+            throw new IllegalArgumentException("Lesson id not specified");
         return save(lesson);
     }
 

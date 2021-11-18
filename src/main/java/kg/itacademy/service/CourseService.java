@@ -18,7 +18,7 @@ public interface CourseService extends BaseService<Course> {
 
     CourseModel updateCourse(CourseModel courseModel);
 
-    List<CourseModel> getAllByUserId();
+    List<CourseModel> getAllByUserId(Long userId);
 
     CourseModel getCourseModelById(Long id);
 
