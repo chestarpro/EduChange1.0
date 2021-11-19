@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/admin/*").hasRole("ADMIN")
                 .antMatchers(HttpMethod.POST, "/sign-up").permitAll()
                 .antMatchers(HttpMethod.POST, "/sign-in").permitAll()
-                .antMatchers("/api/*").permitAll()
+                .antMatchers("/api/*").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .httpBasic();
