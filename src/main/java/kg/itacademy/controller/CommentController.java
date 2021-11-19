@@ -2,7 +2,7 @@ package kg.itacademy.controller;
 
 import kg.itacademy.model.CommentModel;
 import kg.itacademy.model.CreateCommentModel;
-import kg.itacademy.model.ResponseMessage;
+import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.UpdateCommentModel;
 import kg.itacademy.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +44,6 @@ public class CommentController {
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<CommentModel> delete(@PathVariable Long id) {
         return new ResponseMessage<CommentModel>()
-                .prepareSuccessMessage(commentService.deleteCommentById(id));
+                .prepareSuccessMessage(commentService.deleteComment(id));
     }
 }

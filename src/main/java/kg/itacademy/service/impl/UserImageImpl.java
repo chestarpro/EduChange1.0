@@ -91,7 +91,6 @@ public class UserImageImpl implements UserImageService {
                 .map(converter::convertFromEntity).collect(Collectors.toList());
     }
 
-    @Override
     public UserImage update(UserImage userImage) {
         if (userImage.getId() == null)
             throw new ApiFailException("User image id not specified");

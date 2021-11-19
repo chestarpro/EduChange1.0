@@ -1,6 +1,6 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.ResponseMessage;
+import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.UserImageModel;
 import kg.itacademy.service.UserImageService;
 import org.springframework.beans.factory.annotation.Autowired;

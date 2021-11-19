@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,16 +18,26 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    private final CategoryConverter CONVERTER = new CategoryConverter();
+
     @Override
     public Category save(Category category) {
-        if (category.getCategoryName() == null || category.getCategoryName().isEmpty())
+        return categoryRepository.save(category);
+    }
+
+    @Override
+    public CategoryModel createCategory(String categoryName) {
+        if (categoryName == null || categoryName.isEmpty())
             throw new ApiFailException("Не указан название категории");
 
-        Category dataCategory = getByCategoryName(category.getCategoryName());
+        if (categoryName.length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for category name");
+
+        CategoryModel dataCategory = getByCategoryName(categoryName);
         if (dataCategory != null)
             throw new ApiFailException("Категория " + dataCategory.getCategoryName() + " уже существует");
 
-        return categoryRepository.save(category);
+        return CONVERTER.convertFromEntity(save(Category.builder().categoryName(categoryName).build()));
     }
 
     @Override
@@ -36,8 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryModel getCategoryModelById(Long id) {
-        Category dataCategory = getById(id);
-        return new CategoryConverter().convertFromEntity(dataCategory);
+        return CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
@@ -46,23 +56,39 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category update(Category category) {
-        if (category.getId() == null)
+    public List<CategoryModel> getAllCategoryModel() {
+        return getAll()
+                .stream()
+                .map(CONVERTER::convertFromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CategoryModel updateCategory(CategoryModel categoryModel) {
+        if (categoryModel.getId() == null)
             throw new IllegalArgumentException("Не указан id категории");
-        if (category.getCategoryName() != null && category.getCategoryName().isEmpty())
+
+        if (categoryModel.getCategoryName() == null || categoryModel.getCategoryName().isEmpty())
             throw new ApiFailException("Не указан название категории");
-        return categoryRepository.save(category);
+
+        if (categoryModel.getCategoryName().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for category name");
+
+        return CONVERTER.convertFromEntity(categoryRepository.save(CONVERTER.convertFromModel(categoryModel)));
     }
 
     @Override
-    public Category getByCategoryName(String categoryName) {
-        return categoryRepository.findByCategoryName(categoryName).orElse(null);
+    public CategoryModel getByCategoryName(String categoryName) {
+        return CONVERTER.convertFromEntity(categoryRepository.findByCategoryName(categoryName).orElse(null));
     }
 
     @Override
-    public Category deleteCategory(Long id) {
+    public CategoryModel deleteCategory(Long id) {
         Category category = getById(id);
+        if (category == null) {
+            throw new ApiFailException("Category by id " + id + " not found");
+        }
         categoryRepository.delete(category);
-        return category;
+        return CONVERTER.convertFromEntity(category);
     }
 }

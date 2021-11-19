@@ -14,8 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +26,8 @@ public class CourseImageServiceImpl implements CourseImageService {
     private final CourseImageRepository courseImageRepository;
 
     private final UserImageService userImageService;
+
+    private final CourseImageConverter CONVERTER = new CourseImageConverter();
 
     @Override
     public CourseImage save(CourseImage courseImage) {
@@ -40,7 +42,7 @@ public class CourseImageServiceImpl implements CourseImageService {
         Course course = new Course();
         course.setId(courseId);
         courseImage.setCourse(course);
-        return new CourseImageConverter().convertFromEntity(save(courseImage));
+        return CONVERTER.convertFromEntity(save(courseImage));
     }
 
     @Override
@@ -50,13 +52,13 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public CourseImageModel getCourseImageModelById(Long id) {
-        return new CourseImageConverter().convertFromEntity(getById(id));
+        return CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public CourseImageModel getCourseImageModelByCourseId(Long courseId) {
-        CourseImage courseImage = courseImageRepository.findByCourse_Id(courseId);
-        return new CourseImageConverter().convertFromEntity(courseImage);
+        CourseImage courseImage = courseImageRepository.findByCourse_Id(courseId).orElse(null);
+        return CONVERTER.convertFromEntity(courseImage);
     }
 
     @Override
@@ -66,31 +68,23 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public List<CourseImageModel> getAllUserImageModel() {
-        List<CourseImageModel> imageModels = new ArrayList<>();
-        for (CourseImage courseImage : getAll())
-            imageModels.add(new CourseImageConverter().convertFromEntity(courseImage));
-        return imageModels;
-    }
-
-    @Override
-    public CourseImage update(CourseImage courseImage) {
-        return courseImageRepository.save(courseImage);
+        return getAll().stream().map(CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
     public CourseImageModel updateImage(MultipartFile multipartFile, Long id) {
-        CourseImage updateCourseImage;
+
         try {
-            updateCourseImage = getById(id);
+            CourseImage updateCourseImage = getById(id);
 
             new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(updateCourseImage.getCourseImageUrl());
 
             updateCourseImage.setCourseImageUrl(userImageService.saveImageInCloudinary(multipartFile));
-
+            return new CourseImageConverter().convertFromEntity(courseImageRepository.save(updateCourseImage));
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }
-        return new CourseImageConverter().convertFromEntity(update(updateCourseImage));
+
     }
 
     @Override

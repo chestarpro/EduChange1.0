@@ -12,5 +12,4 @@ import lombok.experimental.SuperBuilder;
 public class UpdateCommentModel {
     private Long id;
     private String comment;
-    private Long courseId;
 }

@@ -1,12 +1,10 @@
-package kg.itacademy.model;
+package kg.itacademy.util;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Data

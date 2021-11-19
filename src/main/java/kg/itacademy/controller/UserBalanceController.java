@@ -1,6 +1,6 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.ResponseMessage;
+import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.UpdateUserBalanceModel;
 import kg.itacademy.model.UserBalanceModel;
 import kg.itacademy.service.UserBalanceService;

@@ -12,16 +12,15 @@ import kg.itacademy.repository.CommentRepository;
 import kg.itacademy.service.CommentService;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
-import kg.itacademy.util.VariableValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CommentServiceImpl implements CommentService, VariableValidation<Comment> {
+public class CommentServiceImpl implements CommentService{
 
     private final CommentRepository commentRepository;
 
@@ -29,19 +28,23 @@ public class CommentServiceImpl implements CommentService, VariableValidation<Co
 
     private final UserService userService;
 
+    private final CommentConverter CONVERTER = new CommentConverter();
+
     @Override
     public Comment save(Comment comment) {
-        validateLengthVariables(comment);
-        validateVariablesForNullOrIsEmpty(comment);
         return commentRepository.save(comment);
     }
 
     @Override
     public CommentModel createCommentByCourseId(CreateCommentModel createCommentModel) {
+        validateLengthVariables(createCommentModel);
+        validateVariablesForNullOrIsEmpty(createCommentModel);
+
         Course course = courseService.getById(createCommentModel.getCourseId());
         User user = userService.getCurrentUser();
+
         Comment comment = save(new Comment(createCommentModel.getComment(), user, course));
-        return new CommentConverter().convertFromEntity(comment);
+        return CONVERTER.convertFromEntity(comment);
     }
 
     @Override
@@ -51,10 +54,7 @@ public class CommentServiceImpl implements CommentService, VariableValidation<Co
 
     @Override
     public CommentModel getCommentModelById(Long id) {
-        Comment comment = getById(id);
-        if (comment == null)
-            throw new ApiFailException("Комментарий не найден");
-        return new CommentConverter().convertFromEntity(comment);
+        return CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
@@ -64,79 +64,66 @@ public class CommentServiceImpl implements CommentService, VariableValidation<Co
 
     @Override
     public List<CommentModel> getAllCommentModel() {
-        List<CommentModel> list = new ArrayList<>();
-        for (Comment comment : getAll())
-            list.add(new CommentConverter().convertFromEntity(comment));
-        return list;
+        return getAll()
+                .stream()
+                .map(CONVERTER::convertFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<CommentModel> getAllCommentModelByCourseId(Long id) {
-        List<Comment> comments = commentRepository.findAllByCourse_Id(id);
-        List<CommentModel> commentModels = new ArrayList<>();
-        for (Comment comment : comments)
-            commentModels.add(new CommentConverter().convertFromEntity(comment));
-        return commentModels;
-    }
-
-    @Override
-    public Comment update(Comment comment) {
-        if (comment.getId() == null)
-            throw new IllegalArgumentException("Не указан id комментария");
-
-        validateLengthVariablesForUpdate(comment);
-        validateVariablesForNullOrIsEmptyUpdate(comment);
-        return commentRepository.save(comment);
+    public List<CommentModel> getAllCommentModelByCourseId(Long courseId) {
+       return commentRepository
+               .findAllByCourse_Id(courseId)
+               .stream()
+               .map(CONVERTER::convertFromEntity)
+               .collect(Collectors.toList());
     }
 
     @Override
     public CommentModel updateByUpdateCommentModel(UpdateCommentModel updateCommentModel) {
+        if (updateCommentModel.getId() == null)
+            throw new IllegalArgumentException("Не указан id комментария");
+
+        validateVariablesForNullOrIsEmptyUpdate(updateCommentModel);
+        validateLengthVariablesForUpdate(updateCommentModel);
+
         Comment comment = new Comment();
-        Course course = courseService.getById(updateCommentModel.getCourseId());
-        User user = userService.getCurrentUser();
         comment.setId(updateCommentModel.getId());
         comment.setCourseComment(updateCommentModel.getComment());
-        comment.setCourse(course);
-        comment.setUser(user);
-        return new CommentConverter().convertFromEntity(update(comment));
+
+        return CONVERTER.convertFromEntity(commentRepository.save(comment));
     }
 
     @Override
-    public CommentModel deleteCommentById(Long id) {
+    public CommentModel deleteComment(Long id) {
         Comment comment = getById(id);
         if (comment == null) {
-            throw new ApiFailException("Комментарий под id " + id + " не найден");
+            throw new ApiFailException("Comment by id " + id + " not found");
         }
         commentRepository.delete(comment);
-        return new CommentConverter().convertFromEntity(comment);
+        return CONVERTER.convertFromEntity(comment);
     }
 
-    @Override
-    public void validateLengthVariables(Comment comment) {
-        if (comment.getCourseComment().length() > 255)
+    private void validateLengthVariables(CreateCommentModel comment) {
+        if (comment.getComment().length() > 255)
             throw new ApiFailException("Превышен лимит символов 255");
     }
 
-    @Override
-    public void validateVariablesForNullOrIsEmptyUpdate(Comment comment) {
-        if (comment.getCourseComment() != null && comment.getCourseComment().length() > 255)
-            throw new ApiFailException("Превышен лимит символов 255");
-    }
-
-    @Override
-    public void validateVariablesForNullOrIsEmpty(Comment comment) {
-        if (comment.getCourseComment().isEmpty()
-                || comment.getCourseComment() == null)
+    private void validateVariablesForNullOrIsEmpty(CreateCommentModel comment) {
+        if (comment.getComment().isEmpty()
+                || comment.getComment() == null)
             throw new ApiFailException("Комментарий пустой");
-        if (comment.getCourse() == null)
+        if (comment.getCourseId() == null)
             throw new ApiFailException("Не указан id курса");
-        if (comment.getUser() == null)
-            throw new ApiFailException("Не указан id пользователя");
     }
 
-    @Override
-    public void validateLengthVariablesForUpdate(Comment comment) {
-        if (comment.getCourseComment() != null && comment.getCourseComment().isEmpty())
+    private void validateVariablesForNullOrIsEmptyUpdate(UpdateCommentModel comment) {
+        if (comment.getComment() == null || comment.getComment().isEmpty())
             throw new ApiFailException("Комментарий пустой");
+    }
+
+    private void validateLengthVariablesForUpdate(UpdateCommentModel comment) {
+        if (comment.getComment() != null && comment.getComment().length() > 255)
+            throw new ApiFailException("Превышен лимит символов 255");
     }
 }

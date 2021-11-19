@@ -61,7 +61,6 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
                 .collect(Collectors.toList());
     }
 
-    @Override
     public Course update(Course course) {
         if (course.getId() == null)
             throw new ApiFailException("Course id not specified");

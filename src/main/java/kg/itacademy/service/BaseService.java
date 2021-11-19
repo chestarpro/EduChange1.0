@@ -8,6 +8,4 @@ public interface BaseService<T> {
     T getById(Long id);
 
     List<T> getAll();
-
-    T update(T t);
 }

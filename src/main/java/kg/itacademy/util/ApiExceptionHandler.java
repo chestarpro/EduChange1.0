@@ -2,7 +2,6 @@ package kg.itacademy.util;
 
 import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.ResponseMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,7 +1,7 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.model.CourseModel;
-import kg.itacademy.model.ResponseMessage;
+import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

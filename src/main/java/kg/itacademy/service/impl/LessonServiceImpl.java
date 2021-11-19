@@ -70,7 +70,7 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
         return null;
     }
 
-    @Override
+
     public Lesson update(Lesson lesson) {
         if (lesson.getId() == null)
             throw new IllegalArgumentException("Lesson id not specified");

@@ -1,7 +1,7 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.entity.User;
-import kg.itacademy.model.ResponseMessage;
+import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.UserModel;
 import kg.itacademy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

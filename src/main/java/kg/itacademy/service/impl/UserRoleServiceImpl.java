@@ -40,7 +40,6 @@ public class UserRoleServiceImpl implements UserRoleService {
                 .map(userRoleConverter::convertFromEntity).collect(Collectors.toList());
     }
 
-    @Override
     public UserRole update(UserRole userRole) {
         return null;
     }

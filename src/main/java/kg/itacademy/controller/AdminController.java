@@ -1,8 +1,8 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.entity.Category;
 import kg.itacademy.model.*;
 import kg.itacademy.service.*;
+import kg.itacademy.util.ResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,16 +36,16 @@ public class AdminController {
     @Autowired
     private UserCourseMappingService userCourseMappingService;
 
-    @PostMapping("/category/create")
-    public ResponseMessage<Category> saveCategory(@RequestBody Category category) {
-        return new ResponseMessage<Category>()
-                .prepareSuccessMessage(categoryService.save(category));
+    @PostMapping("/category/create/{categoryName}")
+    public ResponseMessage<CategoryModel> saveCategory(@PathVariable String categoryName) {
+        return new ResponseMessage<CategoryModel>()
+                .prepareSuccessMessage(categoryService.createCategory(categoryName));
     }
 
     @PutMapping("/category/update")
-    public ResponseMessage<Category> updateCategory(@RequestBody Category category) {
-        return new ResponseMessage<Category>()
-                .prepareSuccessMessage(categoryService.update(category));
+    public ResponseMessage<CategoryModel> updateCategory(@RequestBody CategoryModel categoryModel) {
+        return new ResponseMessage<CategoryModel>()
+                .prepareSuccessMessage(categoryService.updateCategory(categoryModel));
     }
 
     @GetMapping("/user/get-all")
@@ -85,8 +85,8 @@ public class AdminController {
     }
 
     @DeleteMapping("/category/delete/{id}")
-    public ResponseMessage<Category> deleteCategory(@PathVariable Long id) {
-        return new ResponseMessage<Category>()
+    public ResponseMessage<CategoryModel> deleteCategory(@PathVariable Long id) {
+        return new ResponseMessage<CategoryModel>()
                 .prepareSuccessMessage(categoryService.deleteCategory(id));
     }
 

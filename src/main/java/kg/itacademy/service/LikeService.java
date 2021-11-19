@@ -9,5 +9,8 @@ public interface LikeService extends BaseService<Like> {
     LikeModel createLikeByCourseId(Long courseId);
     LikeModel getLikeModelById(Long id);
     List<LikeModel> getAllLikeModelByCourseId(Long id);
+
+    Like update(Like like);
+
     LikeModel deleteLike(Long id);
 }

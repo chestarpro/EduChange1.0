@@ -124,7 +124,6 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
         return new UserConverter().convertFromEntity(getCurrentUser());
     }
 
-    @Override
     public User update(User user) {
         if (user.getId() == null)
             throw new ApiFailException("User id not specified");
