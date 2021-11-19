@@ -53,9 +53,9 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     @Override
     public User save(User user) {
         validateVariablesForNullOrIsEmpty(user);
+        validateSpace(user);
         validateUsername(user.getUsername());
         validateEmail(user.getEmail());
-        validateSpace(user);
         checkUsernameAndEmail(user);
         validateLengthVariables(user);
 
@@ -130,14 +130,13 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
             throw new ApiFailException("User id not specified");
 
         validateVariablesForNullOrIsEmptyUpdate(user);
+        checkUsernameAndEmailForUpdate(user);
+        validateLengthVariablesForUpdate(user);
         if (user.getEmail() != null)
             validateEmail(user.getEmail());
         if (user.getUsername() != null)
             validateUsername(user.getUsername());
         validateSpaceForUpdate(user);
-        checkUsernameAndEmailForUpdate(user);
-        validateLengthVariablesForUpdate(user);
-
 
         return userRepository.save(user);
     }
@@ -304,7 +303,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     private void validateUsername(String email) {
-        String usernameRegex = "^[a-z]([a-z\\\\d.-]{0,18}[a-z\\\\d])?$";
+        String usernameRegex = "^[a-zA-Z0-9._-]{3,}$";
         Matcher matcher = Pattern.compile(usernameRegex).matcher(email);
         if (!matcher.matches()) {
             throw new ApiFailException("Incorrect login format");
