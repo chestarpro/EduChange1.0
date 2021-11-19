@@ -53,10 +53,11 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     @Override
     public User save(User user) {
         validateVariablesForNullOrIsEmpty(user);
+        validateUsername(user.getUsername());
+        validateEmail(user.getEmail());
         validateSpace(user);
         checkUsernameAndEmail(user);
         validateLengthVariables(user);
-        validateEmail(user.getEmail());
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsActive(1L);
@@ -128,13 +129,15 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
         if (user.getId() == null)
             throw new ApiFailException("User id not specified");
 
+        validateVariablesForNullOrIsEmptyUpdate(user);
         if (user.getEmail() != null)
             validateEmail(user.getEmail());
-
+        if (user.getUsername() != null)
+            validateUsername(user.getUsername());
         validateSpaceForUpdate(user);
         checkUsernameAndEmailForUpdate(user);
         validateLengthVariablesForUpdate(user);
-        validateVariablesForNullOrIsEmptyUpdate(user);
+
 
         return userRepository.save(user);
     }
@@ -292,10 +295,19 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public void validateEmail(String email) {
-        String emailRegex = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+        String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
+                + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
         Matcher matcher = Pattern.compile(emailRegex).matcher(email);
         if (!matcher.matches()) {
             throw new ApiFailException("Incorrect email format");
+        }
+    }
+
+    private void validateUsername(String email) {
+        String usernameRegex = "^[a-z]([a-z\\\\d.-]{0,18}[a-z\\\\d])?$";
+        Matcher matcher = Pattern.compile(usernameRegex).matcher(email);
+        if (!matcher.matches()) {
+            throw new ApiFailException("Incorrect login format");
         }
     }
 
