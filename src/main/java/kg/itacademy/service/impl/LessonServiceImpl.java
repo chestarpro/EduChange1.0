@@ -21,6 +21,8 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
 
     private final LessonRepository lessonRepository;
 
+    private final LessonConverter CONVERTER = new LessonConverter();
+
     @Override
     public Lesson save(Lesson lesson) {
         validateLengthVariables(lesson);
@@ -30,8 +32,8 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
 
     @Override
     public LessonModel createLesson(LessonModel lessonModel) {
-        Lesson lesson = save(new LessonConverter().convertFromModel(lessonModel));
-        return new LessonConverter().convertFromEntity(lesson);
+        Lesson lesson = save(CONVERTER.convertFromModel(lessonModel));
+        return CONVERTER.convertFromEntity(lesson);
     }
 
     @Override
@@ -52,42 +54,40 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
 
     @Override
     public List<LessonModel> getAllLessonModel() {
-        LessonConverter converter = new LessonConverter();
         return getAll().stream()
-                .map(converter::convertFromEntity)
+                .map(CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<LessonModel> getAllByCourseId(Long id) {
-        List<Lesson> lessons = lessonRepository.findAllByCourse_Id(id);
-        if (!lessons.isEmpty()) {
-            LessonConverter converter = new LessonConverter();
-            return lessons.stream()
-                    .map(converter::convertFromEntity)
-                    .collect(Collectors.toList());
-        }
-        return null;
+        return lessonRepository.findAllByCourse_Id(id).stream()
+                .map(CONVERTER::convertFromEntity)
+                .collect(Collectors.toList());
     }
-
 
     public Lesson update(Lesson lesson) {
         if (lesson.getId() == null)
-            throw new IllegalArgumentException("Lesson id not specified");
-        return save(lesson);
+            throw new ApiFailException("Lesson id not specified");
+        validateVariablesForNullOrIsEmptyUpdate(lesson);
+        validateLengthVariablesForUpdate(lesson);
+        return lessonRepository.save(lesson);
     }
 
     @Override
     public LessonModel updateLesson(LessonModel lessonModel) {
-        update(new LessonConverter().convertFromModel(lessonModel));
+        update(CONVERTER.convertFromModel(lessonModel));
         return lessonModel;
     }
 
     @Override
     public LessonModel deleteLessonById(Long id) {
         Lesson lesson = getById(id);
+
+        if (lesson == null)
+            throw new ApiFailException("Lesson by id " + id + " not found");
         lessonRepository.delete(lesson);
-        return new LessonConverter().convertFromEntity(lesson);
+        return CONVERTER.convertFromEntity(lesson);
     }
 
     @Override
@@ -105,12 +105,12 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
     @Override
     public void validateVariablesForNullOrIsEmpty(Lesson lesson) {
         if (lesson.getLessonInfo() == null || lesson.getLessonInfo().isEmpty())
-            throw new IllegalArgumentException("The description of the lesson is not specified");
+            throw new ApiFailException("The description of the lesson is not specified");
     }
 
     @Override
     public void validateVariablesForNullOrIsEmptyUpdate(Lesson lesson) {
         if (lesson.getLessonInfo() != null && lesson.getLessonInfo().isEmpty())
-            throw new IllegalArgumentException("The description of the lesson is not specified");
+            throw new ApiFailException("The description of the lesson is not specified");
     }
 }

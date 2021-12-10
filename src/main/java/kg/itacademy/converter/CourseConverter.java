@@ -4,7 +4,9 @@ import kg.itacademy.entity.Category;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.User;
 import kg.itacademy.model.CourseModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CourseConverter extends BaseConverter<CourseModel, Course> {
 
     public CourseConverter() {

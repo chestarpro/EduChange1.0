@@ -3,10 +3,12 @@ package kg.itacademy.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import kg.itacademy.converter.UserImageConverter;
+import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserImage;
 import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.UserImageModel;
+import kg.itacademy.model.UserImageUrlModel;
 import kg.itacademy.repository.UserImageRepository;
 import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
@@ -32,18 +34,22 @@ public class UserImageImpl implements UserImageService {
 
     private final UserService userService;
 
+    private final UserImageConverter CONVERTER = new UserImageConverter();
+
     @Override
     public UserImage save(UserImage userImage) {
         return userImageRepository.save(userImage);
     }
 
     @Override
-    public UserImageModel createUserImage(MultipartFile file) {
+    public UserImageModel createUserImage(MultipartFile file, Long userId) {
         String savedImageUrl = saveImageInCloudinary(file);
         UserImage userImage = new UserImage();
         userImage.setUserImageUrl(savedImageUrl);
-        userImage.setUser(userService.getCurrentUser());
-        return new UserImageConverter().convertFromEntity(save(userImage));
+        User user = new User();
+        user.setId(userId);
+        userImage.setUser(user);
+        return CONVERTER.convertFromEntity(save(userImage));
     }
 
     @Override
@@ -70,13 +76,13 @@ public class UserImageImpl implements UserImageService {
 
     @Override
     public UserImageModel getUserImageModelById(Long id) {
-        return new UserImageConverter().convertFromEntity(getById(id));
+        return CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public UserImageModel getUserImageModelByUserId(Long userId) {
         UserImage userImage = userImageRepository.findByUser_Id(userId);
-        return new UserImageConverter().convertFromEntity(userImage);
+        return CONVERTER.convertFromEntity(userImage);
     }
 
     @Override
@@ -86,9 +92,8 @@ public class UserImageImpl implements UserImageService {
 
     @Override
     public List<UserImageModel> getAllUserImageModel() {
-        UserImageConverter converter = new UserImageConverter();
         return getAll().stream()
-                .map(converter::convertFromEntity).collect(Collectors.toList());
+                .map(CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     public UserImage update(UserImage userImage) {
@@ -110,14 +115,14 @@ public class UserImageImpl implements UserImageService {
             new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(updateUserImage.getUserImageUrl());
             updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
 
-            return new UserImageConverter().convertFromEntity(update(updateUserImage));
+            return CONVERTER.convertFromEntity(update(updateUserImage));
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }
     }
 
     @Override
-    public UserImageModel deleteImage(String url) {
+    public UserImageModel deleteImage(UserImageUrlModel urlModel) {
         try {
             Long userId = userService.getCurrentUser().getId();
             UserImage deleteUserImage = userImageRepository.findByUser_Id(userId);
@@ -125,10 +130,10 @@ public class UserImageImpl implements UserImageService {
             if (deleteUserImage == null)
                 throw new ApiFailException("User image by user id (" + userId + ") not found");
 
-            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(url);
+            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(CLOUDINARY_URL);
             userImageRepository.delete(deleteUserImage);
 
-            return new UserImageConverter().convertFromEntity(deleteUserImage);
+            return CONVERTER.convertFromEntity(deleteUserImage);
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }

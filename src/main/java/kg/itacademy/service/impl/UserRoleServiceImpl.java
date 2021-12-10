@@ -2,7 +2,6 @@ package kg.itacademy.service.impl;
 
 import kg.itacademy.converter.UserRoleConverter;
 import kg.itacademy.entity.UserRole;
-import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.UserRoleModel;
 import kg.itacademy.repository.UserRoleRepository;
 import kg.itacademy.service.UserRoleService;
@@ -17,6 +16,8 @@ import java.util.stream.Collectors;
 public class UserRoleServiceImpl implements UserRoleService {
 
     private final UserRoleRepository userRoleRepository;
+
+    private final UserRoleConverter CONVERTER = new UserRoleConverter();
 
     @Override
     public UserRole save(UserRole userRole) {
@@ -35,12 +36,8 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     public List<UserRoleModel> getAllUserRoleModel() {
-        UserRoleConverter userRoleConverter = new UserRoleConverter();
-        return getAll().stream()
-                .map(userRoleConverter::convertFromEntity).collect(Collectors.toList());
-    }
 
-    public UserRole update(UserRole userRole) {
-        return null;
+        return getAll().stream()
+                .map(CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 }

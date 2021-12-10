@@ -16,7 +16,7 @@ public class UserCourseMappingController {
     @Autowired
     private UserCourseMappingService userCourseMappingService;
 
-    @GetMapping("/create-by-course-id/{courseId}")
+    @PostMapping("/create-by-course-id/{courseId}")
     public ResponseMessage<UserCourseMappingModel> create(@PathVariable Long courseId) {
         return new ResponseMessage<UserCourseMappingModel>()
                 .prepareSuccessMessage(userCourseMappingService.createByCourseId(courseId));

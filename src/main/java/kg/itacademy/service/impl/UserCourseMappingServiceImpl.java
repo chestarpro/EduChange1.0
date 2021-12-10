@@ -28,6 +28,10 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     private final UserService userService;
 
+    private final UserCourseMappingConverter CONVERTER = new UserCourseMappingConverter();
+
+    private final CourseConverter COURSE_CONVERTER = new CourseConverter();
+
     @Override
     public UserCourseMapping save(UserCourseMapping userCourseMapping) {
         Course course = courseService.getById(userCourseMapping.getCourse().getId());
@@ -42,8 +46,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
         User user = userService.getCurrentUser();
         Course course = courseService.getById(courseId);
 
-        return new UserCourseMappingConverter()
-                .convertFromEntity(save(new UserCourseMapping(user, course)));
+        return CONVERTER.convertFromEntity(save(new UserCourseMapping(user, course)));
     }
 
     @Override
@@ -53,8 +56,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     @Override
     public UserCourseMappingModel getUserCourseMappingModelById(Long id) {
-        return new UserCourseMappingConverter()
-                .convertFromEntity(getById(id));
+        return CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
@@ -64,9 +66,8 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     @Override
     public List<UserCourseMappingModel> getAllUserCourseMappingModel() {
-        UserCourseMappingConverter converter = new UserCourseMappingConverter();
         return getAll().stream()
-                .map(converter::convertFromEntity).collect(Collectors.toList());
+                .map(CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
@@ -76,22 +77,14 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
                 .stream().map(UserCourseMapping::getCourse)
                 .collect(Collectors.toList());
 
-        if (!purchasedCourses.isEmpty()) {
-            CourseConverter converter = new CourseConverter();
-            return purchasedCourses.stream().map(converter::convertFromEntity).collect(Collectors.toList());
-        }
-        return null;
-    }
-
-    @Override
-    public UserCourseMapping update(UserCourseMapping userCourseMapping) {
-        return null;
+        return purchasedCourses.stream()
+                .map(COURSE_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
     public UserCourseMappingModel deleteMapping(Long id) {
         UserCourseMapping mapping = getById(id);
         userCourseMappingRepository.delete(mapping);
-        return new UserCourseMappingConverter().convertFromEntity(mapping);
+        return CONVERTER.convertFromEntity(mapping);
     }
 }

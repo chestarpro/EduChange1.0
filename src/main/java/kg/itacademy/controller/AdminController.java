@@ -1,5 +1,6 @@
 package kg.itacademy.controller;
 
+import kg.itacademy.aop.LogMethod;
 import kg.itacademy.model.*;
 import kg.itacademy.service.*;
 import kg.itacademy.util.ResponseMessage;
@@ -49,6 +50,7 @@ public class AdminController {
     }
 
     @GetMapping("/user/get-all")
+    @LogMethod
     public ResponseMessage<List<UserModel>> getAllUser() {
         return new ResponseMessage<List<UserModel>>()
                 .prepareSuccessMessage(userService.getAllUserModels());
@@ -66,13 +68,13 @@ public class AdminController {
                 .prepareSuccessMessage(userLogService.getAllByUserId(userId));
     }
 
-    @GetMapping("user-balance/get-all/")
+    @GetMapping("user-balance/get-all")
     public ResponseMessage<List<UserBalanceModel>> getAllUserBalanceModel() {
         return new ResponseMessage<List<UserBalanceModel>>()
                 .prepareSuccessMessage(userBalanceService.getAllUserBalanceModel());
     }
 
-    @GetMapping("")
+    @GetMapping("/user-image/get-all")
     public ResponseMessage<List<UserImageModel>> getAllUserImageModel() {
         return new ResponseMessage<List<UserImageModel>>()
                 .prepareSuccessMessage(userImageService.getAllUserImageModel());

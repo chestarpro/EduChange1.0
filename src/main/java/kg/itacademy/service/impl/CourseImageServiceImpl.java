@@ -5,6 +5,7 @@ import kg.itacademy.converter.CourseImageConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.CourseImage;
 import kg.itacademy.exception.ApiErrorException;
+import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.CourseImageModel;
 import kg.itacademy.repository.CourseImageRepository;
 import kg.itacademy.service.CourseImageService;
@@ -91,6 +92,8 @@ public class CourseImageServiceImpl implements CourseImageService {
     public CourseImageModel deleteImage(Long id) {
         try {
             CourseImage deleteCourseImage = getById(id);
+            if (deleteCourseImage == null)
+                throw new ApiFailException("Course image by id "+ id +" not found");
             new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(deleteCourseImage.getCourseImageUrl());
             courseImageRepository.delete(deleteCourseImage);
             return new CourseImageConverter().convertFromEntity(deleteCourseImage);

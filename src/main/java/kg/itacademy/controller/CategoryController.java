@@ -1,6 +1,7 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.entity.Category;
+import kg.itacademy.model.CategoryModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +17,14 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping("/get-all")
-    public ResponseMessage<List<Category>> getAll() {
-       return new ResponseMessage<List<Category>>()
-                .prepareSuccessMessage(categoryService.getAll());
+    public ResponseMessage<List<CategoryModel>> getAll() {
+       return new ResponseMessage<List<CategoryModel>>()
+                .prepareSuccessMessage(categoryService.getAllCategoryModel());
     }
 
     @GetMapping("/get-by-id/{id}")
-    public ResponseMessage<Category> getById(@PathVariable Long id) {
-        return new ResponseMessage<Category>()
-                .prepareSuccessMessage(categoryService.getById(id));
+    public ResponseMessage<CategoryModel> getById(@PathVariable Long id) {
+        return new ResponseMessage<CategoryModel>()
+                .prepareSuccessMessage(categoryService.getCategoryModelById(id));
     }
 }

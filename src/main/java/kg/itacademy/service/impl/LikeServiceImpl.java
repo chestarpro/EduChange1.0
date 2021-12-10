@@ -25,6 +25,8 @@ public class LikeServiceImpl implements LikeService {
 
     private final UserService userService;
 
+    private final LikeConverter CONVERTER = new LikeConverter();
+
     @Override
     public Like save(Like like) {
         Like dataLike = getById(like.getId());
@@ -40,7 +42,7 @@ public class LikeServiceImpl implements LikeService {
         like.setCourse(course);
         like.setUser(userService.getCurrentUser());
 
-        return new LikeConverter().convertFromEntity(save(like));
+        return CONVERTER.convertFromEntity(save(like));
     }
 
     @Override
@@ -50,7 +52,7 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public LikeModel getLikeModelById(Long id) {
-        return new LikeConverter().convertFromEntity(getById(id));
+        return CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
@@ -60,25 +62,17 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public List<LikeModel> getAllLikeModelByCourseId(Long id) {
-        List<Like> likes = likeRepository.findAllByCourse_Id(id);
-        if (!likes.isEmpty()) {
-            LikeConverter converter = new LikeConverter();
-            return likes.stream()
-                    .map(converter::convertFromEntity)
-                    .collect(Collectors.toList());
-        }
-        return null;
-    }
-
-    @Override
-    public Like update(Like like) {
-        return null;
+        return likeRepository.findAllByCourse_Id(id).stream()
+                .map(CONVERTER::convertFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
     public LikeModel deleteLike(Long id) {
         Like like = getById(id);
+        if (like == null)
+            throw new ApiFailException("\"Like\" by id " + id + "not found");
         likeRepository.delete(like);
-        return new LikeConverter().convertFromEntity(like);
+        return CONVERTER.convertFromEntity(like);
     }
 }

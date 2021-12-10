@@ -23,6 +23,8 @@ public class UserBalanceImpl implements UserBalanceService {
 
     private final UserBalanceRepository userBalanceRepository;
 
+    private final UserBalanceConverter CONVERTER = new UserBalanceConverter();
+
     @Autowired
     private UserService userService;
 
@@ -38,14 +40,13 @@ public class UserBalanceImpl implements UserBalanceService {
 
     @Override
     public UserBalanceModel getUserBalanceModelById(Long id) {
-        return new UserBalanceConverter().convertFromEntity(getById(id));
+        return CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public UserBalanceModel getUserBalanceModelByUserId(Long userId) {
         UserBalance userBalance = userBalanceRepository.findByUser_Id(userId);
-        return new UserBalanceConverter()
-                .convertFromEntity(userBalance);
+        return CONVERTER.convertFromEntity(userBalance);
     }
 
     @Override
@@ -55,13 +56,11 @@ public class UserBalanceImpl implements UserBalanceService {
 
     @Override
     public List<UserBalanceModel> getAllUserBalanceModel() {
-        UserBalanceConverter converter = new UserBalanceConverter();
         return getAll().stream()
-                .map(converter::convertFromEntity)
+                .map(CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
-    @Override
     public UserBalance update(UserBalance userBalance) {
         if (userBalance.getBalance().compareTo(BigDecimal.ZERO) < 0)
             throw new ApiFailException("Баланс (" + userBalance.getBalance() + ") не должен быть меньше 0");
@@ -76,6 +75,6 @@ public class UserBalanceImpl implements UserBalanceService {
             throw new ApiFailException("User (" + updateUserBalanceModel.getUsername() + ") not found");
         UserBalance userBalance = userBalanceRepository.findByUser_Id(user.getId());
         userBalance.setBalance(updateUserBalanceModel.getBalance());
-        return new UserBalanceConverter().convertFromEntity(update(userBalance));
+        return CONVERTER.convertFromEntity(update(userBalance));
     }
 }

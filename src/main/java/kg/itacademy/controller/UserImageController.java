@@ -1,5 +1,6 @@
 package kg.itacademy.controller;
 
+import kg.itacademy.model.UserImageUrlModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.UserImageModel;
 import kg.itacademy.service.UserImageService;
@@ -14,10 +15,10 @@ public class UserImageController {
     @Autowired
     private UserImageService userImageService;
 
-    @PostMapping("/create")
-    public ResponseMessage<UserImageModel> save(@RequestParam(name = "file") MultipartFile file) {
+    @PostMapping("/create/{userId}")
+    public ResponseMessage<UserImageModel> save(@RequestParam(name = "file") MultipartFile file, @PathVariable Long userId) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(userImageService.createUserImage(file));
+                .prepareSuccessMessage(userImageService.createUserImage(file, userId));
     }
 
     @GetMapping("/get-by-id/{id}")
@@ -32,8 +33,8 @@ public class UserImageController {
                 .prepareSuccessMessage(userImageService.updateUserImage(file));
     }
 
-    @DeleteMapping("/delete/{url}")
-    public ResponseMessage<UserImageModel> delete(@PathVariable String url) {
+    @PostMapping("/delete")
+    public ResponseMessage<UserImageModel> delete(@RequestBody UserImageUrlModel url) {
         return new ResponseMessage<UserImageModel>()
                 .prepareSuccessMessage(userImageService.deleteImage(url));
     }

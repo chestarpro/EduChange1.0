@@ -11,7 +11,5 @@ public interface UserBalanceService extends BaseService<UserBalance> {
     List<UserBalanceModel> getAllUserBalanceModel();
     UserBalanceModel getUserBalanceModelById(Long id);
 
-    UserBalance update(UserBalance userBalance);
-
     UserBalanceModel updateByUpdateUserBalanceModel(UpdateUserBalanceModel updateUserBalanceModel);
 }

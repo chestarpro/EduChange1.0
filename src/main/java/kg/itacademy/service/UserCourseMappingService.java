@@ -16,7 +16,5 @@ public interface UserCourseMappingService extends BaseService<UserCourseMapping>
 
     UserCourseMappingModel createByCourseId(Long courseId);
 
-    UserCourseMapping update(UserCourseMapping userCourseMapping);
-
     UserCourseMappingModel deleteMapping(Long id);
 }

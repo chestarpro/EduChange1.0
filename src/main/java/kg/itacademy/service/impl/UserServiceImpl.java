@@ -1,5 +1,6 @@
 package kg.itacademy.service.impl;
 
+import kg.itacademy.aop.LogMethod;
 import kg.itacademy.converter.UserConverter;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserLog;
@@ -37,6 +38,8 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     private final PasswordEncoder passwordEncoder;
 
     private final UserLogService userLogService;
+
+    private final UserConverter CONVERTER = new UserConverter();
 
     @Autowired
     private UserImageService userImageService;
@@ -78,7 +81,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public UserModel createUser(User user) {
-        return new UserConverter().convertFromEntity(save(user));
+        return CONVERTER.convertFromEntity(save(user));
     }
 
     @Override
@@ -88,9 +91,8 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public List<UserModel> getAllUserModels() {
-        UserConverter converter = new UserConverter();
         return getAll().stream()
-                .map(converter::convertFromEntity).collect(Collectors.toList());
+                .map(CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
@@ -100,7 +102,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public UserModel getUserModelById(Long id) {
-        return new UserConverter().convertFromEntity(getById(id));
+        return CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
@@ -121,7 +123,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public UserModel getCurrentUserModel() {
-        return new UserConverter().convertFromEntity(getCurrentUser());
+        return CONVERTER.convertFromEntity(getCurrentUser());
     }
 
     public User update(User user) {
@@ -142,7 +144,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public UserModel updateUser(User user) {
-        return new UserConverter().convertFromEntity((update(user)));
+        return CONVERTER.convertFromEntity((update(user)));
     }
 
     @Override
@@ -174,14 +176,14 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     public UserModel deleteUser() {
         User user = getCurrentUser();
         User deleteUser = setInActiveUser(user, -1L);
-        return new UserConverter().convertFromEntity(deleteUser);
+        return CONVERTER.convertFromEntity(deleteUser);
     }
 
     @Override
     public UserModel deleteUserByAdmin(Long userId) {
         User user = getById(userId);
         User deleteUser = setInActiveUser(user, -1L);
-        return new UserConverter().convertFromEntity(deleteUser);
+        return CONVERTER.convertFromEntity(deleteUser);
     }
 
     @Override

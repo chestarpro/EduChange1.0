@@ -1,6 +1,5 @@
 package kg.itacademy.service.impl;
 
-import kg.itacademy.converter.UserConverter;
 import kg.itacademy.converter.UserLogConverter;
 import kg.itacademy.entity.UserLog;
 import kg.itacademy.model.UserLogModel;
@@ -10,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +18,8 @@ import java.util.stream.Collectors;
 public class UserLogServiceImpl implements UserLogService {
 
     private final UserLogRepository userLogRepository;
+
+    private final UserLogConverter CONVERTER = new UserLogConverter();
 
     @Override
     public UserLog save(UserLog userLog) {
@@ -38,9 +38,8 @@ public class UserLogServiceImpl implements UserLogService {
 
     @Override
     public List<UserLogModel> getAllByUserId(Long id) {
-        UserLogConverter converter = new UserLogConverter();
-        return getAll().stream()
-                .map(converter::convertFromEntity).collect(Collectors.toList());
+        return userLogRepository.findAllByUser_Id(id).stream()
+                .map(CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
@@ -51,9 +50,5 @@ public class UserLogServiceImpl implements UserLogService {
     @Override
     public UserLog getLastLogByUserId(Long id) {
         return userLogRepository.findLastLogByUserId(id).orElse(null);
-    }
-
-    public UserLog update(UserLog userLog) {
-        return null;
     }
 }
