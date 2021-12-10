@@ -4,7 +4,9 @@ import kg.itacademy.entity.Course;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserCourseMapping;
 import kg.itacademy.model.UserCourseMappingModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserCourseMappingConverter extends BaseConverter<UserCourseMappingModel, UserCourseMapping> {
 
     public UserCourseMappingConverter() {

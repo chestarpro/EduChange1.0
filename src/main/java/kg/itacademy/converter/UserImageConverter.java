@@ -3,7 +3,9 @@ package kg.itacademy.converter;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserImage;
 import kg.itacademy.model.UserImageModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserImageConverter extends BaseConverter<UserImageModel, UserImage> {
 
     public UserImageConverter() {

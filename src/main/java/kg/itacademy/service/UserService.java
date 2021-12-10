@@ -8,7 +8,7 @@ import kg.itacademy.model.UserModel;
 import java.util.List;
 
 public interface UserService extends BaseService<User> {
-    UserModel createUser(User user);
+    AuthDataBaseUserModel createUser(User user);
 
     User getCurrentUser();
 

@@ -1,6 +1,5 @@
 package kg.itacademy.service.impl;
 
-import kg.itacademy.aop.LogMethod;
 import kg.itacademy.converter.UserConverter;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserLog;
@@ -39,7 +38,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     private final UserLogService userLogService;
 
-    private final UserConverter CONVERTER = new UserConverter();
+    private final UserConverter CONVERTER_CONVERTER;
 
     @Autowired
     private UserImageService userImageService;
@@ -80,8 +79,16 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
-    public UserModel createUser(User user) {
-        return CONVERTER.convertFromEntity(save(user));
+    public AuthDataBaseUserModel createUser(User user) {
+        String basePassword = user.getPassword();
+        User user1 = save(user);
+
+        String usernamePasswordPair = user1.getUsername() + ":" + basePassword;
+        String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
+
+        String token = "Basic " + authHeader;
+
+        return getAuthDataBaseUser(token, user1.getId());
     }
 
     @Override
@@ -92,7 +99,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     @Override
     public List<UserModel> getAllUserModels() {
         return getAll().stream()
-                .map(CONVERTER::convertFromEntity).collect(Collectors.toList());
+                .map(CONVERTER_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
@@ -102,7 +109,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public UserModel getUserModelById(Long id) {
-        return CONVERTER.convertFromEntity(getById(id));
+        return CONVERTER_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
@@ -123,7 +130,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public UserModel getCurrentUserModel() {
-        return CONVERTER.convertFromEntity(getCurrentUser());
+        return CONVERTER_CONVERTER.convertFromEntity(getCurrentUser());
     }
 
     public User update(User user) {
@@ -144,7 +151,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public UserModel updateUser(User user) {
-        return CONVERTER.convertFromEntity((update(user)));
+        return CONVERTER_CONVERTER.convertFromEntity((update(user)));
     }
 
     @Override
@@ -158,6 +165,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
         checkFailPassword(isPasswordIsCorrect, user);
 
         String usernamePasswordPair = userAuthorizModel.getUsername() + ":" + userAuthorizModel.getPassword();
+        System.out.println(userAuthorizModel.getPassword());
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
         userLogService.save(new UserLog(user, true));
 
@@ -176,14 +184,14 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     public UserModel deleteUser() {
         User user = getCurrentUser();
         User deleteUser = setInActiveUser(user, -1L);
-        return CONVERTER.convertFromEntity(deleteUser);
+        return CONVERTER_CONVERTER.convertFromEntity(deleteUser);
     }
 
     @Override
     public UserModel deleteUserByAdmin(Long userId) {
         User user = getById(userId);
         User deleteUser = setInActiveUser(user, -1L);
-        return CONVERTER.convertFromEntity(deleteUser);
+        return CONVERTER_CONVERTER.convertFromEntity(deleteUser);
     }
 
     @Override

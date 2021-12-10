@@ -3,7 +3,9 @@ package kg.itacademy.converter;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserLog;
 import kg.itacademy.model.UserLogModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserLogConverter extends BaseConverter<UserLogModel, UserLog> {
 
     public UserLogConverter() {

@@ -4,7 +4,6 @@ import kg.itacademy.entity.User;
 import kg.itacademy.model.AuthDataBaseUserModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.UserAuthorizModel;
-import kg.itacademy.model.UserModel;
 import kg.itacademy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +19,8 @@ public class LogInLogOutController {
     private UserService userService;
 
     @PostMapping("/sign-up")
-    public ResponseMessage<UserModel> save(@RequestBody User user) {
-        return new ResponseMessage<UserModel>()
+    public ResponseMessage<AuthDataBaseUserModel> save(@RequestBody User user) {
+        return new ResponseMessage<AuthDataBaseUserModel>()
                 .prepareSuccessMessage(userService.createUser(user));
     }
 

@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +36,7 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
     @Override
     public CourseModel createCourse(CourseModel courseModel) {
+        courseModel.setCourseName(courseModel.getCourseName().toLowerCase(Locale.ROOT));
         Course course = save(CONVERTER.convertFromModel(courseModel));
         return CONVERTER.convertFromEntity(course);
     }
@@ -78,14 +80,16 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
     @Override
     public List<CourseModel> getAllByCourseName(String courseName) {
-        return courseRepository.findAllByCourseName(courseName).stream()
+        return courseRepository.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
+                .stream()
                 .map(CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<CourseModel> getAllByCourseCategoryName(String categoryName) {
-        return courseRepository.findAllByCategoryName(categoryName).stream()
+        return courseRepository.findAllByCategoryName(categoryName.toLowerCase(Locale.ROOT))
+                .stream()
                 .map(CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }

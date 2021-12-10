@@ -4,7 +4,9 @@ import kg.itacademy.entity.Course;
 import kg.itacademy.entity.Like;
 import kg.itacademy.entity.User;
 import kg.itacademy.model.LikeModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LikeConverter extends BaseConverter<LikeModel, Like> {
 
     public LikeConverter() {

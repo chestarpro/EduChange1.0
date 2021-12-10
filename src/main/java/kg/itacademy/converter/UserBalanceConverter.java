@@ -3,7 +3,9 @@ package kg.itacademy.converter;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserBalance;
 import kg.itacademy.model.UserBalanceModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserBalanceConverter extends BaseConverter<UserBalanceModel, UserBalance> {
 
     public UserBalanceConverter() {

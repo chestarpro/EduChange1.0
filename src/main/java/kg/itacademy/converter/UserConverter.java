@@ -3,7 +3,9 @@ package kg.itacademy.converter;
 import kg.itacademy.entity.User;
 import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.model.UserModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserConverter extends BaseConverter<UserModel, User> {
 
     public UserConverter() {

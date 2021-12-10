@@ -4,7 +4,9 @@ import kg.itacademy.entity.Comment;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.User;
 import kg.itacademy.model.CommentModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CommentConverter extends BaseConverter<CommentModel, Comment> {
 
     public CommentConverter() {

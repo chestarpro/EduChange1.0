@@ -10,19 +10,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryRepository CATEGORY_REPOSITORY;
 
-    private final CategoryConverter CONVERTER = new CategoryConverter();
+    private final CategoryConverter CATEGORY_CONVERTER;
 
     @Override
     public Category save(Category category) {
-        return categoryRepository.save(category);
+        return CATEGORY_REPOSITORY.save(category);
     }
 
     @Override
@@ -37,29 +38,31 @@ public class CategoryServiceImpl implements CategoryService {
         if (dataCategory != null)
             throw new ApiFailException("Категория " + dataCategory.getCategoryName() + " уже существует");
 
-        return CONVERTER.convertFromEntity(save(Category.builder().categoryName(categoryName).build()));
+        return CATEGORY_CONVERTER.convertFromEntity(save(Category.builder()
+                .categoryName(categoryName.toLowerCase(Locale.ROOT))
+                .build()));
     }
 
     @Override
     public Category getById(Long id) {
-        return categoryRepository.findById(id).orElse(null);
+        return CATEGORY_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
     public CategoryModel getCategoryModelById(Long id) {
-        return CONVERTER.convertFromEntity(getById(id));
+        return CATEGORY_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public List<Category> getAll() {
-        return categoryRepository.findAll();
+        return CATEGORY_REPOSITORY.findAll();
     }
 
     @Override
     public List<CategoryModel> getAllCategoryModel() {
         return getAll()
                 .stream()
-                .map(CONVERTER::convertFromEntity)
+                .map(CATEGORY_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -74,12 +77,12 @@ public class CategoryServiceImpl implements CategoryService {
         if (categoryModel.getCategoryName().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for category name");
 
-        return CONVERTER.convertFromEntity(categoryRepository.save(CONVERTER.convertFromModel(categoryModel)));
+        return CATEGORY_CONVERTER.convertFromEntity(CATEGORY_REPOSITORY.save(CATEGORY_CONVERTER.convertFromModel(categoryModel)));
     }
 
     @Override
     public CategoryModel getByCategoryName(String categoryName) {
-        return CONVERTER.convertFromEntity(categoryRepository.findByCategoryName(categoryName).orElse(null));
+        return CATEGORY_CONVERTER.convertFromEntity(CATEGORY_REPOSITORY.findByCategoryName(categoryName).orElse(null));
     }
 
     @Override
@@ -88,7 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
         if (category == null) {
             throw new ApiFailException("Category by id " + id + " not found");
         }
-        categoryRepository.delete(category);
-        return CONVERTER.convertFromEntity(category);
+        CATEGORY_REPOSITORY.delete(category);
+        return CATEGORY_CONVERTER.convertFromEntity(category);
     }
 }

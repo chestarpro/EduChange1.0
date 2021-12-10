@@ -3,7 +3,9 @@ package kg.itacademy.converter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.Lesson;
 import kg.itacademy.model.LessonModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LessonConverter extends BaseConverter<LessonModel, Lesson> {
 
     public LessonConverter() {

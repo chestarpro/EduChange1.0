@@ -1,6 +1,5 @@
 package kg.itacademy.service.impl;
 
-import com.cloudinary.Cloudinary;
 import kg.itacademy.converter.CourseImageConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.CourseImage;
@@ -78,8 +77,6 @@ public class CourseImageServiceImpl implements CourseImageService {
         try {
             CourseImage updateCourseImage = getById(id);
 
-            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(updateCourseImage.getCourseImageUrl());
-
             updateCourseImage.setCourseImageUrl(userImageService.saveImageInCloudinary(multipartFile));
             return new CourseImageConverter().convertFromEntity(courseImageRepository.save(updateCourseImage));
         } catch (Exception e) {
@@ -93,8 +90,8 @@ public class CourseImageServiceImpl implements CourseImageService {
         try {
             CourseImage deleteCourseImage = getById(id);
             if (deleteCourseImage == null)
-                throw new ApiFailException("Course image by id "+ id +" not found");
-            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(deleteCourseImage.getCourseImageUrl());
+                throw new ApiFailException("Course image by id " + id + " not found");
+
             courseImageRepository.delete(deleteCourseImage);
             return new CourseImageConverter().convertFromEntity(deleteCourseImage);
         } catch (Exception e) {

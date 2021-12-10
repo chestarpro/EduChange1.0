@@ -3,7 +3,9 @@ package kg.itacademy.converter;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserRole;
 import kg.itacademy.model.UserRoleModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserRoleConverter extends BaseConverter<UserRoleModel, UserRole> {
 
     public UserRoleConverter() {

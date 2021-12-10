@@ -111,8 +111,7 @@ public class UserImageImpl implements UserImageService {
 
             if (updateUserImage == null)
                 throw new ApiFailException("User image by user id (" + userId + ") not found");
-
-            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(updateUserImage.getUserImageUrl());
+            
             updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
 
             return CONVERTER.convertFromEntity(update(updateUserImage));
@@ -130,7 +129,6 @@ public class UserImageImpl implements UserImageService {
             if (deleteUserImage == null)
                 throw new ApiFailException("User image by user id (" + userId + ") not found");
 
-            new Cloudinary(CLOUDINARY_URL).uploader().deleteByToken(CLOUDINARY_URL);
             userImageRepository.delete(deleteUserImage);
 
             return CONVERTER.convertFromEntity(deleteUserImage);

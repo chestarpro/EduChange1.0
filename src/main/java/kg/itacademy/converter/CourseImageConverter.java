@@ -3,7 +3,9 @@ package kg.itacademy.converter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.CourseImage;
 import kg.itacademy.model.CourseImageModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CourseImageConverter extends BaseConverter<CourseImageModel, CourseImage> {
 
     public CourseImageConverter() {

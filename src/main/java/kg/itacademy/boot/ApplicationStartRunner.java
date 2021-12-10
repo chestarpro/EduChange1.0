@@ -78,18 +78,18 @@ public class ApplicationStartRunner implements CommandLineRunner {
                 .build());
 
         List<Category> categories = new ArrayList<>();
-        categories.add(Category.builder().categoryName("Sport").build());
-        categories.add(Category.builder().categoryName("Art").build());
-        categories.add(Category.builder().categoryName("Programming").build());
-        categories.add(Category.builder().categoryName("Driving").build());
-        categories.add(Category.builder().categoryName("Languages").build());
+        categories.add(Category.builder().categoryName("sport").build());
+        categories.add(Category.builder().categoryName("art").build());
+        categories.add(Category.builder().categoryName("programming").build());
+        categories.add(Category.builder().categoryName("driving").build());
+        categories.add(Category.builder().categoryName("languages").build());
 
         categoryRepository.saveAll(categories);
 
         List<Course> courses = new ArrayList<>();
         courses.add(Course.builder()
                 .category(categories.get(2))
-                .courseName("Java-разработчик")
+                .courseName("java-разработчик")
                 .email("hello@it-academy.kg")
                 .phoneNumber("+996 707 745 232")
                 .courseShortInfo("\n" +
@@ -106,7 +106,7 @@ public class ApplicationStartRunner implements CommandLineRunner {
 
         courses.add(Course.builder()
                 .category(categories.get(2))
-                .courseName("Frontend-разработчик")
+                .courseName("frontend-разработчик")
                 .email("hello@it-academy.kg")
                 .phoneNumber("+996 707 745 232")
                 .courseShortInfo("\n" +
@@ -123,7 +123,7 @@ public class ApplicationStartRunner implements CommandLineRunner {
 
         courses.add(Course.builder()
                 .category(categories.get(1))
-                .courseName("Базовый курс: рисунок и живопись 2.0")
+                .courseName("базовый курс: рисунок и живопись 2.0")
                 .email("art@gmailcom")
                 .phoneNumber("+996 707 223 327")
                 .courseShortInfo("Вся основная теория и всего две техники! Обновленная версия курса!")
