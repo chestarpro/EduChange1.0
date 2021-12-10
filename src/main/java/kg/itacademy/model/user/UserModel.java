@@ -1,4 +1,4 @@
-package kg.itacademy.model;
+package kg.itacademy.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

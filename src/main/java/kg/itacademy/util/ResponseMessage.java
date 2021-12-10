@@ -40,6 +40,4 @@ public class ResponseMessage<T> {
         errorMessage.setDetails(details);
         return errorMessage;
     }
-
-
 }

@@ -2,8 +2,15 @@ package kg.itacademy.controller;
 
 import kg.itacademy.aop.LogMethod;
 import kg.itacademy.model.*;
+import kg.itacademy.model.course.CategoryModel;
+import kg.itacademy.model.course.CommentModel;
+import kg.itacademy.model.user.UserBalanceModel;
+import kg.itacademy.model.user.UserImageModel;
+import kg.itacademy.model.user.UserLogModel;
+import kg.itacademy.model.user.UserModel;
 import kg.itacademy.service.*;
 import kg.itacademy.util.ResponseMessage;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,31 +18,17 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin")
+@RequiredArgsConstructor
 public class AdminController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    private CommentService commentService;
-
-    @Autowired
-    private UserLogService userLogService;
-
-    @Autowired
-    private UserBalanceService userBalanceService;
-
-    @Autowired
-    private UserImageService userImageService;
-
-    @Autowired
-    private CourseImageService courseImageService;
-
-    @Autowired
-    private UserCourseMappingService userCourseMappingService;
+    private final UserService userService;
+    private final CategoryService categoryService;
+    private final CommentService commentService;
+    private final UserLogService userLogService;
+    private final UserBalanceService userBalanceService;
+    private final UserImageService userImageService;
+    private final CourseImageService courseImageService;
+    private final UserCourseMappingService userCourseMappingService;
 
     @PostMapping("/category/create/{categoryName}")
     public ResponseMessage<CategoryModel> saveCategory(@PathVariable String categoryName) {

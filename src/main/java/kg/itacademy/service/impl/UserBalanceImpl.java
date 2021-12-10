@@ -4,8 +4,8 @@ import kg.itacademy.converter.UserBalanceConverter;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserBalance;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.UpdateUserBalanceModel;
-import kg.itacademy.model.UserBalanceModel;
+import kg.itacademy.model.user.UpdateUserBalanceModel;
+import kg.itacademy.model.user.UserBalanceModel;
 import kg.itacademy.repository.UserBalanceRepository;
 import kg.itacademy.service.UserBalanceService;
 import kg.itacademy.service.UserService;
@@ -21,43 +21,42 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserBalanceImpl implements UserBalanceService {
 
-    private final UserBalanceRepository userBalanceRepository;
-
-    private final UserBalanceConverter CONVERTER = new UserBalanceConverter();
+    private final UserBalanceRepository USER_BALANCE_REPOSITORY;
+    private final UserBalanceConverter USER_BALANCE_CONVERTER;
 
     @Autowired
-    private UserService userService;
+    private final UserService USER_SERVICE;
 
     @Override
     public UserBalance save(UserBalance userBalance) {
-        return userBalanceRepository.save(userBalance);
+        return USER_BALANCE_REPOSITORY.save(userBalance);
     }
 
     @Override
     public UserBalance getById(Long id) {
-        return userBalanceRepository.findById(id).orElse(null);
+        return USER_BALANCE_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
     public UserBalanceModel getUserBalanceModelById(Long id) {
-        return CONVERTER.convertFromEntity(getById(id));
+        return USER_BALANCE_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public UserBalanceModel getUserBalanceModelByUserId(Long userId) {
-        UserBalance userBalance = userBalanceRepository.findByUser_Id(userId);
-        return CONVERTER.convertFromEntity(userBalance);
+        UserBalance userBalance = USER_BALANCE_REPOSITORY.findByUser_Id(userId);
+        return USER_BALANCE_CONVERTER.convertFromEntity(userBalance);
     }
 
     @Override
     public List<UserBalance> getAll() {
-        return userBalanceRepository.findAll();
+        return USER_BALANCE_REPOSITORY.findAll();
     }
 
     @Override
     public List<UserBalanceModel> getAllUserBalanceModel() {
         return getAll().stream()
-                .map(CONVERTER::convertFromEntity)
+                .map(USER_BALANCE_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -65,16 +64,16 @@ public class UserBalanceImpl implements UserBalanceService {
         if (userBalance.getBalance().compareTo(BigDecimal.ZERO) < 0)
             throw new ApiFailException("Баланс (" + userBalance.getBalance() + ") не должен быть меньше 0");
 
-        return userBalanceRepository.save(userBalance);
+        return USER_BALANCE_REPOSITORY.save(userBalance);
     }
 
     @Override
     public UserBalanceModel updateByUpdateUserBalanceModel(UpdateUserBalanceModel updateUserBalanceModel) {
-        User user = userService.getByUsername(updateUserBalanceModel.getUsername());
+        User user = USER_SERVICE.getByUsername(updateUserBalanceModel.getUsername());
         if (user == null)
             throw new ApiFailException("User (" + updateUserBalanceModel.getUsername() + ") not found");
-        UserBalance userBalance = userBalanceRepository.findByUser_Id(user.getId());
-        userBalance.setBalance(updateUserBalanceModel.getBalance());
-        return CONVERTER.convertFromEntity(update(userBalance));
+        UserBalance userBalance = USER_BALANCE_REPOSITORY.findByUser_Id(user.getId());
+        userBalance.setBalance(userBalance.getBalance().add(updateUserBalanceModel.getBalance()));
+        return USER_BALANCE_CONVERTER.convertFromEntity(update(userBalance));
     }
 }

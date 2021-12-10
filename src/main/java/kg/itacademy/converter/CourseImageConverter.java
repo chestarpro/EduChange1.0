@@ -2,7 +2,7 @@ package kg.itacademy.converter;
 
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.CourseImage;
-import kg.itacademy.model.CourseImageModel;
+import kg.itacademy.model.course.CourseImageModel;
 import org.springframework.stereotype.Component;
 
 @Component

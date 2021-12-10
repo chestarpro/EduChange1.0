@@ -1,15 +1,17 @@
-package kg.itacademy.model;
+package kg.itacademy.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class UserAuthorizModel {
+public class UpdateUserBalanceModel {
     private String username;
-    private String password;
+    private BigDecimal balance;
 }

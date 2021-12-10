@@ -1,18 +1,18 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.CourseImageModel;
+import kg.itacademy.model.course.CourseImageModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.CourseImageService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/course-image")
+@RequiredArgsConstructor
 public class CourseImageController {
 
-    @Autowired
-    private CourseImageService courseImageService;
+    private final CourseImageService courseImageService;
 
     @PostMapping("/create/{courseId}")
     public ResponseMessage<CourseImageModel> save(@RequestParam(name = "file") MultipartFile file,

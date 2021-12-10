@@ -1,4 +1,4 @@
-package kg.itacademy.model;
+package kg.itacademy.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,8 +9,8 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LikeModel {
+public class UserRoleModel {
     private Long id;
+    private String roleName;
     private Long userId;
-    private Long courseId;
 }

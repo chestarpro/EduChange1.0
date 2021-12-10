@@ -8,8 +8,8 @@ import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserCourseMapping;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.CourseModel;
-import kg.itacademy.model.UserBalanceModel;
+import kg.itacademy.model.course.CourseModel;
+import kg.itacademy.model.user.UserBalanceModel;
 import kg.itacademy.model.UserCourseMappingModel;
 import kg.itacademy.repository.UserCourseMappingRepository;
 import kg.itacademy.service.CourseService;
@@ -26,26 +26,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
-    private final UserCourseMappingRepository userCourseMappingRepository;
-
-    private final CourseService courseService;
-
-    private final UserService userService;
-
-    private final UserBalanceService userBalanceService;
-
-    private final UserCourseMappingConverter CONVERTER = new UserCourseMappingConverter();
-
-    private final UserBalanceConverter converterBalance = new UserBalanceConverter();
-
-    private final CourseConverter COURSE_CONVERTER = new CourseConverter();
+    private final UserCourseMappingRepository USER_COURSE_MAPPING_REPOSITORY;
+    private final CourseService COURSE_SERVICE;
+    private final UserService USER_SERVICE;
+    private final UserBalanceService USER_BALANCE_SERVICE;
+    private final UserCourseMappingConverter MAPPING_CONVERTER;
+    private final UserBalanceConverter USER_BALANCE_CONVERTER;
+    private final CourseConverter COURSE_CONVERTER;
 
     @Override
     public UserCourseMapping save(UserCourseMapping userCourseMapping) {
         Long userId = userCourseMapping.getUser().getId();
         Long courseId = userCourseMapping.getCourse().getId();
 
-        UserCourseMapping dataBaseMapping = userCourseMappingRepository
+        UserCourseMapping dataBaseMapping = USER_COURSE_MAPPING_REPOSITORY
                 .findByCourse_IdAndUser_Id(courseId, userId)
                 .orElse(null);
 
@@ -53,55 +47,55 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
             throw new ApiFailException("Bought already!");
         }
 
-        Course course = courseService.getById(courseId);
-        User user = userService.getCurrentUser();
+        Course course = COURSE_SERVICE.getById(courseId);
+        User user = USER_SERVICE.getCurrentUser();
         if (course.getUser().getId().equals(user.getId()))
             throw new ApiFailException("User " + user.getUsername() + " is the author of the course");
 
-        UserBalanceModel userBalanceModel = userBalanceService.getUserBalanceModelByUserId(user.getId());
+        UserBalanceModel userBalanceModel = USER_BALANCE_SERVICE.getUserBalanceModelByUserId(user.getId());
         if (userBalanceModel.getUserBalance().subtract(course.getPrice()).doubleValue() < 0) {
             throw new ApiFailException("Not enough balance");
         } else {
-            UserBalance userBalance = converterBalance.convertFromModel(userBalanceModel);
+            UserBalance userBalance = USER_BALANCE_CONVERTER.convertFromModel(userBalanceModel);
             userBalance.setBalance(userBalance.getBalance().subtract(course.getPrice()));
-            userBalanceService.save(userBalance);
+            USER_BALANCE_SERVICE.save(userBalance);
         }
 
-        return userCourseMappingRepository.save(userCourseMapping);
+        return USER_COURSE_MAPPING_REPOSITORY.save(userCourseMapping);
     }
 
     @Override
     public UserCourseMappingModel createByCourseId(Long courseId) {
-        User user = userService.getCurrentUser();
-        Course course = courseService.getById(courseId);
+        User user = USER_SERVICE.getCurrentUser();
+        Course course = COURSE_SERVICE.getById(courseId);
 
-        return CONVERTER.convertFromEntity(save(new UserCourseMapping(user, course)));
+        return MAPPING_CONVERTER.convertFromEntity(save(new UserCourseMapping(user, course)));
     }
 
     @Override
     public UserCourseMapping getById(Long id) {
-        return userCourseMappingRepository.findById(id).orElse(null);
+        return USER_COURSE_MAPPING_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
     public UserCourseMappingModel getUserCourseMappingModelById(Long id) {
-        return CONVERTER.convertFromEntity(getById(id));
+        return MAPPING_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public List<UserCourseMapping> getAll() {
-        return userCourseMappingRepository.findAll();
+        return USER_COURSE_MAPPING_REPOSITORY.findAll();
     }
 
     @Override
     public List<UserCourseMappingModel> getAllUserCourseMappingModel() {
         return getAll().stream()
-                .map(CONVERTER::convertFromEntity).collect(Collectors.toList());
+                .map(MAPPING_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
     public List<CourseModel> getAllPurchasedCourses(Long userId) {
-        List<Course> purchasedCourses = userCourseMappingRepository
+        List<Course> purchasedCourses = USER_COURSE_MAPPING_REPOSITORY
                 .findAllByUser_Id(userId)
                 .stream().map(UserCourseMapping::getCourse)
                 .collect(Collectors.toList());
@@ -113,7 +107,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     @Override
     public UserCourseMappingModel deleteMapping(Long id) {
         UserCourseMapping mapping = getById(id);
-        userCourseMappingRepository.delete(mapping);
-        return CONVERTER.convertFromEntity(mapping);
+        USER_COURSE_MAPPING_REPOSITORY.delete(mapping);
+        return MAPPING_CONVERTER.convertFromEntity(mapping);
     }
 }

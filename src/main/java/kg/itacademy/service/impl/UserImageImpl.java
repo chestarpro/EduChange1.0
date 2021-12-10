@@ -7,12 +7,13 @@ import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserImage;
 import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.UserImageModel;
-import kg.itacademy.model.UserImageUrlModel;
+import kg.itacademy.model.user.UserImageModel;
+import kg.itacademy.model.user.UserImageUrlModel;
 import kg.itacademy.repository.UserImageRepository;
 import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,27 +30,24 @@ import java.util.stream.Collectors;
 public class UserImageImpl implements UserImageService {
 
     private static final String CLOUDINARY_URL = "cloudinary://349958975956714:wJERqVH-qai2mlMdGYqzSY__kFM@du9qubfii";
+    private final UserImageRepository USER_IMAGE_REPOSITORY;
+    private final UserImageConverter USER_IMAGE_CONVERTER;
 
-    private final UserImageRepository userImageRepository;
-
-    private final UserService userService;
-
-    private final UserImageConverter CONVERTER = new UserImageConverter();
+    @Autowired
+    private UserService userService;
 
     @Override
     public UserImage save(UserImage userImage) {
-        return userImageRepository.save(userImage);
+        return USER_IMAGE_REPOSITORY.save(userImage);
     }
 
     @Override
-    public UserImageModel createUserImage(MultipartFile file, Long userId) {
+    public UserImageModel createUserImage(MultipartFile file) {
         String savedImageUrl = saveImageInCloudinary(file);
         UserImage userImage = new UserImage();
         userImage.setUserImageUrl(savedImageUrl);
-        User user = new User();
-        user.setId(userId);
-        userImage.setUser(user);
-        return CONVERTER.convertFromEntity(save(userImage));
+        userImage.setUser(userService.getCurrentUser());
+        return USER_IMAGE_CONVERTER.convertFromEntity(save(userImage));
     }
 
     @Override
@@ -71,50 +69,50 @@ public class UserImageImpl implements UserImageService {
 
     @Override
     public UserImage getById(Long id) {
-        return userImageRepository.findById(id).orElse(null);
+        return USER_IMAGE_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
     public UserImageModel getUserImageModelById(Long id) {
-        return CONVERTER.convertFromEntity(getById(id));
+        return USER_IMAGE_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public UserImageModel getUserImageModelByUserId(Long userId) {
-        UserImage userImage = userImageRepository.findByUser_Id(userId);
-        return CONVERTER.convertFromEntity(userImage);
+        UserImage userImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
+        return USER_IMAGE_CONVERTER.convertFromEntity(userImage);
     }
 
     @Override
     public List<UserImage> getAll() {
-        return userImageRepository.findAll();
+        return USER_IMAGE_REPOSITORY.findAll();
     }
 
     @Override
     public List<UserImageModel> getAllUserImageModel() {
         return getAll().stream()
-                .map(CONVERTER::convertFromEntity).collect(Collectors.toList());
+                .map(USER_IMAGE_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     public UserImage update(UserImage userImage) {
         if (userImage.getId() == null)
             throw new ApiFailException("User image id not specified");
 
-        return userImageRepository.save(userImage);
+        return USER_IMAGE_REPOSITORY.save(userImage);
     }
 
     @Override
     public UserImageModel updateUserImage(MultipartFile file) {
         try {
             Long userId = userService.getCurrentUser().getId();
-            UserImage updateUserImage = userImageRepository.findByUser_Id(userId);
+            UserImage updateUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
 
             if (updateUserImage == null)
                 throw new ApiFailException("User image by user id (" + userId + ") not found");
             
             updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
 
-            return CONVERTER.convertFromEntity(update(updateUserImage));
+            return USER_IMAGE_CONVERTER.convertFromEntity(update(updateUserImage));
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }
@@ -124,14 +122,14 @@ public class UserImageImpl implements UserImageService {
     public UserImageModel deleteImage(UserImageUrlModel urlModel) {
         try {
             Long userId = userService.getCurrentUser().getId();
-            UserImage deleteUserImage = userImageRepository.findByUser_Id(userId);
+            UserImage deleteUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
 
             if (deleteUserImage == null)
                 throw new ApiFailException("User image by user id (" + userId + ") not found");
 
-            userImageRepository.delete(deleteUserImage);
+            USER_IMAGE_REPOSITORY.delete(deleteUserImage);
 
-            return CONVERTER.convertFromEntity(deleteUserImage);
+            return USER_IMAGE_CONVERTER.convertFromEntity(deleteUserImage);
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());
         }

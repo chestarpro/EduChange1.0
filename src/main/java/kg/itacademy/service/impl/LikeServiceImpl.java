@@ -4,7 +4,7 @@ import kg.itacademy.converter.LikeConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.Like;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.LikeModel;
+import kg.itacademy.model.course.LikeModel;
 import kg.itacademy.repository.LikeRepository;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.LikeService;
@@ -19,40 +19,37 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
 
-    private final LikeRepository likeRepository;
-
-    private final CourseService courseService;
-
-    private final UserService userService;
-
-    private final LikeConverter CONVERTER = new LikeConverter();
+    private final LikeRepository LIKE_REPOSITORY;
+    private final CourseService COURSE_SERVICE;
+    private final UserService USER_SERVICE;
+    private final LikeConverter LIKE_CONVERTER;
 
     @Override
     public Like save(Like like) {
         Like dataLike = getById(like.getId());
         if (dataLike != null)
             throw new IllegalArgumentException("\"Like\" already exists");
-        return likeRepository.save(like);
+        return LIKE_REPOSITORY.save(like);
     }
 
     @Override
     public LikeModel createLikeByCourseId(Long courseId) {
-        Course course = courseService.getById(courseId);
+        Course course = COURSE_SERVICE.getById(courseId);
         Like like = new Like();
         like.setCourse(course);
-        like.setUser(userService.getCurrentUser());
+        like.setUser(USER_SERVICE.getCurrentUser());
 
-        return CONVERTER.convertFromEntity(save(like));
+        return LIKE_CONVERTER.convertFromEntity(save(like));
     }
 
     @Override
     public Like getById(Long id) {
-        return likeRepository.findById(id).orElse(null);
+        return LIKE_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
     public LikeModel getLikeModelById(Long id) {
-        return CONVERTER.convertFromEntity(getById(id));
+        return LIKE_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
@@ -62,8 +59,8 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public List<LikeModel> getAllLikeModelByCourseId(Long id) {
-        return likeRepository.findAllByCourse_Id(id).stream()
-                .map(CONVERTER::convertFromEntity)
+        return LIKE_REPOSITORY.findAllByCourse_Id(id).stream()
+                .map(LIKE_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -72,7 +69,7 @@ public class LikeServiceImpl implements LikeService {
         Like like = getById(id);
         if (like == null)
             throw new ApiFailException("\"Like\" by id " + id + "not found");
-        likeRepository.delete(like);
-        return CONVERTER.convertFromEntity(like);
+        LIKE_REPOSITORY.delete(like);
+        return LIKE_CONVERTER.convertFromEntity(like);
     }
 }

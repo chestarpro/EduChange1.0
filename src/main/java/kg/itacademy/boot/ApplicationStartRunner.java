@@ -2,6 +2,7 @@ package kg.itacademy.boot;
 
 import kg.itacademy.entity.*;
 import kg.itacademy.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,28 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ApplicationStartRunner implements CommandLineRunner {
 
-    @Autowired
-    private UserRoleRepository userRoleRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private UserBalanceRepository userBalanceRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private LessonRepository lessonRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CategoryRepository categoryRepository;
+    private final UserBalanceRepository userBalanceRepository;
+    private final CourseRepository courseRepository;
+    private final LessonRepository lessonRepository;
 
     @Override
     public void run(String... args) throws Exception {

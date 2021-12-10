@@ -1,11 +1,11 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.entity.User;
-import kg.itacademy.model.AuthDataBaseUserModel;
+import kg.itacademy.model.user.UserProfileDataModel;
 import kg.itacademy.util.ResponseMessage;
-import kg.itacademy.model.UserAuthorizModel;
+import kg.itacademy.model.user.UserAuthorizModel;
 import kg.itacademy.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,20 +13,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping
+@RequiredArgsConstructor
 public class LogInLogOutController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @PostMapping("/sign-up")
-    public ResponseMessage<AuthDataBaseUserModel> save(@RequestBody User user) {
-        return new ResponseMessage<AuthDataBaseUserModel>()
+    public ResponseMessage<UserProfileDataModel> save(@RequestBody User user) {
+        return new ResponseMessage<UserProfileDataModel>()
                 .prepareSuccessMessage(userService.createUser(user));
     }
 
     @PostMapping("/sign-in")
-    public ResponseMessage<AuthDataBaseUserModel> getAuthHeader(@RequestBody UserAuthorizModel userAuthorizModel) {
-        AuthDataBaseUserModel authHeader = userService.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
-        return new ResponseMessage<AuthDataBaseUserModel>().prepareSuccessMessage(authHeader);
+    public ResponseMessage<UserProfileDataModel> getAuthHeader(@RequestBody UserAuthorizModel userAuthorizModel) {
+        UserProfileDataModel authHeader = userService.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
+        return new ResponseMessage<UserProfileDataModel>().prepareSuccessMessage(authHeader);
     }
 }

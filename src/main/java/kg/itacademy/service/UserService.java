@@ -1,14 +1,14 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.User;
-import kg.itacademy.model.AuthDataBaseUserModel;
-import kg.itacademy.model.UserAuthorizModel;
-import kg.itacademy.model.UserModel;
+import kg.itacademy.model.user.UserProfileDataModel;
+import kg.itacademy.model.user.UserAuthorizModel;
+import kg.itacademy.model.user.UserModel;
 
 import java.util.List;
 
 public interface UserService extends BaseService<User> {
-    AuthDataBaseUserModel createUser(User user);
+    UserProfileDataModel createUser(User user);
 
     User getCurrentUser();
 
@@ -32,5 +32,5 @@ public interface UserService extends BaseService<User> {
 
     UserModel deleteUserByAdmin(Long userId);
 
-    AuthDataBaseUserModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel);
+    UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel);
 }

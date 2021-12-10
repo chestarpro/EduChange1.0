@@ -1,7 +1,7 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.CourseImage;
-import kg.itacademy.model.CourseImageModel;
+import kg.itacademy.model.course.CourseImageModel;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;

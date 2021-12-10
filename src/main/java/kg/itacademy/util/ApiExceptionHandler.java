@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class ApiExceptionHandler {
 
     @ExceptionHandler(value = ApiFailException.class)
-    public ResponseEntity<ResponseMessage<String>> handleFailException(ApiFailException apiFailException) {
+    public ResponseEntity<ResponseMessage<String>> handlerFailException(ApiFailException apiFailException) {
         ResponseMessage<String> failResponseMessage =
                 new ResponseMessage<String>().prepareFailMessage(apiFailException.getMessage());
         String threwClassName = apiFailException.getStackTrace()[0].getClassName();
@@ -21,7 +21,7 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(value = ApiErrorException.class)
-    public ResponseEntity<ResponseMessage<String>> handleErrorException(ApiErrorException apiErrorException) {
+    public ResponseEntity<ResponseMessage<String>> handlerErrorException(ApiErrorException apiErrorException) {
         ResponseMessage<String> errorResponseMessage =
                 new ResponseMessage<String>().prepareErrorMessage(apiErrorException.getMessage());
         String threwClassName = apiErrorException.getStackTrace()[0].getClassName();

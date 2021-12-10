@@ -1,4 +1,4 @@
-package kg.itacademy.model;
+package kg.itacademy.model.course;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,8 +9,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateDataBaseUserModel {
-    private String token;
-    private UserModel user;
-    private UserBalanceModel userBalance;
+public class CourseProgramModel {
+    private Long id;
+    private String title;
+    private String description;
+    private Long courseId;
 }

@@ -3,7 +3,7 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.LessonConverter;
 import kg.itacademy.entity.Lesson;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.LessonModel;
+import kg.itacademy.model.course.LessonModel;
 import kg.itacademy.repository.LessonRepository;
 import kg.itacademy.service.LessonService;
 import kg.itacademy.util.VariableValidation;
@@ -19,26 +19,25 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LessonServiceImpl implements LessonService, VariableValidation<Lesson> {
 
-    private final LessonRepository lessonRepository;
-
-    private final LessonConverter CONVERTER = new LessonConverter();
+    private final LessonRepository LESSON_REPOSITORY;
+    private final LessonConverter LESSON_CONVERTER;
 
     @Override
     public Lesson save(Lesson lesson) {
         validateLengthVariables(lesson);
         validateVariablesForNullOrIsEmpty(lesson);
-        return lessonRepository.save(lesson);
+        return LESSON_REPOSITORY.save(lesson);
     }
 
     @Override
     public LessonModel createLesson(LessonModel lessonModel) {
-        Lesson lesson = save(CONVERTER.convertFromModel(lessonModel));
-        return CONVERTER.convertFromEntity(lesson);
+        Lesson lesson = save(LESSON_CONVERTER.convertFromModel(lessonModel));
+        return LESSON_CONVERTER.convertFromEntity(lesson);
     }
 
     @Override
     public Lesson getById(Long id) {
-        return lessonRepository.findById(id).orElse(null);
+        return LESSON_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
@@ -49,20 +48,20 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
 
     @Override
     public List<Lesson> getAll() {
-        return lessonRepository.findAll();
+        return LESSON_REPOSITORY.findAll();
     }
 
     @Override
     public List<LessonModel> getAllLessonModel() {
         return getAll().stream()
-                .map(CONVERTER::convertFromEntity)
+                .map(LESSON_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<LessonModel> getAllByCourseId(Long id) {
-        return lessonRepository.findAllByCourse_Id(id).stream()
-                .map(CONVERTER::convertFromEntity)
+        return LESSON_REPOSITORY.findAllByCourse_Id(id).stream()
+                .map(LESSON_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -71,12 +70,12 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
             throw new ApiFailException("Lesson id not specified");
         validateVariablesForNullOrIsEmptyUpdate(lesson);
         validateLengthVariablesForUpdate(lesson);
-        return lessonRepository.save(lesson);
+        return LESSON_REPOSITORY.save(lesson);
     }
 
     @Override
     public LessonModel updateLesson(LessonModel lessonModel) {
-        update(CONVERTER.convertFromModel(lessonModel));
+        update(LESSON_CONVERTER.convertFromModel(lessonModel));
         return lessonModel;
     }
 
@@ -86,8 +85,8 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
 
         if (lesson == null)
             throw new ApiFailException("Lesson by id " + id + " not found");
-        lessonRepository.delete(lesson);
-        return CONVERTER.convertFromEntity(lesson);
+        LESSON_REPOSITORY.delete(lesson);
+        return LESSON_CONVERTER.convertFromEntity(lesson);
     }
 
     @Override

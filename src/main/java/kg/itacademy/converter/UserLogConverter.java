@@ -2,7 +2,7 @@ package kg.itacademy.converter;
 
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserLog;
-import kg.itacademy.model.UserLogModel;
+import kg.itacademy.model.user.UserLogModel;
 import org.springframework.stereotype.Component;
 
 @Component

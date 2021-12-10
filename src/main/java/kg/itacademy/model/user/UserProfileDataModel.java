@@ -1,5 +1,6 @@
-package kg.itacademy.model;
+package kg.itacademy.model.user;
 
+import kg.itacademy.model.course.CourseModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthDataBaseUserModel {
+public class UserProfileDataModel {
     private String token;
     private UserModel user;
     private UserBalanceModel userBalance;

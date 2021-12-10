@@ -1,7 +1,7 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.UserRole;
-import kg.itacademy.model.UserRoleModel;
+import kg.itacademy.model.user.UserRoleModel;
 
 import java.util.List;
 

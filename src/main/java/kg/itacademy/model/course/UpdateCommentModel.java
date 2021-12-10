@@ -1,4 +1,4 @@
-package kg.itacademy.model;
+package kg.itacademy.model.course;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,8 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseImageModel {
+public class UpdateCommentModel {
     private Long id;
-    private String courseImageUrl;
-    private Long courseId;
+    private String comment;
 }

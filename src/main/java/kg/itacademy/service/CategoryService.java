@@ -1,7 +1,7 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.Category;
-import kg.itacademy.model.CategoryModel;
+import kg.itacademy.model.course.CategoryModel;
 
 import java.util.List;
 

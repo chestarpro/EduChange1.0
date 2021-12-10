@@ -6,10 +6,10 @@ import kg.itacademy.entity.UserLog;
 import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserRole;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.AuthDataBaseUserModel;
-import kg.itacademy.model.CourseModel;
-import kg.itacademy.model.UserAuthorizModel;
-import kg.itacademy.model.UserModel;
+import kg.itacademy.model.user.UserProfileDataModel;
+import kg.itacademy.model.course.CourseModel;
+import kg.itacademy.model.user.UserAuthorizModel;
+import kg.itacademy.model.user.UserModel;
 import kg.itacademy.repository.UserRepository;
 import kg.itacademy.service.*;
 import kg.itacademy.util.VariableValidation;
@@ -30,47 +30,36 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService, VariableValidation<User> {
 
-    private final UserRepository userRepository;
-
-    private final UserRoleService userRoleService;
-
-    private final PasswordEncoder passwordEncoder;
-
-    private final UserLogService userLogService;
-
-    private final UserConverter CONVERTER_CONVERTER;
+    private final UserRepository USER_REPOSITORY;
+    private final UserRoleService USER_ROLE_SERVICE;
+    private final PasswordEncoder PASSWORD_ENCODER;
+    private final UserLogService USER_LOG_SERVICE;
+    private final UserConverter USER_CONVERTER;
 
     @Autowired
-    private UserImageService userImageService;
+    private UserImageService USER_IMAGE_SERVICE;
 
     @Autowired
-    private CourseService courseService;
+    private CourseService COURSE_SERVICE;
 
     @Autowired
-    private UserBalanceService userBalanceService;
+    private UserBalanceService USER_BALANCE_SERVICE;
 
     @Autowired
-    private UserCourseMappingService userCourseMappingService;
+    private UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
 
     @Override
     public User save(User user) {
-        validateVariablesForNullOrIsEmpty(user);
-        validateSpace(user);
-        validateUsername(user.getUsername());
-        validateEmail(user.getEmail());
-        checkUsernameAndEmail(user);
-        validateLengthVariables(user);
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(PASSWORD_ENCODER.encode(user.getPassword()));
         user.setIsActive(1L);
-        userRepository.save(user);
+        USER_REPOSITORY.save(user);
 
-        userRoleService.save(UserRole.builder()
+        USER_ROLE_SERVICE.save(UserRole.builder()
                 .roleName("ROLE_USER")
                 .user(user)
                 .build());
 
-        userBalanceService.save(UserBalance.builder()
+        USER_BALANCE_SERVICE.save(UserBalance.builder()
                 .user(user)
                 .balance(new BigDecimal(0))
                 .build());
@@ -79,47 +68,53 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
-    public AuthDataBaseUserModel createUser(User user) {
-        String basePassword = user.getPassword();
-        User user1 = save(user);
+    public UserProfileDataModel createUser(User user) {
+        validateVariablesForNullOrIsEmpty(user);
+        validateSpace(user);
+        validateUsername(user.getUsername());
+        validateEmail(user.getEmail());
+        checkUsernameAndEmail(user);
+        validateLengthVariables(user);
 
-        String usernamePasswordPair = user1.getUsername() + ":" + basePassword;
+        String usernamePasswordPair = user.getUsername() + ":" + user.getPassword();
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
 
         String token = "Basic " + authHeader;
 
-        return getAuthDataBaseUser(token, user1.getId());
+        User dataUser = save(user);
+
+        return getUserProfileDataModelByUserId(token, dataUser.getId());
     }
 
     @Override
     public List<User> getAll() {
-        return userRepository.findAll();
+        return USER_REPOSITORY.findAll();
     }
 
     @Override
     public List<UserModel> getAllUserModels() {
         return getAll().stream()
-                .map(CONVERTER_CONVERTER::convertFromEntity).collect(Collectors.toList());
+                .map(USER_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
     public User getById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return USER_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
     public UserModel getUserModelById(Long id) {
-        return CONVERTER_CONVERTER.convertFromEntity(getById(id));
+        return USER_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public User getByUsername(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+        return USER_REPOSITORY.findByUsername(username).orElse(null);
     }
 
     @Override
     public User getByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+        return USER_REPOSITORY.findByEmail(email).orElse(null);
     }
 
     @Override
@@ -130,7 +125,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     @Override
     public UserModel getCurrentUserModel() {
-        return CONVERTER_CONVERTER.convertFromEntity(getCurrentUser());
+        return USER_CONVERTER.convertFromEntity(getCurrentUser());
     }
 
     public User update(User user) {
@@ -146,20 +141,20 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
             validateUsername(user.getUsername());
         validateSpaceForUpdate(user);
 
-        return userRepository.save(user);
+        return USER_REPOSITORY.save(user);
     }
 
     @Override
     public UserModel updateUser(User user) {
-        return CONVERTER_CONVERTER.convertFromEntity((update(user)));
+        return USER_CONVERTER.convertFromEntity((update(user)));
     }
 
     @Override
-    public AuthDataBaseUserModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
-        User user = userRepository.findByUsername(userAuthorizModel.getUsername())
+    public UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
+        User user = USER_REPOSITORY.findByUsername(userAuthorizModel.getUsername())
                 .orElseThrow(() -> new ApiFailException("Invalid username or password"));
 
-        boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
+        boolean isPasswordIsCorrect = PASSWORD_ENCODER.matches(userAuthorizModel.getPassword(), user.getPassword());
 
         checkBaningStatus(user);
         checkFailPassword(isPasswordIsCorrect, user);
@@ -167,31 +162,31 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
         String usernamePasswordPair = userAuthorizModel.getUsername() + ":" + userAuthorizModel.getPassword();
         System.out.println(userAuthorizModel.getPassword());
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
-        userLogService.save(new UserLog(user, true));
+        USER_LOG_SERVICE.save(new UserLog(user, true));
 
         String token = "Basic " + authHeader;
 
-        return getAuthDataBaseUser(token, user.getId());
+        return getUserProfileDataModelByUserId(token, user.getId());
     }
 
     @Override
     public User setInActiveUser(User user, Long status) {
         user.setIsActive(status);
-        return userRepository.save(user);
+        return USER_REPOSITORY.save(user);
     }
 
     @Override
     public UserModel deleteUser() {
         User user = getCurrentUser();
         User deleteUser = setInActiveUser(user, -1L);
-        return CONVERTER_CONVERTER.convertFromEntity(deleteUser);
+        return USER_CONVERTER.convertFromEntity(deleteUser);
     }
 
     @Override
     public UserModel deleteUserByAdmin(Long userId) {
         User user = getById(userId);
         User deleteUser = setInActiveUser(user, -1L);
-        return CONVERTER_CONVERTER.convertFromEntity(deleteUser);
+        return USER_CONVERTER.convertFromEntity(deleteUser);
     }
 
     @Override
@@ -281,18 +276,18 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
 
     private void checkBaningStatus(User user) {
         if (user.getIsActive() == 0) {
-            UserLog userLog = userLogService.getLastLogByUserId(user.getId());
+            UserLog userLog = USER_LOG_SERVICE.getLastLogByUserId(user.getId());
             if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(5)))
                 setInActiveUser(user, 1L);
-            else throw new ApiFailException("You were blocked for 5 minutes");
+            else throw new ApiFailException("You are blocked for 5 minutes");
         }
     }
 
     private void checkFailPassword(boolean isPasswordIsCorrect, User user) {
         if (!isPasswordIsCorrect) {
-            userLogService.save(new UserLog(user, false));
+            USER_LOG_SERVICE.save(new UserLog(user, false));
 
-            boolean needToBan = userLogService.hasThreeFailsLastsLogsByUserId(user.getId());
+            boolean needToBan = USER_LOG_SERVICE.hasThreeFailsLastsLogsByUserId(user.getId());
 
             if (needToBan)
                 setInActiveUser(user, 0L);
@@ -333,14 +328,14 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
             throw new ApiFailException("Invalid email format");
     }
 
-    private AuthDataBaseUserModel getAuthDataBaseUser(String token, Long userId) {
-        AuthDataBaseUserModel dataBaseModel = new AuthDataBaseUserModel();
+    private UserProfileDataModel getUserProfileDataModelByUserId(String token, Long userId) {
+        UserProfileDataModel dataBaseModel = new UserProfileDataModel();
         dataBaseModel.setToken(token);
-        List<CourseModel> userCreateCourses = courseService.getAllByUserId(userId);
-        List<CourseModel> userPurchasedCourses = userCourseMappingService.getAllPurchasedCourses(userId);
+        List<CourseModel> userCreateCourses = COURSE_SERVICE.getAllByUserId(userId);
+        List<CourseModel> userPurchasedCourses = USER_COURSE_MAPPING_SERVICE.getAllPurchasedCourses(userId);
         dataBaseModel.setUser(getUserModelById(userId));
-        dataBaseModel.setUserBalance(userBalanceService.getUserBalanceModelByUserId(userId));
-        dataBaseModel.setUserImage(userImageService.getUserImageModelByUserId(userId));
+        dataBaseModel.setUserBalance(USER_BALANCE_SERVICE.getUserBalanceModelByUserId(userId));
+        dataBaseModel.setUserImage(USER_IMAGE_SERVICE.getUserImageModelByUserId(userId));
         dataBaseModel.setUserCreateCourses(userCreateCourses);
         dataBaseModel.setUserPurchasedCourses(userPurchasedCourses);
 

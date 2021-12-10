@@ -3,7 +3,7 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.CourseProgramConverter;
 import kg.itacademy.entity.CourseProgram;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.CourseProgramModel;
+import kg.itacademy.model.course.CourseProgramModel;
 import kg.itacademy.repository.CourseProgramRepository;
 import kg.itacademy.service.CourseProgramService;
 import lombok.RequiredArgsConstructor;
@@ -16,27 +16,26 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseProgramServiceImpl implements CourseProgramService {
 
-    private final CourseProgramRepository courseProgramRepository;
-
-    private final CourseProgramConverter CONVERTER = new CourseProgramConverter();
+    private final CourseProgramRepository COURSE_PROGRAM_REPOSITORY;
+    private final CourseProgramConverter COURSE_PROGRAM_CONVERTER;
 
     @Override
     public CourseProgram save(CourseProgram courseProgram) {
 
-        return courseProgramRepository.save(courseProgram);
+        return COURSE_PROGRAM_REPOSITORY.save(courseProgram);
     }
 
     @Override
     public CourseProgramModel createCourseProgram(CourseProgramModel courseProgramModel) {
         validateLengthVariables(courseProgramModel);
         validateVariablesForNullOrIsEmpty(courseProgramModel);
-        CourseProgram courseProgram = save(CONVERTER.convertFromModel(courseProgramModel));
-        return CONVERTER.convertFromEntity(courseProgram);
+        CourseProgram courseProgram = save(COURSE_PROGRAM_CONVERTER.convertFromModel(courseProgramModel));
+        return COURSE_PROGRAM_CONVERTER.convertFromEntity(courseProgram);
     }
 
     @Override
     public CourseProgram getById(Long id) {
-        return courseProgramRepository.findById(id).orElse(null);
+        return COURSE_PROGRAM_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
@@ -51,15 +50,15 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     @Override
     public List<CourseProgramModel> getAllCourseProgramModelByCourseId(Long id) {
-        return courseProgramRepository.findAllByCourse_Id(id)
-                .stream().map(CONVERTER::convertFromEntity).collect(Collectors.toList());
+        return COURSE_PROGRAM_REPOSITORY.findAllByCourse_Id(id)
+                .stream().map(COURSE_PROGRAM_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
     public CourseProgramModel updateCurseProgram(CourseProgramModel courseProgramModel) {
         validateLengthVariablesForUpdate(courseProgramModel);
         validateVariablesForNullOrIsEmptyUpdate(courseProgramModel);
-        courseProgramRepository.save(CONVERTER.convertFromModel(courseProgramModel));
+        COURSE_PROGRAM_REPOSITORY.save(COURSE_PROGRAM_CONVERTER.convertFromModel(courseProgramModel));
         return courseProgramModel;
     }
 
@@ -68,7 +67,7 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         CourseProgram courseProgram = getById(id);
         if (courseProgram == null)
             throw new ApiFailException("Course program by user id " + id + ") not found");
-        courseProgramRepository.delete(courseProgram);
+        COURSE_PROGRAM_REPOSITORY.delete(courseProgram);
         return new CourseProgramConverter().convertFromEntity(courseProgram);
     }
 

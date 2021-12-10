@@ -5,9 +5,9 @@ import kg.itacademy.entity.Comment;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.User;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.CommentModel;
-import kg.itacademy.model.CreateCommentModel;
-import kg.itacademy.model.UpdateCommentModel;
+import kg.itacademy.model.course.CommentModel;
+import kg.itacademy.model.course.CreateCommentModel;
+import kg.itacademy.model.course.UpdateCommentModel;
 import kg.itacademy.repository.CommentRepository;
 import kg.itacademy.service.CommentService;
 import kg.itacademy.service.CourseService;
@@ -22,17 +22,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService{
 
-    private final CommentRepository commentRepository;
-
-    private final CourseService courseService;
-
-    private final UserService userService;
-
-    private final CommentConverter CONVERTER = new CommentConverter();
+    private final CommentRepository COMMENT_REPOSITORY;
+    private final CourseService COURSE_SERVICE;
+    private final UserService USER_SERVICE;
+    private final CommentConverter COMMENT_CONVERTER;
 
     @Override
     public Comment save(Comment comment) {
-        return commentRepository.save(comment);
+        return COMMENT_REPOSITORY.save(comment);
     }
 
     @Override
@@ -40,42 +37,42 @@ public class CommentServiceImpl implements CommentService{
         validateLengthVariables(createCommentModel);
         validateVariablesForNullOrIsEmpty(createCommentModel);
 
-        Course course = courseService.getById(createCommentModel.getCourseId());
-        User user = userService.getCurrentUser();
+        Course course = COURSE_SERVICE.getById(createCommentModel.getCourseId());
+        User user = USER_SERVICE.getCurrentUser();
 
         Comment comment = save(new Comment(createCommentModel.getComment(), user, course));
-        return CONVERTER.convertFromEntity(comment);
+        return COMMENT_CONVERTER.convertFromEntity(comment);
     }
 
     @Override
     public Comment getById(Long id) {
-        return commentRepository.findById(id).orElse(null);
+        return COMMENT_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
     public CommentModel getCommentModelById(Long id) {
-        return CONVERTER.convertFromEntity(getById(id));
+        return COMMENT_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public List<Comment> getAll() {
-        return commentRepository.findAll();
+        return COMMENT_REPOSITORY.findAll();
     }
 
     @Override
     public List<CommentModel> getAllCommentModel() {
         return getAll()
                 .stream()
-                .map(CONVERTER::convertFromEntity)
+                .map(COMMENT_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<CommentModel> getAllCommentModelByCourseId(Long courseId) {
-       return commentRepository
+       return COMMENT_REPOSITORY
                .findAllByCourse_Id(courseId)
                .stream()
-               .map(CONVERTER::convertFromEntity)
+               .map(COMMENT_CONVERTER::convertFromEntity)
                .collect(Collectors.toList());
     }
 
@@ -91,7 +88,7 @@ public class CommentServiceImpl implements CommentService{
         comment.setId(updateCommentModel.getId());
         comment.setCourseComment(updateCommentModel.getComment());
 
-        return CONVERTER.convertFromEntity(commentRepository.save(comment));
+        return COMMENT_CONVERTER.convertFromEntity(COMMENT_REPOSITORY.save(comment));
     }
 
     @Override
@@ -100,8 +97,8 @@ public class CommentServiceImpl implements CommentService{
         if (comment == null) {
             throw new ApiFailException("Comment by id " + id + " not found");
         }
-        commentRepository.delete(comment);
-        return CONVERTER.convertFromEntity(comment);
+        COMMENT_REPOSITORY.delete(comment);
+        return COMMENT_CONVERTER.convertFromEntity(comment);
     }
 
     private void validateLengthVariables(CreateCommentModel comment) {

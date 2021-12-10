@@ -2,7 +2,7 @@ package kg.itacademy.converter;
 
 import kg.itacademy.entity.User;
 import kg.itacademy.exception.ApiErrorException;
-import kg.itacademy.model.UserModel;
+import kg.itacademy.model.user.UserModel;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,6 +26,6 @@ public class UserConverter extends BaseConverter<UserModel, User> {
     }
 
     private static User convertToEntity(UserModel modelToConvert) {
-        throw new ApiErrorException("Conversation from ClientModel to Client is not supported");
+        throw new ApiErrorException("Conversation from UserModel to User is not supported");
     }
 }

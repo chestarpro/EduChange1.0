@@ -1,9 +1,9 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.Comment;
-import kg.itacademy.model.CommentModel;
-import kg.itacademy.model.CreateCommentModel;
-import kg.itacademy.model.UpdateCommentModel;
+import kg.itacademy.model.course.CommentModel;
+import kg.itacademy.model.course.CreateCommentModel;
+import kg.itacademy.model.course.UpdateCommentModel;
 
 import java.util.List;
 

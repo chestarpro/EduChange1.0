@@ -1,4 +1,4 @@
-package kg.itacademy.model;
+package kg.itacademy.model.course;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

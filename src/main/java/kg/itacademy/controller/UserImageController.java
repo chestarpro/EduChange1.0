@@ -1,41 +1,41 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.UserImageUrlModel;
+import kg.itacademy.model.user.UserImageUrlModel;
 import kg.itacademy.util.ResponseMessage;
-import kg.itacademy.model.UserImageModel;
+import kg.itacademy.model.user.UserImageModel;
 import kg.itacademy.service.UserImageService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/user-image")
+@RequiredArgsConstructor
 public class UserImageController {
 
-    @Autowired
-    private UserImageService userImageService;
+    private final UserImageService USER_IMAGE_SERVICE;
 
-    @PostMapping("/create/{userId}")
-    public ResponseMessage<UserImageModel> save(@RequestParam(name = "file") MultipartFile file, @PathVariable Long userId) {
+    @PostMapping("/create")
+    public ResponseMessage<UserImageModel> save(@RequestParam(name = "file") MultipartFile file) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(userImageService.createUserImage(file, userId));
+                .prepareSuccessMessage(USER_IMAGE_SERVICE.createUserImage(file));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<UserImageModel> getById(@PathVariable Long id) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(userImageService.getUserImageModelById(id));
+                .prepareSuccessMessage(USER_IMAGE_SERVICE.getUserImageModelById(id));
     }
 
     @PutMapping("/update")
     public ResponseMessage<UserImageModel> update(@RequestParam(name = "file") MultipartFile file) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(userImageService.updateUserImage(file));
+                .prepareSuccessMessage(USER_IMAGE_SERVICE.updateUserImage(file));
     }
 
     @PostMapping("/delete")
     public ResponseMessage<UserImageModel> delete(@RequestBody UserImageUrlModel url) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(userImageService.deleteImage(url));
+                .prepareSuccessMessage(USER_IMAGE_SERVICE.deleteImage(url));
     }
 }

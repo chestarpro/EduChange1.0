@@ -1,21 +1,21 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.CommentModel;
-import kg.itacademy.model.CreateCommentModel;
+import kg.itacademy.model.course.CommentModel;
+import kg.itacademy.model.course.CreateCommentModel;
 import kg.itacademy.util.ResponseMessage;
-import kg.itacademy.model.UpdateCommentModel;
+import kg.itacademy.model.course.UpdateCommentModel;
 import kg.itacademy.service.CommentService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/comment")
+@RequiredArgsConstructor
 public class CommentController {
 
-    @Autowired
-    private CommentService commentService;
+    private final CommentService commentService;
 
     @PostMapping("/create")
     public ResponseMessage<CommentModel> save(@RequestBody CreateCommentModel createCommentModel) {

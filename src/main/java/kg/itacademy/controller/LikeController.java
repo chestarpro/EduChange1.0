@@ -1,19 +1,19 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.LikeModel;
+import kg.itacademy.model.course.LikeModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.LikeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/like")
+@RequiredArgsConstructor
 public class LikeController {
 
-    @Autowired
-    private LikeService likeService;
+    private final LikeService likeService;
 
     @GetMapping("/create/{courseId}")
     public ResponseMessage<LikeModel> save(@PathVariable Long courseId) {

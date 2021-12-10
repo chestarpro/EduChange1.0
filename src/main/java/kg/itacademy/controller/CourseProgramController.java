@@ -1,19 +1,19 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.CourseProgramModel;
+import kg.itacademy.model.course.CourseProgramModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.CourseProgramService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/course-program")
+@RequiredArgsConstructor
 public class CourseProgramController {
 
-    @Autowired
-    private CourseProgramService courseProgramService;
+    private final CourseProgramService courseProgramService;
 
     @PostMapping("/create")
     public ResponseMessage<CourseProgramModel> save(@RequestBody CourseProgramModel courseProgramModel) {

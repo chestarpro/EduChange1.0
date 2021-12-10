@@ -9,31 +9,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserLogRepository extends JpaRepository<UserLog, Long> {
+    List<UserLog> findAllByUser_Id(Long id);
 
     @Query(nativeQuery = true,
-            value = "select\n" +
-                    "\tcase\n" +
-                    "\t\twhen count(*) = 3 then true\n" +
-                    "\t\telse false\n" +
-                    "\tend\n" +
-                    "from\n" +
-                    "\t(\n" +
-                    "\tselect\n" +
-                    "\t\t*\n" +
-                    "\tfrom\n" +
-                    "\t\tusers_authorization_logs\n" +
-                    "\twhere\n" +
-                    "\t\tuser_id = :userId\n" +
-                    "\torder by\n" +
-                    "\t\tid desc\n" +
-                    "\tlimit 3) as logs\n" +
-                    "where\n" +
-                    "\tlogs.is_success = false and logs.create_date between now() - interval '1 HOUR' and now();"
+            value = "SELECT CASE WHEN COUNT(*) = 3 THEN true ELSE false END " +
+                    "FROM(SELECT * FROM users_authorization_logs WHERE user_id = :userId " +
+                    "ORDER BY id DESC LIMIT 3) AS logs WHERE logs.is_success = false AND " +
+                    "logs.create_date BETWEEN now() - INTERVAL '1 HOUR' AND now();"
     )
     Boolean hasThreeFailsInARowByUserId(@Param("userId") Long userId);
 
-    @Query(nativeQuery = true, value = "select * from users_authorization_logs where user_id = :userId order by id desc limit 1")
+    @Query(nativeQuery = true, value = "SELECT * FROM users_authorization_logs WHERE user_id = :userId ORDER BY id DESC LIMIT 1")
     Optional<UserLog> findLastLogByUserId(@Param("userId") Long userId);
-
-    List<UserLog> findAllByUser_Id(Long id);
 }

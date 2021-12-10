@@ -3,7 +3,7 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.CourseConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.CourseModel;
+import kg.itacademy.model.course.CourseModel;
 import kg.itacademy.repository.CourseRepository;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
@@ -19,47 +19,45 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService, VariableValidation<Course> {
 
-    private final CourseRepository courseRepository;
-
-    private final UserService userService;
-
-    private final CourseConverter CONVERTER = new CourseConverter();
+    private final CourseRepository COURSE_REPOSITORY;
+    private final UserService USER_SERVICE;
+    private final CourseConverter COURSE_CONVERTER;
 
     @Override
     public Course save(Course course) {
         validateEmail(course);
         validateLengthVariables(course);
         validateVariablesForNullOrIsEmpty(course);
-        course.setUser(userService.getCurrentUser());
-        return courseRepository.save(course);
+        course.setUser(USER_SERVICE.getCurrentUser());
+        return COURSE_REPOSITORY.save(course);
     }
 
     @Override
     public CourseModel createCourse(CourseModel courseModel) {
         courseModel.setCourseName(courseModel.getCourseName().toLowerCase(Locale.ROOT));
-        Course course = save(CONVERTER.convertFromModel(courseModel));
-        return CONVERTER.convertFromEntity(course);
+        Course course = save(COURSE_CONVERTER.convertFromModel(courseModel));
+        return COURSE_CONVERTER.convertFromEntity(course);
     }
 
     @Override
     public Course getById(Long id) {
-        return courseRepository.findById(id).orElse(null);
+        return COURSE_REPOSITORY.findById(id).orElse(null);
     }
 
     @Override
     public CourseModel getCourseModelById(Long id) {
-        return CONVERTER.convertFromEntity(getById(id));
+        return COURSE_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
     public List<Course> getAll() {
-        return courseRepository.findAll();
+        return COURSE_REPOSITORY.findAll();
     }
 
     @Override
     public List<CourseModel> getAllCourseModel() {
         return getAll().stream()
-                .map(CONVERTER::convertFromEntity)
+                .map(COURSE_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -69,42 +67,42 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
         validateEmail(course);
         validateLengthVariablesForUpdate(course);
         validateVariablesForNullOrIsEmptyUpdate(course);
-        return courseRepository.save(course);
+        return COURSE_REPOSITORY.save(course);
     }
 
     @Override
     public CourseModel updateCourse(CourseModel courseModel) {
-        update(CONVERTER.convertFromModel(courseModel));
+        update(COURSE_CONVERTER.convertFromModel(courseModel));
         return courseModel;
     }
 
     @Override
     public List<CourseModel> getAllByCourseName(String courseName) {
-        return courseRepository.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
+        return COURSE_REPOSITORY.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
                 .stream()
-                .map(CONVERTER::convertFromEntity)
+                .map(COURSE_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<CourseModel> getAllByCourseCategoryName(String categoryName) {
-        return courseRepository.findAllByCategoryName(categoryName.toLowerCase(Locale.ROOT))
+        return COURSE_REPOSITORY.findAllByCategoryName(categoryName.toLowerCase(Locale.ROOT))
                 .stream()
-                .map(CONVERTER::convertFromEntity)
+                .map(COURSE_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<CourseModel> getAllByCategoryId(Long id) {
-        return courseRepository.findAllByCategory_Id(id).stream()
-                .map(CONVERTER::convertFromEntity)
+        return COURSE_REPOSITORY.findAllByCategory_Id(id).stream()
+                .map(COURSE_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<CourseModel> getAllByUserId(Long userId) {
-        return courseRepository.findAllByUser_Id(userId).stream()
-                .map(CONVERTER::convertFromEntity)
+        return COURSE_REPOSITORY.findAllByUser_Id(userId).stream()
+                .map(COURSE_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -115,13 +113,13 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
         if (deleteCourse == null)
             throw new ApiFailException("Course by user id " + id + " not found");
 
-        courseRepository.delete(deleteCourse);
-        return CONVERTER.convertFromEntity(deleteCourse);
+        COURSE_REPOSITORY.delete(deleteCourse);
+        return COURSE_CONVERTER.convertFromEntity(deleteCourse);
     }
 
     private void validateEmail(Course course) {
         if (course.getEmail() != null)
-            userService.validateEmail(course.getEmail());
+            USER_SERVICE.validateEmail(course.getEmail());
     }
 
     @Override
