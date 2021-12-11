@@ -1,5 +1,6 @@
 package kg.itacademy.controller;
 
+import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.course.CourseModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.CourseService;
@@ -16,8 +17,8 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping("/create")
-    public ResponseMessage<CourseModel> save(@RequestBody CourseModel courseModel) {
-        return new ResponseMessage<CourseModel>()
+    public ResponseMessage<CourseDataModel> save(@RequestBody CourseModel courseModel) {
+        return new ResponseMessage<CourseDataModel>()
                 .prepareSuccessMessage(courseService.createCourse(courseModel));
     }
 
@@ -28,38 +29,38 @@ public class CourseController {
     }
 
     @GetMapping("/get/by-id/{id}")
-    public ResponseMessage<CourseModel> getById(@PathVariable Long id) {
-        return new ResponseMessage<CourseModel>()
+    public ResponseMessage<CourseDataModel> getById(@PathVariable Long id) {
+        return new ResponseMessage<CourseDataModel>()
                 .prepareSuccessMessage(courseService.getCourseModelById(id));
     }
 
     @GetMapping("/get-all")
-    public ResponseMessage<List<CourseModel>> getAll() {
-        return new ResponseMessage<List<CourseModel>>()
+    public ResponseMessage<List<CourseDataModel>> getAll() {
+        return new ResponseMessage<List<CourseDataModel>>()
                 .prepareSuccessMessage(courseService.getAllCourseModel());
     }
 
     @GetMapping("/get-all/by-user-id/{userId}")
-    public ResponseMessage<List<CourseModel>> gatAllByUserId(@PathVariable Long userId) {
-        return new ResponseMessage<List<CourseModel>>()
+    public ResponseMessage<List<CourseDataModel>> gatAllByUserId(@PathVariable Long userId) {
+        return new ResponseMessage<List<CourseDataModel>>()
                 .prepareSuccessMessage(courseService.getAllByUserId(userId));
     }
 
     @GetMapping("get-all/by-name/{courseName}")
-    public ResponseMessage<List<CourseModel>> getAllByCourseName(@PathVariable String courseName) {
-        return new ResponseMessage<List<CourseModel>>()
+    public ResponseMessage<List<CourseDataModel>> getAllByCourseName(@PathVariable String courseName) {
+        return new ResponseMessage<List<CourseDataModel>>()
                 .prepareSuccessMessage(courseService.getAllByCourseName(courseName));
     }
 
     @GetMapping("/get-all/by-category-id/{id}")
-    public ResponseMessage<List<CourseModel>> getAllByCourseId(@PathVariable Long id) {
-        return new ResponseMessage<List<CourseModel>>()
+    public ResponseMessage<List<CourseDataModel>> getAllByCourseId(@PathVariable Long id) {
+        return new ResponseMessage<List<CourseDataModel>>()
                 .prepareSuccessMessage(courseService.getAllByCategoryId(id));
     }
 
     @GetMapping("/get-all/by-category-name/{categoryName}")
-    public ResponseMessage<List<CourseModel>> getAllByCategoryName(@PathVariable String categoryName) {
-        return new ResponseMessage<List<CourseModel>>()
+    public ResponseMessage<List<CourseDataModel>> getAllByCategoryName(@PathVariable String categoryName) {
+        return new ResponseMessage<List<CourseDataModel>>()
                 .prepareSuccessMessage(courseService.getAllByCourseCategoryName(categoryName));
     }
 

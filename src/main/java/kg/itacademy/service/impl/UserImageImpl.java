@@ -61,6 +61,7 @@ public class UserImageImpl implements UserImageService {
             multipartFile.transferTo(file);
             Cloudinary cloudinary = new Cloudinary(CLOUDINARY_URL);
             Map uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
+
             return ((String) uploadResult.get("url"));
         } catch (IOException e) {
             throw new ApiErrorException(e.getMessage());
@@ -109,7 +110,6 @@ public class UserImageImpl implements UserImageService {
 
             if (updateUserImage == null)
                 throw new ApiFailException("User image by user id (" + userId + ") not found");
-            
             updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
 
             return USER_IMAGE_CONVERTER.convertFromEntity(update(updateUserImage));

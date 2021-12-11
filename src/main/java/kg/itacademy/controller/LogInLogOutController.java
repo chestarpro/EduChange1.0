@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping
+@RequestMapping("/sign")
 @RequiredArgsConstructor
 public class LogInLogOutController {
 
     private final UserService userService;
 
-    @PostMapping("/sign-up")
+    @PostMapping("/up")
     public ResponseMessage<UserProfileDataModel> save(@RequestBody User user) {
         return new ResponseMessage<UserProfileDataModel>()
                 .prepareSuccessMessage(userService.createUser(user));
     }
 
-    @PostMapping("/sign-in")
+    @PostMapping("/in")
     public ResponseMessage<UserProfileDataModel> getAuthHeader(@RequestBody UserAuthorizModel userAuthorizModel) {
         UserProfileDataModel authHeader = userService.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
         return new ResponseMessage<UserProfileDataModel>().prepareSuccessMessage(authHeader);

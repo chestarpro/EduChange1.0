@@ -40,7 +40,6 @@ public class CourseImageController {
                 .prepareSuccessMessage(courseImageService.updateImage(multipartFile, id));
     }
 
-
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<CourseImageModel> delete(@PathVariable Long id) {
         return new ResponseMessage<CourseImageModel>()

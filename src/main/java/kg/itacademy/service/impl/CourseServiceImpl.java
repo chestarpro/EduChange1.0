@@ -1,14 +1,18 @@
 package kg.itacademy.service.impl;
 
 import kg.itacademy.converter.CourseConverter;
+import kg.itacademy.converter.LessonConverter;
 import kg.itacademy.entity.Course;
+import kg.itacademy.entity.Lesson;
 import kg.itacademy.exception.ApiFailException;
+import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.course.CourseModel;
 import kg.itacademy.repository.CourseRepository;
-import kg.itacademy.service.CourseService;
-import kg.itacademy.service.UserService;
+import kg.itacademy.repository.LessonRepository;
+import kg.itacademy.service.*;
 import kg.itacademy.util.VariableValidation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +25,17 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
     private final CourseRepository COURSE_REPOSITORY;
     private final UserService USER_SERVICE;
+    private final CourseImageService COURSE_IMAGE_SERVICE;
     private final CourseConverter COURSE_CONVERTER;
+    private final CourseProgramService PROGRAM_SERVICE;
+    @Autowired
+    private  CommentService COMMENT_SERVICE;
+    @Autowired
+    private LikeService LIKE_SERVICE;
+    @Autowired
+    private LessonService lessonService;
+    @Autowired
+    private LessonRepository lessonRepository;
 
     @Override
     public Course save(Course course) {
@@ -33,10 +47,11 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
     }
 
     @Override
-    public CourseModel createCourse(CourseModel courseModel) {
+    public CourseDataModel createCourse(CourseModel courseModel) {
         courseModel.setCourseName(courseModel.getCourseName().toLowerCase(Locale.ROOT));
         Course course = save(COURSE_CONVERTER.convertFromModel(courseModel));
-        return COURSE_CONVERTER.convertFromEntity(course);
+
+        return getCourseDataModelByCourseId(course.getId());
     }
 
     @Override
@@ -45,8 +60,8 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
     }
 
     @Override
-    public CourseModel getCourseModelById(Long id) {
-        return COURSE_CONVERTER.convertFromEntity(getById(id));
+    public CourseDataModel getCourseModelById(Long id) {
+        return getCourseDataModelByCourseId(id);
     }
 
     @Override
@@ -55,9 +70,10 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
     }
 
     @Override
-    public List<CourseModel> getAllCourseModel() {
-        return getAll().stream()
-                .map(COURSE_CONVERTER::convertFromEntity)
+    public List<CourseDataModel> getAllCourseModel() {
+        return getAll()
+                .stream()
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
     }
 
@@ -77,44 +93,47 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
     }
 
     @Override
-    public List<CourseModel> getAllByCourseName(String courseName) {
-        return COURSE_REPOSITORY.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
+    public List<CourseDataModel> getAllByCourseName(String courseName) {
+
+      return COURSE_REPOSITORY.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
                 .stream()
-                .map(COURSE_CONVERTER::convertFromEntity)
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<CourseModel> getAllByCourseCategoryName(String categoryName) {
+    public List<CourseDataModel> getAllByCourseCategoryName(String categoryName) {
         return COURSE_REPOSITORY.findAllByCategoryName(categoryName.toLowerCase(Locale.ROOT))
                 .stream()
-                .map(COURSE_CONVERTER::convertFromEntity)
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<CourseModel> getAllByCategoryId(Long id) {
-        return COURSE_REPOSITORY.findAllByCategory_Id(id).stream()
-                .map(COURSE_CONVERTER::convertFromEntity)
+    public List<CourseDataModel> getAllByCategoryId(Long id) {
+       return COURSE_REPOSITORY.findAllByCategory_Id(id)
+                .stream()
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<CourseModel> getAllByUserId(Long userId) {
-        return COURSE_REPOSITORY.findAllByUser_Id(userId).stream()
-                .map(COURSE_CONVERTER::convertFromEntity)
+    public List<CourseDataModel> getAllByUserId(Long userId) {
+        return COURSE_REPOSITORY.findAllByUser_Id(userId)
+                .stream()
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public CourseModel deleteCourseById(Long id) {
-        Course deleteCourse = getById(id);
+        Course course = getById(id);
 
-        if (deleteCourse == null)
+        if (course == null)
             throw new ApiFailException("Course by user id " + id + " not found");
 
-        COURSE_REPOSITORY.delete(deleteCourse);
-        return COURSE_CONVERTER.convertFromEntity(deleteCourse);
+        COURSE_REPOSITORY.deleteById(id);
+        return COURSE_CONVERTER.convertFromEntity(course);
     }
 
     private void validateEmail(Course course) {
@@ -184,5 +203,17 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
         if (course.getPrice() != null && course.getPrice().doubleValue() < 0) {
             throw new ApiFailException("Wrong balance format");
         }
+    }
+
+    @Override
+    public CourseDataModel getCourseDataModelByCourseId(Long courseId) {
+        CourseDataModel courseDataModel = new CourseDataModel();
+        courseDataModel.setCourseModel(COURSE_CONVERTER.convertFromEntity(getById(courseId)));
+        courseDataModel.setImageModel(COURSE_IMAGE_SERVICE.getCourseImageModelByCourseId(courseId));
+        courseDataModel.setPrograms(PROGRAM_SERVICE.getAllCourseProgramModelByCourseId(courseId));
+        courseDataModel.setLikes(LIKE_SERVICE.getAllLikeModelByCourseId(courseId));
+        courseDataModel.setComments(COMMENT_SERVICE.getAllCommentModelByCourseId(courseId));
+
+        return courseDataModel;
     }
 }

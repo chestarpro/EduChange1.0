@@ -3,6 +3,7 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.LikeConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.Like;
+import kg.itacademy.entity.User;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.course.LikeModel;
 import kg.itacademy.repository.LikeRepository;
@@ -26,18 +27,23 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public Like save(Like like) {
-        Like dataLike = getById(like.getId());
-        if (dataLike != null)
-            throw new IllegalArgumentException("\"Like\" already exists");
+
         return LIKE_REPOSITORY.save(like);
     }
 
     @Override
     public LikeModel createLikeByCourseId(Long courseId) {
+        User user = USER_SERVICE.getCurrentUser();
+        Like dataLike = LIKE_REPOSITORY
+                .findByCourse_IdAndUser_Id(courseId, user.getId())
+                .orElse(null);
+
+        if (dataLike != null)
+            throw new ApiFailException("\"Like\" already exists");
         Course course = COURSE_SERVICE.getById(courseId);
         Like like = new Like();
         like.setCourse(course);
-        like.setUser(USER_SERVICE.getCurrentUser());
+        like.setUser(user);
 
         return LIKE_CONVERTER.convertFromEntity(save(like));
     }

@@ -1,6 +1,5 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.aop.LogMethod;
 import kg.itacademy.model.*;
 import kg.itacademy.model.course.CategoryModel;
 import kg.itacademy.model.course.CommentModel;
@@ -11,7 +10,6 @@ import kg.itacademy.model.user.UserModel;
 import kg.itacademy.service.*;
 import kg.itacademy.util.ResponseMessage;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +25,6 @@ public class AdminController {
     private final UserLogService userLogService;
     private final UserBalanceService userBalanceService;
     private final UserImageService userImageService;
-    private final CourseImageService courseImageService;
     private final UserCourseMappingService userCourseMappingService;
 
     @PostMapping("/category/create/{categoryName}")
@@ -43,16 +40,9 @@ public class AdminController {
     }
 
     @GetMapping("/user/get-all")
-    @LogMethod
     public ResponseMessage<List<UserModel>> getAllUser() {
         return new ResponseMessage<List<UserModel>>()
                 .prepareSuccessMessage(userService.getAllUserModels());
-    }
-
-    @GetMapping("/comment/get-all")
-    public ResponseMessage<List<CommentModel>> getAllComment() {
-        return new ResponseMessage<List<CommentModel>>()
-                .prepareSuccessMessage(commentService.getAllCommentModel());
     }
 
     @GetMapping("/user-log/get-all/by-user-id/{userId}")
@@ -77,12 +67,6 @@ public class AdminController {
     public ResponseMessage<UserModel> deleteUser(@PathVariable Long id) {
         return new ResponseMessage<UserModel>()
                 .prepareSuccessMessage(userService.deleteUserByAdmin(id));
-    }
-
-    @DeleteMapping("/category/delete/{id}")
-    public ResponseMessage<CategoryModel> deleteCategory(@PathVariable Long id) {
-        return new ResponseMessage<CategoryModel>()
-                .prepareSuccessMessage(categoryService.deleteCategory(id));
     }
 
     @DeleteMapping("/purchases/delete/{id}")

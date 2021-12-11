@@ -17,6 +17,4 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("FROM Course c JOIN c.category r WHERE r.categoryName LIKE :categoryName%")
     List<Course> findAllByCategoryName(@Param("categoryName") String categoryName);
-
-
 }

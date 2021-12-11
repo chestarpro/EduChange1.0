@@ -6,6 +6,7 @@ import kg.itacademy.entity.UserLog;
 import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserRole;
 import kg.itacademy.exception.ApiFailException;
+import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.user.UserProfileDataModel;
 import kg.itacademy.model.course.CourseModel;
 import kg.itacademy.model.user.UserAuthorizModel;
@@ -331,8 +332,8 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     private UserProfileDataModel getUserProfileDataModelByUserId(String token, Long userId) {
         UserProfileDataModel dataBaseModel = new UserProfileDataModel();
         dataBaseModel.setToken(token);
-        List<CourseModel> userCreateCourses = COURSE_SERVICE.getAllByUserId(userId);
-        List<CourseModel> userPurchasedCourses = USER_COURSE_MAPPING_SERVICE.getAllPurchasedCourses(userId);
+        List<CourseDataModel> userCreateCourses = COURSE_SERVICE.getAllByUserId(userId);
+        List<CourseDataModel> userPurchasedCourses = USER_COURSE_MAPPING_SERVICE.getAllPurchasedCourses(userId);
         dataBaseModel.setUser(getUserModelById(userId));
         dataBaseModel.setUserBalance(USER_BALANCE_SERVICE.getUserBalanceModelByUserId(userId));
         dataBaseModel.setUserImage(USER_IMAGE_SERVICE.getUserImageModelByUserId(userId));

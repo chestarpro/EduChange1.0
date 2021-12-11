@@ -1,6 +1,6 @@
 package kg.itacademy.model.user;
 
-import kg.itacademy.model.course.CourseModel;
+import kg.itacademy.model.course.CourseDataModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +17,6 @@ public class UserProfileDataModel {
     private UserModel user;
     private UserBalanceModel userBalance;
     private UserImageModel userImage;
-    private List<CourseModel> userCreateCourses;
-    private List<CourseModel> userPurchasedCourses;
+    private List<CourseDataModel> userCreateCourses;
+    private List<CourseDataModel> userPurchasedCourses;
 }

@@ -1,6 +1,7 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.UserCourseMapping;
+import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.course.CourseModel;
 import kg.itacademy.model.UserCourseMappingModel;
 
@@ -12,7 +13,7 @@ public interface UserCourseMappingService extends BaseService<UserCourseMapping>
 
     List<UserCourseMappingModel> getAllUserCourseMappingModel();
 
-    List<CourseModel> getAllPurchasedCourses(Long userId);
+    List<CourseDataModel> getAllPurchasedCourses(Long userId);
 
     UserCourseMappingModel createByCourseId(Long courseId);
 

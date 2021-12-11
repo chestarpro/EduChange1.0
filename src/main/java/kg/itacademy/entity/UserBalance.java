@@ -2,6 +2,8 @@ package kg.itacademy.entity;
 
 import lombok.*;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 @Builder
 public class UserBalance extends BaseEntity {
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 

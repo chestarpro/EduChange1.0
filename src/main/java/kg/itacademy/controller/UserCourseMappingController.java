@@ -1,5 +1,6 @@
 package kg.itacademy.controller;
 
+import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.course.CourseModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.UserCourseMappingModel;
@@ -29,8 +30,8 @@ public class UserCourseMappingController {
     }
 
     @GetMapping("/get-all-purchased-curses/{userId}")
-    public ResponseMessage<List<CourseModel>> getAllPurchasedCourses(@PathVariable Long userId) {
-        return new ResponseMessage<List<CourseModel>>()
+    public ResponseMessage<List<CourseDataModel>> getAllPurchasedCourses(@PathVariable Long userId) {
+        return new ResponseMessage<List<CourseDataModel>>()
                 .prepareSuccessMessage(USER_COURSE_MAPPING_SERVICE.getAllPurchasedCourses(userId));
     }
 }

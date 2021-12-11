@@ -73,6 +73,9 @@ public class CourseImageServiceImpl implements CourseImageService {
         try {
             CourseImage updateCourseImage = getById(id);
 
+            if (updateCourseImage == null)
+                throw new ApiFailException("Course image by id " + id + " not found");
+
             updateCourseImage.setCourseImageUrl(USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile));
             return new CourseImageConverter().convertFromEntity(COURSE_IMAGE_REPOSITORY.save(updateCourseImage));
         } catch (Exception e) {
