@@ -10,23 +10,23 @@ public interface UserService extends BaseService<User> {
 
     User getCurrentUser();
 
-    BaseUser getCurrentUserModel();
+    BaseUserModel getCurrentUserModel();
 
-    List<BaseUser> getAllUserModels();
+    List<BaseUserModel> getAllUserModels();
 
-    BaseUser getUserModelById(Long id);
+    BaseUserModel getUserModelById(Long id);
 
     User getByUsername(String name);
 
     User getByEmail(String email);
 
-    BaseUser updateUser(UpdateUserModel updateUserModel);
+    BaseUserModel updateUser(UpdateUserModel updateUserModel);
 
     User setInActiveUser(User user, Long status);
 
-    BaseUser deleteUser();
+    BaseUserModel deleteUser();
 
-    BaseUser deleteUserByAdmin(Long userId);
+    BaseUserModel deleteUserByAdmin(Long userId);
 
     UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel);
 }

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateUserModel implements BaseUser {
+public class CreateUserModel implements BaseUserModel {
     private String fullName;
     private LocalDate birthDay;
     private String username;

@@ -78,22 +78,32 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentModel updateByUpdateCommentModel(UpdateCommentModel updateCommentModel) {
-        if (updateCommentModel.getId() == null)
-            throw new IllegalArgumentException("Не указан id комментария");
+        Long commentId = updateCommentModel.getId();
+
+        if (commentId == null)
+            throw new ApiFailException("Не указан id комментария");
+
+        Comment dataComment = getById(commentId);
+
+        if (dataComment == null)
+            throw new ApiFailException("Comment by id " + commentId + " not found");
+
+        if (!dataComment.getUser().getId().equals(USER_SERVICE.getCurrentUser().getId()))
+            throw new ApiFailException("Доступ запрещен!");
 
         validateVariablesForNullOrIsEmptyUpdate(updateCommentModel);
         validateLengthVariablesForUpdate(updateCommentModel);
 
-        Comment comment = new Comment();
-        comment.setId(updateCommentModel.getId());
-        comment.setCourseComment(updateCommentModel.getComment());
+        dataComment.setCourseComment(updateCommentModel.getComment());
+        COMMENT_REPOSITORY.save(dataComment);
 
-        return COMMENT_CONVERTER.convertFromEntity(COMMENT_REPOSITORY.save(comment));
+        return COMMENT_CONVERTER.convertFromEntity(dataComment);
     }
 
     @Override
     public CommentModel deleteComment(Long id) {
         Comment comment = getById(id);
+
         if (comment == null) {
             throw new ApiFailException("Comment by id " + id + " not found");
         }
@@ -110,24 +120,29 @@ public class CommentServiceImpl implements CommentService {
 
     private void validateLengthVariables(CreateCommentModel comment) {
         if (comment.getComment().length() > 255)
-            throw new ApiFailException("Превышен лимит символов 255");
+            throw new ApiFailException("Exceeded character limit (255) for comment");
     }
 
-    private void validateVariablesForNullOrIsEmpty(CreateCommentModel comment) {
-        if (comment.getComment().isEmpty()
-                || comment.getComment() == null)
-            throw new ApiFailException("Комментарий пустой");
-        if (comment.getCourseId() == null)
-            throw new ApiFailException("Не указан id курса");
+    private void validateVariablesForNullOrIsEmpty(CreateCommentModel createCommentModel) {
+        if (createCommentModel.getComment().isEmpty() || createCommentModel.getComment() == null)
+            throw new ApiFailException("Comment is not filled");
+        if (createCommentModel.getCourseId() == null)
+            throw new ApiFailException("Course id is not filled");
+        else {
+            Long curseId = createCommentModel.getCourseId();
+            Course course = COURSE_SERVICE.getById(curseId);
+            if (course == null)
+                throw new ApiFailException("Курс не найден по id " + curseId);
+        }
     }
 
     private void validateVariablesForNullOrIsEmptyUpdate(UpdateCommentModel comment) {
         if (comment.getComment() == null || comment.getComment().isEmpty())
-            throw new ApiFailException("Комментарий пустой");
+            throw new ApiFailException("Comment is not filled");
     }
 
     private void validateLengthVariablesForUpdate(UpdateCommentModel comment) {
         if (comment.getComment() != null && comment.getComment().length() > 255)
-            throw new ApiFailException("Превышен лимит символов 255");
+            throw new ApiFailException("Exceeded character limit (255) for comment");
     }
 }

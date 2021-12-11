@@ -1,10 +1,10 @@
 package kg.itacademy.service.impl;
 
 import kg.itacademy.converter.CourseConverter;
+import kg.itacademy.entity.Category;
 import kg.itacademy.entity.Course;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.course.CourseDataModel;
-import kg.itacademy.model.course.CourseModel;
+import kg.itacademy.model.course.*;
 import kg.itacademy.repository.CourseRepository;
 import kg.itacademy.repository.LessonRepository;
 import kg.itacademy.service.*;
@@ -19,36 +19,55 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CourseServiceImpl implements CourseService{
+public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository COURSE_REPOSITORY;
-    private final UserService USER_SERVICE;
+    @Autowired
+    private UserService USER_SERVICE;
     private final CourseImageService COURSE_IMAGE_SERVICE;
     private final CourseConverter COURSE_CONVERTER;
-    private final CourseProgramService PROGRAM_SERVICE;
+    @Autowired
+    private CourseProgramService PROGRAM_SERVICE;
     private final RegexUtil REGEX_UTIL;
     @Autowired
-    private  CommentService COMMENT_SERVICE;
+    private CommentService COMMENT_SERVICE;
     @Autowired
     private LikeService LIKE_SERVICE;
     @Autowired
     private LessonService lessonService;
     @Autowired
     private LessonRepository lessonRepository;
+    @Autowired
+    private CategoryService CATEGORY_SERVICE;
 
     @Override
     public Course save(Course course) {
-        validateEmailAndPhoneNumber(course);
-        validateLengthVariables(course);
-        validateVariablesForNullOrIsEmpty(course);
-        course.setUser(USER_SERVICE.getCurrentUser());
         return COURSE_REPOSITORY.save(course);
     }
 
     @Override
-    public CourseDataModel createCourse(CourseModel courseModel) {
-        courseModel.setCourseName(courseModel.getCourseName().toLowerCase(Locale.ROOT));
-        Course course = save(COURSE_CONVERTER.convertFromModel(courseModel));
+    public CourseDataModel createCourse(CreateCourseModel createCourseModel) {
+
+        validateEmailAndPhoneNumber(createCourseModel);
+        validateLengthVariables(createCourseModel);
+        validateVariablesForNullOrIsEmpty(createCourseModel);
+
+        Course course = new Course();
+        Category category = new Category();
+        category.setId(createCourseModel.getCategoryId());
+
+        course.setCategory(category);
+        course.setCourseName(createCourseModel.getCourseName().toLowerCase(Locale.ROOT));
+        course.setCourseShortInfo(createCourseModel.getCourseShortInfo());
+        course.setCourseInfo(createCourseModel.getCourseInfo());
+        course.setCourseInfoTitle(createCourseModel.getCourseInfoTitle());
+        course.setCourseInfoUrl(createCourseModel.getCourseInfoUrl());
+        course.setPhoneNumber(createCourseModel.getPhoneNumber());
+        course.setEmail(createCourseModel.getEmail());
+        course.setPrice(createCourseModel.getPrice());
+        course.setUser(USER_SERVICE.getCurrentUser());
+
+        COURSE_REPOSITORY.save(course);
 
         return getCourseDataModelByCourseId(course.getId());
     }
@@ -76,25 +95,33 @@ public class CourseServiceImpl implements CourseService{
                 .collect(Collectors.toList());
     }
 
-    public Course update(Course course) {
-        if (course.getId() == null)
-            throw new ApiFailException("Course id not specified");
-        validateEmailAndPhoneNumber(course);
-        validateLengthVariablesForUpdate(course);
-        validateVariablesForNullOrIsEmptyUpdate(course);
-        return COURSE_REPOSITORY.save(course);
-    }
 
     @Override
-    public CourseModel updateCourse(CourseModel courseModel) {
-        update(COURSE_CONVERTER.convertFromModel(courseModel));
-        return courseModel;
+    public CourseModel updateCourse(UpdateCourseModel updateCourseModel) {
+        Long courseId = updateCourseModel.getId();
+
+        if (courseId == null)
+            throw new ApiFailException("Course id not specified");
+
+        Course dataCourse = getById(courseId);
+
+        if (dataCourse == null)
+            throw new ApiFailException("Course by id " + courseId + " not found");
+
+        validateEmailAndPhoneNumber(updateCourseModel);
+        validateLengthVariablesForUpdate(updateCourseModel);
+        validateVariablesForNullOrIsEmptyUpdate(updateCourseModel);
+
+        setForUpdateCourse(dataCourse, updateCourseModel);
+
+        COURSE_REPOSITORY.save(dataCourse);
+
+        return COURSE_CONVERTER.convertFromEntity(dataCourse);
     }
 
     @Override
     public List<CourseDataModel> getAllByCourseName(String courseName) {
-
-      return COURSE_REPOSITORY.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
+        return COURSE_REPOSITORY.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
                 .stream()
                 .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
@@ -110,7 +137,7 @@ public class CourseServiceImpl implements CourseService{
 
     @Override
     public List<CourseDataModel> getAllByCategoryId(Long id) {
-       return COURSE_REPOSITORY.findAllByCategory_Id(id)
+        return COURSE_REPOSITORY.findAllByCategory_Id(id)
                 .stream()
                 .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
@@ -135,72 +162,92 @@ public class CourseServiceImpl implements CourseService{
         return COURSE_CONVERTER.convertFromEntity(course);
     }
 
-    private void validateEmailAndPhoneNumber(Course course) {
-        if (course.getEmail() != null)
-            REGEX_UTIL.validateEmail(course.getEmail());
-        if (course.getPhoneNumber() != null) {
-            REGEX_UTIL.validatePhoneNumber(course.getPhoneNumber());
+    private void validateEmailAndPhoneNumber(CreateCourseModel createCourseModel) {
+        if (createCourseModel.getEmail() != null)
+            REGEX_UTIL.validateEmail(createCourseModel.getEmail());
+        if (createCourseModel.getPhoneNumber() != null) {
+            REGEX_UTIL.validatePhoneNumber(createCourseModel.getPhoneNumber());
         }
     }
 
+    private void validateEmailAndPhoneNumber(UpdateCourseModel updateCourseModel) {
+        if (updateCourseModel.getEmail() != null)
+            REGEX_UTIL.validateEmail(updateCourseModel.getEmail());
+        if (updateCourseModel.getPhoneNumber() != null) {
+            REGEX_UTIL.validatePhoneNumber(updateCourseModel.getPhoneNumber());
+        }
+    }
 
-    public void validateLengthVariables(Course course) {
-        if (course.getCourseShortInfo().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for short ifo");
-        if (course.getCourseInfoTitle().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for title ifo");
+    public void validateLengthVariables(CreateCourseModel createCourseModel) {
+        if (createCourseModel.getCourseShortInfo().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for short info");
+        if (createCourseModel.getCourseInfoTitle().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for title info");
     }
 
 
-    public void validateLengthVariablesForUpdate(Course course) {
-        if (course.getCourseShortInfo() != null && course.getCourseShortInfo().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for short ifo");
+    public void validateLengthVariablesForUpdate(UpdateCourseModel updateCourseModel) {
+        if (updateCourseModel.getCourseShortInfo() != null && updateCourseModel.getCourseShortInfo().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for short info");
 
-        if (course.getCourseInfoTitle() != null && course.getCourseInfoTitle().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for title ifo");
+        if (updateCourseModel.getCourseInfoTitle() != null && updateCourseModel.getCourseInfoTitle().length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for title info");
     }
 
-    public void validateVariablesForNullOrIsEmpty(Course course) {
-        if (course.getCategory() == null)
+    public void validateVariablesForNullOrIsEmpty(CreateCourseModel createCourseModel) {
+        Long categoryId = createCourseModel.getCategoryId();
+
+        if (categoryId == null)
             throw new ApiFailException("Category is not filled");
+        else {
+            Category category = CATEGORY_SERVICE.getById(categoryId);
+            if (category == null)
+                throw new ApiFailException("Category by id " + categoryId + " not found");
+        }
 
-        if (course.getCourseName() == null || course.getCourseName().isEmpty())
+        if (createCourseModel.getCourseName() == null || createCourseModel.getCourseName().isEmpty())
             throw new ApiFailException("Course name is not filled");
 
-        if (course.getPhoneNumber() == null || course.getPhoneNumber().isEmpty())
+        if (createCourseModel.getPhoneNumber() == null || createCourseModel.getPhoneNumber().isEmpty())
             throw new ApiFailException("Phone number is not filled");
 
-        if (course.getCourseShortInfo() == null || course.getCourseShortInfo().isEmpty())
+        if (createCourseModel.getCourseShortInfo() == null || createCourseModel.getCourseShortInfo().isEmpty())
             throw new ApiFailException("Short info is not filled");
 
-        if (course.getCourseInfoTitle() == null || course.getCourseInfoTitle().isEmpty())
+        if (createCourseModel.getCourseInfoTitle() == null || createCourseModel.getCourseInfoTitle().isEmpty())
             throw new ApiFailException("Title info is not filled");
 
-        if (course.getCourseInfo() == null || course.getCourseInfo().isEmpty())
+        if (createCourseModel.getCourseInfo() == null || createCourseModel.getCourseInfo().isEmpty())
             throw new ApiFailException("Course info is not filled");
 
-        if (course.getPrice().doubleValue() < 0) {
+        if (createCourseModel.getPrice().doubleValue() < 0) {
             throw new ApiFailException("Wrong balance format");
         }
     }
 
-    public void validateVariablesForNullOrIsEmptyUpdate(Course course) {
-        if (course.getCourseName() != null && course.getCourseName().isEmpty())
+    public void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseModel updateCourseModel) {
+        Long categoryId = updateCourseModel.getCategoryId();
+        if (categoryId != null) {
+            Category category = CATEGORY_SERVICE.getById(categoryId);
+            if (category == null)
+                throw new ApiFailException("Category by id " + categoryId + " not found");
+        }
+        if (updateCourseModel.getCourseName() != null && updateCourseModel.getCourseName().isEmpty())
             throw new ApiFailException("Course name is not filled");
 
-        if (course.getPhoneNumber() != null && course.getPhoneNumber().isEmpty())
+        if (updateCourseModel.getPhoneNumber() != null && updateCourseModel.getPhoneNumber().isEmpty())
             throw new ApiFailException("Phone number is not filled");
 
-        if (course.getCourseShortInfo() != null && course.getCourseShortInfo().isEmpty())
+        if (updateCourseModel.getCourseShortInfo() != null && updateCourseModel.getCourseShortInfo().isEmpty())
             throw new ApiFailException("Short info is not filled");
 
-        if (course.getCourseInfoTitle() != null && course.getCourseInfoTitle().isEmpty())
+        if (updateCourseModel.getCourseInfoTitle() != null && updateCourseModel.getCourseInfoTitle().isEmpty())
             throw new ApiFailException("Title info is not filled");
 
-        if (course.getCourseInfo() != null && course.getCourseInfo().isEmpty())
+        if (updateCourseModel.getCourseInfo() != null && updateCourseModel.getCourseInfo().isEmpty())
             throw new ApiFailException("Course info is not filled");
 
-        if (course.getPrice() != null && course.getPrice().doubleValue() < 0) {
+        if (updateCourseModel.getPrice() != null && updateCourseModel.getPrice().doubleValue() < 0) {
             throw new ApiFailException("Wrong balance format");
         }
     }
@@ -215,5 +262,37 @@ public class CourseServiceImpl implements CourseService{
         courseDataModel.setComments(COMMENT_SERVICE.getAllCommentModelByCourseId(courseId));
 
         return courseDataModel;
+    }
+
+    private void setForUpdateCourse(Course course, UpdateCourseModel updateCourseModel) {
+        if (updateCourseModel.getCategoryId() != null) {
+            Category category = new Category();
+            category.setId(updateCourseModel.getCategoryId());
+            course.setCategory(category);
+        }
+
+        if (updateCourseModel.getCourseName() != null)
+            course.setCourseName(updateCourseModel.getCourseName());
+
+        if (updateCourseModel.getCourseShortInfo() != null)
+            course.setCourseShortInfo(updateCourseModel.getCourseShortInfo());
+
+        if (updateCourseModel.getCourseInfoTitle() != null)
+            course.setCourseInfoTitle(updateCourseModel.getCourseInfoTitle());
+
+        if (updateCourseModel.getCourseInfo() != null)
+            course.setCourseInfo(updateCourseModel.getCourseInfo());
+
+        if (updateCourseModel.getCourseInfoUrl() != null)
+            course.setCourseInfoUrl(updateCourseModel.getCourseInfoUrl());
+
+        if (updateCourseModel.getPhoneNumber() != null)
+            course.setPhoneNumber(updateCourseModel.getPhoneNumber());
+
+        if (updateCourseModel.getEmail() != null)
+            course.setEmail(updateCourseModel.getEmail());
+
+        if (updateCourseModel.getPrice() != null)
+            course.setPrice(updateCourseModel.getPrice());
     }
 }

@@ -3,7 +3,6 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.CourseImageConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.CourseImage;
-import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.courseImage.CourseImageModel;
 import kg.itacademy.repository.CourseImageRepository;
@@ -32,8 +31,8 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public CourseImageModel createCourseImage(MultipartFile multipartFile, Long courseId) {
-        CourseImage courseImage = new CourseImage();
         String savedImageUrl = USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile);
+        CourseImage courseImage = new CourseImage();
         courseImage.setCourseImageUrl(savedImageUrl);
         Course course = new Course();
         course.setId(courseId);
@@ -64,37 +63,34 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public List<CourseImageModel> getAllUserImageModel() {
-        return getAll().stream().map(COURSE_IMAGER_CONVERTER::convertFromEntity).collect(Collectors.toList());
+        return getAll()
+                .stream()
+                .map(COURSE_IMAGER_CONVERTER::convertFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
     public CourseImageModel updateImage(MultipartFile multipartFile, Long id) {
-        try {
-            CourseImage updateCourseImage = getById(id);
+        CourseImage updateCourseImage = getById(id);
 
-            if (updateCourseImage == null)
-                throw new ApiFailException("Course image by id " + id + " not found");
+        if (updateCourseImage == null)
+            throw new ApiFailException("Course image by id " + id + " not found");
 
-            updateCourseImage.setCourseImageUrl(USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile));
+        updateCourseImage.setCourseImageUrl(USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile));
 
-            return new CourseImageConverter().convertFromEntity(COURSE_IMAGE_REPOSITORY.save(updateCourseImage));
-        } catch (Exception e) {
-            throw new ApiErrorException(e.getMessage());
-        }
+        COURSE_IMAGE_REPOSITORY.save(updateCourseImage);
 
+        return COURSE_IMAGER_CONVERTER.convertFromEntity(updateCourseImage);
     }
 
     @Override
     public CourseImageModel deleteImage(Long id) {
-        try {
-            CourseImage deleteCourseImage = getById(id);
-            if (deleteCourseImage == null)
-                throw new ApiFailException("Course image by id " + id + " not found");
+        CourseImage deleteCourseImage = getById(id);
+        if (deleteCourseImage == null)
+            throw new ApiFailException("Course image by id " + id + " not found");
 
-            COURSE_IMAGE_REPOSITORY.delete(deleteCourseImage);
-            return new CourseImageConverter().convertFromEntity(deleteCourseImage);
-        } catch (Exception e) {
-            throw new ApiErrorException(e.getMessage());
-        }
+        COURSE_IMAGE_REPOSITORY.delete(deleteCourseImage);
+
+        return COURSE_IMAGER_CONVERTER.convertFromEntity(deleteCourseImage);
     }
 }

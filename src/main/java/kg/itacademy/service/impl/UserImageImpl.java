@@ -93,43 +93,30 @@ public class UserImageImpl implements UserImageService {
                 .map(USER_IMAGE_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
 
-    public UserImage update(UserImage userImage) {
-        if (userImage.getId() == null)
-            throw new ApiFailException("User image id not specified");
-
-        return USER_IMAGE_REPOSITORY.save(userImage);
-    }
-
     @Override
     public UserImageModel updateUserImage(MultipartFile file) {
-        try {
-            Long userId = userService.getCurrentUser().getId();
-            UserImage updateUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
+        Long userId = userService.getCurrentUser().getId();
+        UserImage updateUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
 
-            if (updateUserImage == null)
-                throw new ApiFailException("User image by user id (" + userId + ") not found");
-            updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
+        if (updateUserImage == null)
+            throw new ApiFailException("User image by user id (" + userId + ") not found");
 
-            return USER_IMAGE_CONVERTER.convertFromEntity(update(updateUserImage));
-        } catch (Exception e) {
-            throw new ApiErrorException(e.getMessage());
-        }
+        updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
+
+        USER_IMAGE_REPOSITORY.save(updateUserImage);
+
+        return USER_IMAGE_CONVERTER.convertFromEntity(updateUserImage);
     }
 
     @Override
     public UserImageModel deleteImage(Long id) {
-        try {
+        UserImage deleteUserImage = getById(id);
 
-            UserImage deleteUserImage = getById(id);
+        if (deleteUserImage == null)
+            throw new ApiFailException("User image by id (" + id + ") not found");
 
-            if (deleteUserImage == null)
-                throw new ApiFailException("User image by id (" + id + ") not found");
+        USER_IMAGE_REPOSITORY.delete(deleteUserImage);
 
-            USER_IMAGE_REPOSITORY.delete(deleteUserImage);
-
-            return USER_IMAGE_CONVERTER.convertFromEntity(deleteUserImage);
-        } catch (Exception e) {
-            throw new ApiErrorException(e.getMessage());
-        }
+        return USER_IMAGE_CONVERTER.convertFromEntity(deleteUserImage);
     }
 }

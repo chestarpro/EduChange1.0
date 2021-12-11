@@ -1,7 +1,5 @@
 package kg.itacademy.service.impl;
 
-import kg.itacademy.converter.CourseConverter;
-import kg.itacademy.converter.UserBalanceConverter;
 import kg.itacademy.converter.UserCourseMappingConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.User;
@@ -9,7 +7,6 @@ import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserCourseMapping;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.course.CourseDataModel;
-import kg.itacademy.model.balance.UserBalanceModel;
 import kg.itacademy.model.UserCourseMappingModel;
 import kg.itacademy.repository.UserCourseMappingRepository;
 import kg.itacademy.service.CourseService;
@@ -31,45 +28,40 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     private final UserService USER_SERVICE;
     private final UserBalanceService USER_BALANCE_SERVICE;
     private final UserCourseMappingConverter MAPPING_CONVERTER;
-    private final UserBalanceConverter USER_BALANCE_CONVERTER;
-    private final CourseConverter COURSE_CONVERTER;
 
     @Override
     public UserCourseMapping save(UserCourseMapping userCourseMapping) {
-        Long userId = userCourseMapping.getUser().getId();
-        Long courseId = userCourseMapping.getCourse().getId();
-
-        UserCourseMapping dataBaseMapping = USER_COURSE_MAPPING_REPOSITORY
-                .findByCourse_IdAndUser_Id(courseId, userId)
-                .orElse(null);
-
-        if (dataBaseMapping != null) {
-            throw new ApiFailException("Bought already!");
-        }
-
-        Course course = COURSE_SERVICE.getById(courseId);
-        User user = USER_SERVICE.getCurrentUser();
-        if (course.getUser().getId().equals(user.getId()))
-            throw new ApiFailException("User " + user.getUsername() + " is the author of the course");
-
-        UserBalanceModel userBalanceModel = USER_BALANCE_SERVICE.getUserBalanceModelByUserId(user.getId());
-        if (userBalanceModel.getUserBalance().subtract(course.getPrice()).doubleValue() < 0) {
-            throw new ApiFailException("Not enough balance");
-        } else {
-            UserBalance userBalance = USER_BALANCE_CONVERTER.convertFromModel(userBalanceModel);
-            userBalance.setBalance(userBalance.getBalance().subtract(course.getPrice()));
-            USER_BALANCE_SERVICE.save(userBalance);
-        }
-
         return USER_COURSE_MAPPING_REPOSITORY.save(userCourseMapping);
     }
 
     @Override
     public UserCourseMappingModel createByCourseId(Long courseId) {
-        User user = USER_SERVICE.getCurrentUser();
-        Course course = COURSE_SERVICE.getById(courseId);
+        Course dataCourse = COURSE_SERVICE.getById(courseId);
+        if (dataCourse == null)
+            throw new ApiFailException("Course by id " + courseId + " not found");
 
-        return MAPPING_CONVERTER.convertFromEntity(save(new UserCourseMapping(user, course)));
+        User user = USER_SERVICE.getCurrentUser();
+        Long userId = user.getId();
+
+        UserCourseMapping dataUserCourseMapping = USER_COURSE_MAPPING_REPOSITORY
+                .findByCourse_IdAndUser_Id(courseId, userId)
+                .orElse(null);
+
+        if (dataUserCourseMapping != null) throw new ApiFailException("Bought already!");
+
+        if (dataCourse.getUser().getId().equals(userId))
+            throw new ApiFailException("User " + user.getUsername() + " is the author of the course");
+
+        UserBalance userBalance = USER_BALANCE_SERVICE.getUserBalanceByUserId(userId);
+
+        if (userBalance.getBalance().compareTo(dataCourse.getPrice()) < 0)
+            throw new ApiFailException("Not enough balance");
+        else {
+            userBalance.setBalance(userBalance.getBalance().subtract(dataCourse.getPrice()));
+            USER_BALANCE_SERVICE.save(userBalance);
+        }
+
+        return MAPPING_CONVERTER.convertFromEntity(save(new UserCourseMapping(user, dataCourse)));
     }
 
     @Override

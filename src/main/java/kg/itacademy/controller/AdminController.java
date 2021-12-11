@@ -3,7 +3,7 @@ package kg.itacademy.controller;
 import kg.itacademy.model.*;
 import kg.itacademy.model.category.CategoryModel;
 import kg.itacademy.model.balance.UserBalanceModel;
-import kg.itacademy.model.user.BaseUser;
+import kg.itacademy.model.user.BaseUserModel;
 import kg.itacademy.model.userImage.UserImageModel;
 import kg.itacademy.model.UserLogModel;
 import kg.itacademy.service.*;
@@ -39,8 +39,8 @@ public class AdminController {
     }
 
     @GetMapping("/user/get-all")
-    public ResponseMessage<List<BaseUser>> getAllUser() {
-        return new ResponseMessage<List<BaseUser>>()
+    public ResponseMessage<List<BaseUserModel>> getAllUser() {
+        return new ResponseMessage<List<BaseUserModel>>()
                 .prepareSuccessMessage(userService.getAllUserModels());
     }
 
@@ -63,8 +63,8 @@ public class AdminController {
     }
 
     @DeleteMapping("/user/delete/{id}")
-    public ResponseMessage<BaseUser> deleteUser(@PathVariable Long id) {
-        return new ResponseMessage<BaseUser>()
+    public ResponseMessage<BaseUserModel> deleteUser(@PathVariable Long id) {
+        return new ResponseMessage<BaseUserModel>()
                 .prepareSuccessMessage(userService.deleteUserByAdmin(id));
     }
 

@@ -28,16 +28,19 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryModel createCategory(String categoryName) {
         if (categoryName == null || categoryName.isEmpty())
-            throw new ApiFailException("Не указан название категории");
+            throw new ApiFailException("Category name is not filled");
 
         if (categoryName.length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for category name");
 
-        CategoryModel dataCategory = getByCategoryName(categoryName);
-        if (dataCategory != null)
-            throw new ApiFailException("Категория " + dataCategory.getCategoryName() + " уже существует");
 
-        return CATEGORY_CONVERTER.convertFromEntity(save(Category.builder()
+        CategoryModel dataCategory = getByCategoryName(categoryName);
+
+        if (dataCategory != null)
+            throw new ApiFailException("Category " + dataCategory.getCategoryName() + " already exists");
+
+        return CATEGORY_CONVERTER.convertFromEntity(save(Category
+                .builder()
                 .categoryName(categoryName.toLowerCase(Locale.ROOT))
                 .build()));
     }
@@ -67,16 +70,28 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryModel updateCategory(CategoryModel categoryModel) {
-        if (categoryModel.getId() == null)
+        Long categoryId = categoryModel.getId();
+
+        if (categoryId == null)
             throw new IllegalArgumentException("Не указан id категории");
 
+        Category dataCategory = getById(categoryId);
+
+        if (dataCategory == null)
+            throw new ApiFailException("Category by id " + categoryId + " not found");
+
+
         if (categoryModel.getCategoryName() == null || categoryModel.getCategoryName().isEmpty())
-            throw new ApiFailException("Не указан название категории");
+            throw new ApiFailException("Category name is not filled");
 
         if (categoryModel.getCategoryName().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for category name");
 
-        return CATEGORY_CONVERTER.convertFromEntity(CATEGORY_REPOSITORY.save(CATEGORY_CONVERTER.convertFromModel(categoryModel)));
+        dataCategory.setCategoryName(categoryModel.getCategoryName());
+
+        CATEGORY_REPOSITORY.save(dataCategory);
+
+        return categoryModel;
     }
 
     @Override

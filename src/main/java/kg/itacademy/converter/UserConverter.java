@@ -5,13 +5,13 @@ import kg.itacademy.model.user.*;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserConverter extends BaseConverter<BaseUser, User> {
+public class UserConverter extends BaseConverter<BaseUserModel, User> {
 
     public UserConverter() {
         super(UserConverter::convertToEntity, UserConverter::convertToModel);
     }
 
-    private static BaseUser convertToModel(User entityToConvert) {
+    private static BaseUserModel convertToModel(User entityToConvert) {
         if (entityToConvert == null) return null;
 
         return UserModelToSend.builder()
@@ -24,7 +24,7 @@ public class UserConverter extends BaseConverter<BaseUser, User> {
                 .build();
     }
 
-    private static User convertToEntity(BaseUser modelToConvert) {
+    private static User convertToEntity(BaseUserModel modelToConvert) {
         if (modelToConvert == null) return null;
 
         User user = new User();

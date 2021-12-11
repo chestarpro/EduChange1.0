@@ -1,6 +1,8 @@
 package kg.itacademy.controller;
 
+import kg.itacademy.model.lesson.CreateLessonModel;
 import kg.itacademy.model.lesson.LessonModel;
+import kg.itacademy.model.lesson.UpdateLessonModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.LessonService;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +18,9 @@ public class LessonController {
     private final LessonService lessonService;
 
     @PostMapping("/create")
-    public ResponseMessage<LessonModel> save(@RequestBody LessonModel lessonModel) {
+    public ResponseMessage<LessonModel> save(@RequestBody CreateLessonModel createLessonModel) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(lessonService.createLesson(lessonModel));
+                .prepareSuccessMessage(lessonService.createLesson(createLessonModel));
     }
 
     @GetMapping("/get-by-id/{id}")
@@ -34,9 +36,9 @@ public class LessonController {
     }
 
     @PutMapping("/update")
-    public ResponseMessage<LessonModel> update(@RequestBody LessonModel lessonModel) {
+    public ResponseMessage<LessonModel> update(@RequestBody UpdateLessonModel updateLessonModel) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(lessonService.updateLesson(lessonModel));
+                .prepareSuccessMessage(lessonService.updateLesson(updateLessonModel));
     }
 
     @DeleteMapping("/delete/{id}")

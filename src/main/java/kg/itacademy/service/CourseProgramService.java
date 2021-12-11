@@ -2,13 +2,15 @@ package kg.itacademy.service;
 
 import kg.itacademy.entity.CourseProgram;
 import kg.itacademy.model.courseProgram.CourseProgramModel;
+import kg.itacademy.model.courseProgram.CreateCourseProgramModel;
+import kg.itacademy.model.courseProgram.UpdateCourseProgramModel;
 
 import java.util.List;
 
 public interface CourseProgramService extends BaseService<CourseProgram> {
-    CourseProgramModel createCourseProgram(CourseProgramModel courseProgramModel);
+    CourseProgramModel createCourseProgram(CreateCourseProgramModel createCourseProgramModel);
     CourseProgramModel getCourseProgramModelById(Long id);
     List<CourseProgramModel> getAllCourseProgramModelByCourseId(Long courseId);
-    CourseProgramModel updateCurseProgram(CourseProgramModel courseProgramModel);
+    CourseProgramModel updateCurseProgram(UpdateCourseProgramModel updateCourseProgramModel);
     CourseProgramModel deleteCourseProgram(Long id);
 }

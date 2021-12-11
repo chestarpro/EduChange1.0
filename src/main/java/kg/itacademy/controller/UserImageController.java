@@ -33,7 +33,7 @@ public class UserImageController {
                 .prepareSuccessMessage(USER_IMAGE_SERVICE.updateUserImage(file));
     }
 
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseMessage<UserImageModel> delete(@PathVariable Long id) {
         return new ResponseMessage<UserImageModel>()
                 .prepareSuccessMessage(USER_IMAGE_SERVICE.deleteImage(id));

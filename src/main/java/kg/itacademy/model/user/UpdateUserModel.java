@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUserModel implements BaseUser{
+public class UpdateUserModel implements BaseUserModel {
     private Long id;
     private String fullName;
     private LocalDate birthDay;

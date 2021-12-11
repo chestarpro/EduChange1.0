@@ -33,6 +33,11 @@ public class UserBalanceImpl implements UserBalanceService {
     }
 
     @Override
+    public UserBalance getUserBalanceByUserId(Long userId) {
+        return USER_BALANCE_REPOSITORY.findByUser_Id(userId);
+    }
+
+    @Override
     public UserBalance getById(Long id) {
         return USER_BALANCE_REPOSITORY.findById(id).orElse(null);
     }
@@ -60,20 +65,29 @@ public class UserBalanceImpl implements UserBalanceService {
                 .collect(Collectors.toList());
     }
 
-    public UserBalance update(UserBalance userBalance) {
-        if (userBalance.getBalance().compareTo(BigDecimal.ZERO) < 0)
-            throw new ApiFailException("Баланс (" + userBalance.getBalance() + ") не должен быть меньше 0");
-
-        return USER_BALANCE_REPOSITORY.save(userBalance);
-    }
-
     @Override
     public UserBalanceModel updateByUpdateUserBalanceModel(UpdateUserBalanceModel updateUserBalanceModel) {
-        User user = USER_SERVICE.getByUsername(updateUserBalanceModel.getUsername());
-        if (user == null)
+        String username = updateUserBalanceModel.getUsername();
+        BigDecimal balance = updateUserBalanceModel.getBalance();
+
+        if (username == null || username.isEmpty())
+            throw new ApiFailException("Username is not filled");
+
+        if (balance == null)
+            throw new ApiFailException("User balance is not filled");
+
+        if (balance.compareTo(BigDecimal.ZERO) <= 0)
+            throw new ApiFailException("Сумма (" + updateUserBalanceModel.getBalance() + ") не должна быть меньше или равна 0");
+
+        User dataUser = USER_SERVICE.getByUsername(updateUserBalanceModel.getUsername());
+
+        if (dataUser == null)
             throw new ApiFailException("User (" + updateUserBalanceModel.getUsername() + ") not found");
-        UserBalance userBalance = USER_BALANCE_REPOSITORY.findByUser_Id(user.getId());
-        userBalance.setBalance(userBalance.getBalance().add(updateUserBalanceModel.getBalance()));
-        return USER_BALANCE_CONVERTER.convertFromEntity(update(userBalance));
+
+        UserBalance dataUserBalance = USER_BALANCE_REPOSITORY.findByUser_Id(dataUser.getId());
+        dataUserBalance.setBalance(dataUserBalance.getBalance().add(balance));
+        USER_BALANCE_REPOSITORY.save(dataUserBalance);
+
+        return USER_BALANCE_CONVERTER.convertFromEntity(dataUserBalance);
     }
 }

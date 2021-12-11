@@ -3,11 +3,13 @@ package kg.itacademy.service;
 import kg.itacademy.entity.Course;
 import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.course.CourseModel;
+import kg.itacademy.model.course.CreateCourseModel;
+import kg.itacademy.model.course.UpdateCourseModel;
 
 import java.util.List;
 
 public interface CourseService extends BaseService<Course> {
-    CourseDataModel createCourse(CourseModel courseModel);
+    CourseDataModel createCourse(CreateCourseModel createCourseModel);
 
     List<CourseDataModel> getAllByCourseName(String courseName);
 
@@ -17,7 +19,7 @@ public interface CourseService extends BaseService<Course> {
 
     List<CourseDataModel> getAllCourseModel();
 
-    CourseModel updateCourse(CourseModel courseModel);
+    CourseModel updateCourse(UpdateCourseModel updateCourseModel);
 
     List<CourseDataModel> getAllByUserId(Long userId);
 

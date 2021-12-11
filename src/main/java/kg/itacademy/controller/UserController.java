@@ -1,6 +1,6 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.user.BaseUser;
+import kg.itacademy.model.user.BaseUserModel;
 import kg.itacademy.model.user.UpdateUserModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.UserService;
@@ -15,25 +15,25 @@ public class UserController {
     private final UserService USER_SERVICE;
 
     @GetMapping("/get-by-id/{id}")
-    public ResponseMessage<BaseUser> getById(@PathVariable Long id) {
-        return new ResponseMessage<BaseUser>()
+    public ResponseMessage<BaseUserModel> getById(@PathVariable Long id) {
+        return new ResponseMessage<BaseUserModel>()
                 .prepareSuccessMessage(USER_SERVICE.getUserModelById(id));
     }
 
-    @GetMapping("/get-current")
-    public ResponseMessage<BaseUser> getCurrentUser() {
-        return new ResponseMessage<BaseUser>().prepareSuccessMessage(USER_SERVICE.getCurrentUserModel());
-    }
+//    @GetMapping("/get-current")
+//    public ResponseMessage<BaseUserModel> getCurrentUser() {
+//        return new ResponseMessage<BaseUserModel>().prepareSuccessMessage(USER_SERVICE.getCurrentUserModel());
+//    }
 
     @PutMapping("/update")
-    public ResponseMessage<BaseUser> update(@RequestBody UpdateUserModel updateUserModel) {
-        return new ResponseMessage<BaseUser>()
+    public ResponseMessage<BaseUserModel> update(@RequestBody UpdateUserModel updateUserModel) {
+        return new ResponseMessage<BaseUserModel>()
                 .prepareSuccessMessage(USER_SERVICE.updateUser(updateUserModel));
     }
 
     @DeleteMapping("/delete")
-    public ResponseMessage<BaseUser> delete() {
-        return new ResponseMessage<BaseUser>()
+    public ResponseMessage<BaseUserModel> delete() {
+        return new ResponseMessage<BaseUserModel>()
                 .prepareSuccessMessage(USER_SERVICE.deleteUser());
     }
 }

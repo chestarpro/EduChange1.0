@@ -2,6 +2,8 @@ package kg.itacademy.controller;
 
 import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.course.CourseModel;
+import kg.itacademy.model.course.CreateCourseModel;
+import kg.itacademy.model.course.UpdateCourseModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.CourseService;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +19,15 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping("/create")
-    public ResponseMessage<CourseDataModel> save(@RequestBody CourseModel courseModel) {
+    public ResponseMessage<CourseDataModel> save(@RequestBody CreateCourseModel createCourseModel) {
         return new ResponseMessage<CourseDataModel>()
-                .prepareSuccessMessage(courseService.createCourse(courseModel));
+                .prepareSuccessMessage(courseService.createCourse(createCourseModel));
     }
 
     @PutMapping("/update")
-    public ResponseMessage<CourseModel> update(@RequestBody CourseModel courseModel) {
+    public ResponseMessage<CourseModel> update(@RequestBody UpdateCourseModel updateCourseModel) {
         return new ResponseMessage<CourseModel>()
-                .prepareSuccessMessage(courseService.updateCourse(courseModel));
+                .prepareSuccessMessage(courseService.updateCourse(updateCourseModel));
     }
 
     @GetMapping("/get/by-id/{id}")

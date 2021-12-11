@@ -1,17 +1,16 @@
-package kg.itacademy.model.balance;
+package kg.itacademy.model.lesson;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.math.BigDecimal;
-
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateUserBalanceModel {
-    private String username;
-    private BigDecimal balance;
+public class UpdateLessonModel {
+    private Long id;
+    private String lessonInfo;
+    private String lessonUrl;
 }

@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<BaseUser> getAllUserModels() {
+    public List<BaseUserModel> getAllUserModels() {
         return getAll().stream()
                 .map(USER_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BaseUser getUserModelById(Long id) {
+    public BaseUserModel getUserModelById(Long id) {
         return USER_CONVERTER.convertFromEntity(getById(id));
     }
 
@@ -121,13 +121,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BaseUser getCurrentUserModel() {
+    public BaseUserModel getCurrentUserModel() {
         return USER_CONVERTER.convertFromEntity(getCurrentUser());
     }
 
 
     @Override
-    public BaseUser updateUser(UpdateUserModel updateUserModel) {
+    public BaseUserModel updateUser(UpdateUserModel updateUserModel) {
         if (updateUserModel.getId() == null)
             throw new ApiFailException("User id not specified");
 
@@ -172,14 +172,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BaseUser deleteUser() {
+    public BaseUserModel deleteUser() {
         User user = getCurrentUser();
         User deleteUser = setInActiveUser(user, -1L);
         return USER_CONVERTER.convertFromEntity(deleteUser);
     }
 
     @Override
-    public BaseUser deleteUserByAdmin(Long userId) {
+    public BaseUserModel deleteUserByAdmin(Long userId) {
         User user = getById(userId);
         User deleteUser = setInActiveUser(user, -1L);
         return USER_CONVERTER.convertFromEntity(deleteUser);
