@@ -9,7 +9,7 @@ import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserCourseMapping;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.course.CourseDataModel;
-import kg.itacademy.model.user.UserBalanceModel;
+import kg.itacademy.model.balance.UserBalanceModel;
 import kg.itacademy.model.UserCourseMappingModel;
 import kg.itacademy.repository.UserCourseMappingRepository;
 import kg.itacademy.service.CourseService;

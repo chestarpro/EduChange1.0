@@ -1,8 +1,8 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.UserBalance;
-import kg.itacademy.model.user.UpdateUserBalanceModel;
-import kg.itacademy.model.user.UserBalanceModel;
+import kg.itacademy.model.balance.UpdateUserBalanceModel;
+import kg.itacademy.model.balance.UserBalanceModel;
 
 import java.util.List;
 

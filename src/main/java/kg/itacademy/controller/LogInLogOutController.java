@@ -1,6 +1,6 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.entity.User;
+import kg.itacademy.model.user.CreateUserModel;
 import kg.itacademy.model.user.UserProfileDataModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.user.UserAuthorizModel;
@@ -19,9 +19,9 @@ public class LogInLogOutController {
     private final UserService userService;
 
     @PostMapping("/up")
-    public ResponseMessage<UserProfileDataModel> save(@RequestBody User user) {
+    public ResponseMessage<UserProfileDataModel> save(@RequestBody CreateUserModel createUserModel) {
         return new ResponseMessage<UserProfileDataModel>()
-                .prepareSuccessMessage(userService.createUser(user));
+                .prepareSuccessMessage(userService.createUser(createUserModel));
     }
 
     @PostMapping("/in")

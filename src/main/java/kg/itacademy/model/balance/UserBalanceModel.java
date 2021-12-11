@@ -1,16 +1,18 @@
-package kg.itacademy.model.course;
+package kg.itacademy.model.balance;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseImageModel {
+public class UserBalanceModel {
     private Long id;
-    private String courseImageUrl;
-    private Long courseId;
+    private Long userId;
+    private BigDecimal userBalance;
 }

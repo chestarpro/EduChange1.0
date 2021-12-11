@@ -3,7 +3,7 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.CourseProgramConverter;
 import kg.itacademy.entity.CourseProgram;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.course.CourseProgramModel;
+import kg.itacademy.model.courseProgram.CourseProgramModel;
 import kg.itacademy.repository.CourseProgramRepository;
 import kg.itacademy.service.CourseProgramService;
 import lombok.RequiredArgsConstructor;

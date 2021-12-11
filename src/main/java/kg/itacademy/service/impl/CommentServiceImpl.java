@@ -5,9 +5,9 @@ import kg.itacademy.entity.Comment;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.User;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.course.CommentModel;
-import kg.itacademy.model.course.CreateCommentModel;
-import kg.itacademy.model.course.UpdateCommentModel;
+import kg.itacademy.model.comment.CommentModel;
+import kg.itacademy.model.comment.CreateCommentModel;
+import kg.itacademy.model.comment.UpdateCommentModel;
 import kg.itacademy.repository.CommentRepository;
 import kg.itacademy.service.CommentService;
 import kg.itacademy.service.CourseService;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CommentServiceImpl implements CommentService{
+public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository COMMENT_REPOSITORY;
     private final CourseService COURSE_SERVICE;
@@ -69,11 +69,11 @@ public class CommentServiceImpl implements CommentService{
 
     @Override
     public List<CommentModel> getAllCommentModelByCourseId(Long courseId) {
-       return COMMENT_REPOSITORY
-               .findAllByCourse_Id(courseId)
-               .stream()
-               .map(COMMENT_CONVERTER::convertFromEntity)
-               .collect(Collectors.toList());
+        return COMMENT_REPOSITORY
+                .findAllByCourse_Id(courseId)
+                .stream()
+                .map(COMMENT_CONVERTER::convertFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -97,6 +97,13 @@ public class CommentServiceImpl implements CommentService{
         if (comment == null) {
             throw new ApiFailException("Comment by id " + id + " not found");
         }
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = COURSE_SERVICE.getById(comment.getCourse().getId()).getUser().getId();
+
+        if (!currentUserId.equals(comment.getUser().getId()) && !currentUserId.equals(authorCourseId)) {
+            throw new ApiFailException("Access is denied");
+        }
+
         COMMENT_REPOSITORY.delete(comment);
         return COMMENT_CONVERTER.convertFromEntity(comment);
     }

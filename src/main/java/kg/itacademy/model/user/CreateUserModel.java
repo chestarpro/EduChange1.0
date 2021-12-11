@@ -11,11 +11,11 @@ import java.time.LocalDate;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserModel {
-    private Long id;
+public class CreateUserModel implements BaseUser {
     private String fullName;
     private LocalDate birthDay;
     private String username;
     private String email;
+    private String password;
     private Long isActive;
 }

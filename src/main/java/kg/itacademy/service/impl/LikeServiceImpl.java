@@ -5,7 +5,7 @@ import kg.itacademy.entity.Course;
 import kg.itacademy.entity.Like;
 import kg.itacademy.entity.User;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.course.LikeModel;
+import kg.itacademy.model.LikeModel;
 import kg.itacademy.repository.LikeRepository;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.LikeService;

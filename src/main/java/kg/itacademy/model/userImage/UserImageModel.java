@@ -1,19 +1,16 @@
-package kg.itacademy.model.user;
+package kg.itacademy.model.userImage;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
-
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class UserLogModel {
+public class UserImageModel {
     private Long id;
+    private String userImageUrl;
     private Long userId;
-    private Boolean isSuccess;
-    private LocalDateTime createDate;
 }

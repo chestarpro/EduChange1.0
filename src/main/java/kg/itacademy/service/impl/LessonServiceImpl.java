@@ -3,10 +3,9 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.LessonConverter;
 import kg.itacademy.entity.Lesson;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.course.LessonModel;
+import kg.itacademy.model.lesson.LessonModel;
 import kg.itacademy.repository.LessonRepository;
 import kg.itacademy.service.LessonService;
-import kg.itacademy.util.VariableValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class LessonServiceImpl implements LessonService, VariableValidation<Lesson> {
+public class LessonServiceImpl implements LessonService {
 
     private final LessonRepository LESSON_REPOSITORY;
     private final LessonConverter LESSON_CONVERTER;
@@ -89,25 +88,25 @@ public class LessonServiceImpl implements LessonService, VariableValidation<Less
         return LESSON_CONVERTER.convertFromEntity(lesson);
     }
 
-    @Override
+
     public void validateLengthVariables(Lesson lesson) {
         if (lesson.getLessonInfo().length() > 1000)
             throw new ApiFailException("Exceeded character limit (1000) for lesson info");
     }
 
-    @Override
+
     public void validateLengthVariablesForUpdate(Lesson lesson) {
         if (lesson.getLessonInfo() != null && lesson.getLessonInfo().length() > 1000)
             throw new ApiFailException("Exceeded character limit (1000) for lesson info");
     }
 
-    @Override
+
     public void validateVariablesForNullOrIsEmpty(Lesson lesson) {
         if (lesson.getLessonInfo() == null || lesson.getLessonInfo().isEmpty())
             throw new ApiFailException("The description of the lesson is not specified");
     }
 
-    @Override
+
     public void validateVariablesForNullOrIsEmptyUpdate(Lesson lesson) {
         if (lesson.getLessonInfo() != null && lesson.getLessonInfo().isEmpty())
             throw new ApiFailException("The description of the lesson is not specified");

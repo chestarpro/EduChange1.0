@@ -1,5 +1,9 @@
 package kg.itacademy.model.course;
 
+import kg.itacademy.model.comment.CommentModel;
+import kg.itacademy.model.courseImage.CourseImageModel;
+import kg.itacademy.model.courseProgram.CourseProgramModel;
+import kg.itacademy.model.LikeModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

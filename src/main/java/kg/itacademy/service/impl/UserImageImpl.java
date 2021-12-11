@@ -3,12 +3,10 @@ package kg.itacademy.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import kg.itacademy.converter.UserImageConverter;
-import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserImage;
 import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.user.UserImageModel;
-import kg.itacademy.model.user.UserImageUrlModel;
+import kg.itacademy.model.userImage.UserImageModel;
 import kg.itacademy.repository.UserImageRepository;
 import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
@@ -119,13 +117,13 @@ public class UserImageImpl implements UserImageService {
     }
 
     @Override
-    public UserImageModel deleteImage(UserImageUrlModel urlModel) {
+    public UserImageModel deleteImage(Long id) {
         try {
-            Long userId = userService.getCurrentUser().getId();
-            UserImage deleteUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
+
+            UserImage deleteUserImage = getById(id);
 
             if (deleteUserImage == null)
-                throw new ApiFailException("User image by user id (" + userId + ") not found");
+                throw new ApiFailException("User image by id (" + id + ") not found");
 
             USER_IMAGE_REPOSITORY.delete(deleteUserImage);
 

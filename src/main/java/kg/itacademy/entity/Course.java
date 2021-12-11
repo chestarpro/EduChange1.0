@@ -25,7 +25,7 @@ public class Course extends BaseEntity {
     @Column(length = 50)
     private String email;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number")
     private String phoneNumber;
 
     @Column(name = "course_short_info", nullable = false)

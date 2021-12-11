@@ -1,8 +1,8 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.util.ResponseMessage;
-import kg.itacademy.model.user.UpdateUserBalanceModel;
-import kg.itacademy.model.user.UserBalanceModel;
+import kg.itacademy.model.balance.UpdateUserBalanceModel;
+import kg.itacademy.model.balance.UserBalanceModel;
 import kg.itacademy.service.UserBalanceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

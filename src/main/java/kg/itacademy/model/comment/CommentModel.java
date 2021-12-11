@@ -1,4 +1,4 @@
-package kg.itacademy.model.course;
+package kg.itacademy.model.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,9 +9,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LessonModel {
+public class CommentModel {
     private Long id;
-    private String lessonInfo;
-    private String lessonUrl;
+    private String comment;
+    private Long userId;
     private Long courseId;
 }

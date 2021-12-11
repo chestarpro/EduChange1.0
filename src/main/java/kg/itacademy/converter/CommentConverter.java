@@ -3,7 +3,7 @@ package kg.itacademy.converter;
 import kg.itacademy.entity.Comment;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.User;
-import kg.itacademy.model.course.CommentModel;
+import kg.itacademy.model.comment.CommentModel;
 import org.springframework.stereotype.Component;
 
 @Component

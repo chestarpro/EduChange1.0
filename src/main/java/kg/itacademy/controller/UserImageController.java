@@ -1,8 +1,8 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.user.UserImageUrlModel;
+import kg.itacademy.model.userImage.UserImageUrlModel;
 import kg.itacademy.util.ResponseMessage;
-import kg.itacademy.model.user.UserImageModel;
+import kg.itacademy.model.userImage.UserImageModel;
 import kg.itacademy.service.UserImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +33,9 @@ public class UserImageController {
                 .prepareSuccessMessage(USER_IMAGE_SERVICE.updateUserImage(file));
     }
 
-    @PostMapping("/delete")
-    public ResponseMessage<UserImageModel> delete(@RequestBody UserImageUrlModel url) {
+    @PostMapping("/delete/{id}")
+    public ResponseMessage<UserImageModel> delete(@PathVariable Long id) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(USER_IMAGE_SERVICE.deleteImage(url));
+                .prepareSuccessMessage(USER_IMAGE_SERVICE.deleteImage(id));
     }
 }

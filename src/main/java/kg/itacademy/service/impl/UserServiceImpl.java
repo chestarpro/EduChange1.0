@@ -7,13 +7,10 @@ import kg.itacademy.entity.UserBalance;
 import kg.itacademy.entity.UserRole;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.course.CourseDataModel;
-import kg.itacademy.model.user.UserProfileDataModel;
-import kg.itacademy.model.course.CourseModel;
-import kg.itacademy.model.user.UserAuthorizModel;
-import kg.itacademy.model.user.UserModel;
+import kg.itacademy.model.user.*;
 import kg.itacademy.repository.UserRepository;
 import kg.itacademy.service.*;
-import kg.itacademy.util.VariableValidation;
+import kg.itacademy.util.RegexUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,19 +20,18 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService, VariableValidation<User> {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository USER_REPOSITORY;
     private final UserRoleService USER_ROLE_SERVICE;
     private final PasswordEncoder PASSWORD_ENCODER;
     private final UserLogService USER_LOG_SERVICE;
     private final UserConverter USER_CONVERTER;
+    private final RegexUtil REGEX_UTIL;
 
     @Autowired
     private UserImageService USER_IMAGE_SERVICE;
@@ -69,20 +65,20 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
-    public UserProfileDataModel createUser(User user) {
-        validateVariablesForNullOrIsEmpty(user);
-        validateSpace(user);
-        validateUsername(user.getUsername());
-        validateEmail(user.getEmail());
-        checkUsernameAndEmail(user);
-        validateLengthVariables(user);
+    public UserProfileDataModel createUser(CreateUserModel createUserModel) {
+        validateVariablesForNullOrIsEmpty(createUserModel);
+        validateSpace(createUserModel);
+        REGEX_UTIL.validateUsername(createUserModel.getUsername());
+        REGEX_UTIL.validateEmail(createUserModel.getEmail());
+        checkUsernameAndEmail(createUserModel);
+        validateLengthVariables(createUserModel);
 
-        String usernamePasswordPair = user.getUsername() + ":" + user.getPassword();
+        String usernamePasswordPair = createUserModel.getUsername() + ":" + createUserModel.getPassword();
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
 
         String token = "Basic " + authHeader;
 
-        User dataUser = save(user);
+        User dataUser = save(USER_CONVERTER.convertFromModel(createUserModel));
 
         return getUserProfileDataModelByUserId(token, dataUser.getId());
     }
@@ -93,7 +89,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
-    public List<UserModel> getAllUserModels() {
+    public List<BaseUser> getAllUserModels() {
         return getAll().stream()
                 .map(USER_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }
@@ -104,7 +100,7 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
-    public UserModel getUserModelById(Long id) {
+    public BaseUser getUserModelById(Long id) {
         return USER_CONVERTER.convertFromEntity(getById(id));
     }
 
@@ -125,29 +121,28 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
-    public UserModel getCurrentUserModel() {
+    public BaseUser getCurrentUserModel() {
         return USER_CONVERTER.convertFromEntity(getCurrentUser());
     }
 
-    public User update(User user) {
-        if (user.getId() == null)
-            throw new ApiFailException("User id not specified");
-
-        validateVariablesForNullOrIsEmptyUpdate(user);
-        checkUsernameAndEmailForUpdate(user);
-        validateLengthVariablesForUpdate(user);
-        if (user.getEmail() != null)
-            validateEmail(user.getEmail());
-        if (user.getUsername() != null)
-            validateUsername(user.getUsername());
-        validateSpaceForUpdate(user);
-
-        return USER_REPOSITORY.save(user);
-    }
 
     @Override
-    public UserModel updateUser(User user) {
-        return USER_CONVERTER.convertFromEntity((update(user)));
+    public BaseUser updateUser(UpdateUserModel updateUserModel) {
+        if (updateUserModel.getId() == null)
+            throw new ApiFailException("User id not specified");
+
+        validateVariablesForNullOrIsEmptyUpdate(updateUserModel);
+        checkUsernameAndEmailForUpdate(updateUserModel);
+        validateLengthVariablesForUpdate(updateUserModel);
+        if (updateUserModel.getEmail() != null)
+            REGEX_UTIL.validateEmail(updateUserModel.getEmail());
+        if (updateUserModel.getUsername() != null)
+            REGEX_UTIL.validateUsername(updateUserModel.getUsername());
+        validateSpaceForUpdate(updateUserModel);
+
+        User user = USER_REPOSITORY.save(USER_CONVERTER.convertFromModel(updateUserModel));
+
+        return USER_CONVERTER.convertFromEntity(user);
     }
 
     @Override
@@ -177,85 +172,83 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
     }
 
     @Override
-    public UserModel deleteUser() {
+    public BaseUser deleteUser() {
         User user = getCurrentUser();
         User deleteUser = setInActiveUser(user, -1L);
         return USER_CONVERTER.convertFromEntity(deleteUser);
     }
 
     @Override
-    public UserModel deleteUserByAdmin(Long userId) {
+    public BaseUser deleteUserByAdmin(Long userId) {
         User user = getById(userId);
         User deleteUser = setInActiveUser(user, -1L);
         return USER_CONVERTER.convertFromEntity(deleteUser);
     }
 
-    @Override
-    public void validateVariablesForNullOrIsEmpty(User user) {
-        if (user.getFullName() == null || user.getFullName().isEmpty())
+
+    public void validateVariablesForNullOrIsEmpty(CreateUserModel createUserModel) {
+        if (createUserModel.getFullName() == null || createUserModel.getFullName().isEmpty())
             throw new ApiFailException("Full name is not filled");
-        if (user.getUsername() == null || user.getUsername().isEmpty())
+        if (createUserModel.getUsername() == null || createUserModel.getUsername().isEmpty())
             throw new ApiFailException("Username is not filled");
-        if (user.getEmail() == null || user.getEmail().isEmpty())
+        if (createUserModel.getEmail() == null || createUserModel.getEmail().isEmpty())
             throw new ApiFailException("Email is not filled");
-        if (user.getPassword() == null || user.getPassword().isEmpty())
+        if (createUserModel.getPassword() == null || createUserModel.getPassword().isEmpty())
             throw new ApiFailException("Password is not filled");
     }
 
-    @Override
-    public void validateVariablesForNullOrIsEmptyUpdate(User user) {
-        if (user.getEmail() != null && user.getFullName().isEmpty())
+
+    public void validateVariablesForNullOrIsEmptyUpdate(UpdateUserModel userModel) {
+        if (userModel.getEmail() != null && userModel.getFullName().isEmpty())
             throw new ApiFailException("Full name is not filled");
 
-        if (user.getUsername() != null && user.getUsername().isEmpty())
+        if (userModel.getUsername() != null && userModel.getUsername().isEmpty())
             throw new ApiFailException("Username is not filled");
 
-        if (user.getEmail() != null && user.getEmail().isEmpty())
+        if (userModel.getEmail() != null && userModel.getEmail().isEmpty())
             throw new ApiFailException("Email is not filled");
 
-        if (user.getPassword() != null && user.getPassword().isEmpty())
+        if (userModel.getPassword() != null && userModel.getPassword().isEmpty())
             throw new ApiFailException("Password is not filled");
     }
 
-    @Override
-    public void validateLengthVariables(User user) {
-        if (user.getFullName().length() > 100)
+    public void validateLengthVariables(CreateUserModel createUserModel) {
+        if (createUserModel.getFullName().length() > 100)
             throw new ApiFailException("Exceeded character limit (100) for full name");
 
-        if (user.getUsername().length() > 50)
+        if (createUserModel.getUsername().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for username");
 
-        if (user.getEmail().length() > 50)
+        if (createUserModel.getEmail().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for email");
 
-        if (user.getPassword().length() > 50)
+        if (createUserModel.getPassword().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for password");
 
-        if (user.getPassword().length() < 6)
+        if (createUserModel.getPassword().length() < 6)
             throw new ApiFailException("The number of password characters must be more than 5");
     }
 
-    @Override
-    public void validateLengthVariablesForUpdate(User user) {
-        if (user.getFullName() != null && user.getFullName().length() > 100)
+    public void validateLengthVariablesForUpdate(UpdateUserModel updateUserModel) {
+        if (updateUserModel.getFullName() != null && updateUserModel.getFullName().length() > 100)
             throw new ApiFailException("Exceeded character limit (100) for full name");
 
-        if (user.getUsername() != null && user.getUsername().length() > 50)
+        if (updateUserModel.getUsername() != null && updateUserModel.getUsername().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for username");
 
-        if (user.getEmail() != null && user.getEmail().length() > 50)
+        if (updateUserModel.getEmail() != null && updateUserModel.getEmail().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for email");
 
-        if (user.getPassword() != null && user.getPassword().length() > 50)
+        if (updateUserModel.getPassword() != null && updateUserModel.getPassword().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for password");
 
-        else if (user.getPassword() != null && user.getPassword().length() < 6)
+        else if (updateUserModel.getPassword() != null && updateUserModel.getPassword().length() < 6)
             throw new ApiFailException("The number of password characters must be more than 5");
     }
 
-    private void checkUsernameAndEmail(User user) {
-        User dataUserByUserName = getByUsername(user.getUsername());
-        User dataUserByEmail = getByEmail(user.getEmail());
+    private void checkUsernameAndEmail(CreateUserModel createUserModel) {
+        User dataUserByUserName = getByUsername(createUserModel.getUsername());
+        User dataUserByEmail = getByEmail(createUserModel.getEmail());
 
         if (dataUserByUserName != null)
             throw new ApiFailException("Such user " + dataUserByUserName.getUsername() + " already exists");
@@ -264,14 +257,14 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
             throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " is already in use");
     }
 
-    private void checkUsernameAndEmailForUpdate(User user) {
-        User dataUserByUserName = getByUsername(user.getUsername());
-        User dataUserByEmail = getByEmail(user.getEmail());
+    private void checkUsernameAndEmailForUpdate(UpdateUserModel updateUserModel) {
+        User dataUserByUserName = getByUsername(updateUserModel.getUsername());
+        User dataUserByEmail = getByEmail(updateUserModel.getEmail());
 
-        if (user.getUsername() != null && dataUserByUserName != null)
+        if (updateUserModel.getUsername() != null && dataUserByUserName != null)
             throw new ApiFailException("Such user " + dataUserByUserName.getUsername() + " already exists");
 
-        if (user.getEmail() != null && dataUserByEmail != null)
+        if (updateUserModel.getEmail() != null && dataUserByEmail != null)
             throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " is already in use");
     }
 
@@ -297,35 +290,17 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
         }
     }
 
-    @Override
-    public void validateEmail(String email) {
-        String emailRegex = "^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
-                + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
-        Matcher matcher = Pattern.compile(emailRegex).matcher(email);
-        if (!matcher.matches()) {
-            throw new ApiFailException("Incorrect email format");
-        }
-    }
-
-    private void validateUsername(String email) {
-        String usernameRegex = "^[a-zA-Z0-9._-]{3,}$";
-        Matcher matcher = Pattern.compile(usernameRegex).matcher(email);
-        if (!matcher.matches()) {
-            throw new ApiFailException("Incorrect login format");
-        }
-    }
-
-    private void validateSpace(User user) {
-        if (user.getUsername().contains(" "))
+    private void validateSpace(CreateUserModel createUserModel) {
+        if (createUserModel.getUsername().contains(" "))
             throw new ApiFailException("Invalid username format");
-        if (user.getEmail().contains(" "))
+        if (createUserModel.getEmail().contains(" "))
             throw new ApiFailException("Invalid email format");
     }
 
-    private void validateSpaceForUpdate(User user) {
-        if (user.getUsername() != null && user.getUsername().contains(" "))
+    private void validateSpaceForUpdate(UpdateUserModel updateUserModel) {
+        if (updateUserModel.getUsername() != null && updateUserModel.getUsername().contains(" "))
             throw new ApiFailException("Invalid username format");
-        if (user.getUsername() != null && user.getEmail().contains(" "))
+        if (updateUserModel.getUsername() != null && updateUserModel.getEmail().contains(" "))
             throw new ApiFailException("Invalid email format");
     }
 
@@ -334,11 +309,11 @@ public class UserServiceImpl implements UserService, VariableValidation<User> {
         dataBaseModel.setToken(token);
         List<CourseDataModel> userCreateCourses = COURSE_SERVICE.getAllByUserId(userId);
         List<CourseDataModel> userPurchasedCourses = USER_COURSE_MAPPING_SERVICE.getAllPurchasedCourses(userId);
-        dataBaseModel.setUser(getUserModelById(userId));
-        dataBaseModel.setUserBalance(USER_BALANCE_SERVICE.getUserBalanceModelByUserId(userId));
-        dataBaseModel.setUserImage(USER_IMAGE_SERVICE.getUserImageModelByUserId(userId));
-        dataBaseModel.setUserCreateCourses(userCreateCourses);
-        dataBaseModel.setUserPurchasedCourses(userPurchasedCourses);
+        dataBaseModel.setUserModelToSend((UserModelToSend) getUserModelById(userId));
+        dataBaseModel.setUserBalanceModel(USER_BALANCE_SERVICE.getUserBalanceModelByUserId(userId));
+        dataBaseModel.setUserImageModel(USER_IMAGE_SERVICE.getUserImageModelByUserId(userId));
+        dataBaseModel.setUserCreateCourseModels(userCreateCourses);
+        dataBaseModel.setUserPurchasedCourseModels(userPurchasedCourses);
 
         return dataBaseModel;
     }

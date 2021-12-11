@@ -29,15 +29,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/admin/*").hasRole("ADMIN")
-                .antMatchers("/sign/*").permitAll()
+                .antMatchers("/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/sign/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/course/get-all").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/course/get-all/by-category-name/{categoryName}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/course/get-all/by-name/{courseName}").permitAll()
-                .antMatchers("/api/*").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/course/get-all/by-category-name/{categoryName}").permitAll()
+                .antMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 .httpBasic();
+
+
     }
 
     @Override

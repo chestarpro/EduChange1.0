@@ -1,4 +1,4 @@
-package kg.itacademy.model.user;
+package kg.itacademy.model.category;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserImageUrlModel {
-    private String url;
+public class CategoryModel {
+    private Long id;
+    private String categoryName;
 }

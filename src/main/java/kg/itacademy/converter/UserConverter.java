@@ -1,21 +1,20 @@
 package kg.itacademy.converter;
 
 import kg.itacademy.entity.User;
-import kg.itacademy.exception.ApiErrorException;
-import kg.itacademy.model.user.UserModel;
+import kg.itacademy.model.user.*;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserConverter extends BaseConverter<UserModel, User> {
+public class UserConverter extends BaseConverter<BaseUser, User> {
 
     public UserConverter() {
         super(UserConverter::convertToEntity, UserConverter::convertToModel);
     }
 
-    private static UserModel convertToModel(User entityToConvert) {
+    private static BaseUser convertToModel(User entityToConvert) {
         if (entityToConvert == null) return null;
 
-        return UserModel.builder()
+        return UserModelToSend.builder()
                 .id(entityToConvert.getId())
                 .fullName(entityToConvert.getFullName())
                 .birthDay(entityToConvert.getBirthDay())
@@ -25,7 +24,25 @@ public class UserConverter extends BaseConverter<UserModel, User> {
                 .build();
     }
 
-    private static User convertToEntity(UserModel modelToConvert) {
-        throw new ApiErrorException("Conversation from UserModel to User is not supported");
+    private static User convertToEntity(BaseUser modelToConvert) {
+        if (modelToConvert == null) return null;
+
+        User user = new User();
+
+        if (modelToConvert instanceof CreateUserModel) {
+            user.setFullName(((CreateUserModel) modelToConvert).getFullName());
+            user.setUsername(((CreateUserModel) modelToConvert).getUsername());
+            user.setEmail(((CreateUserModel) modelToConvert).getEmail());
+            user.setIsActive(((CreateUserModel) modelToConvert).getIsActive());
+            user.setPassword(((CreateUserModel) modelToConvert).getPassword());
+        } else if (modelToConvert instanceof UpdateUserModel) {
+            user.setId(((UpdateUserModel) modelToConvert).getId());
+            user.setFullName(((UpdateUserModel) modelToConvert).getFullName());
+            user.setUsername(((UpdateUserModel) modelToConvert).getUsername());
+            user.setEmail(((UpdateUserModel) modelToConvert).getEmail());
+            user.setIsActive(((UpdateUserModel) modelToConvert).getIsActive());
+            user.setPassword(((UpdateUserModel) modelToConvert).getPassword());
+        }
+        return user;
     }
 }

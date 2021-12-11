@@ -1,8 +1,8 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.entity.User;
+import kg.itacademy.model.user.BaseUser;
+import kg.itacademy.model.user.UpdateUserModel;
 import kg.itacademy.util.ResponseMessage;
-import kg.itacademy.model.user.UserModel;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,25 +15,25 @@ public class UserController {
     private final UserService USER_SERVICE;
 
     @GetMapping("/get-by-id/{id}")
-    public ResponseMessage<UserModel> getById(@PathVariable Long id) {
-        return new ResponseMessage<UserModel>()
+    public ResponseMessage<BaseUser> getById(@PathVariable Long id) {
+        return new ResponseMessage<BaseUser>()
                 .prepareSuccessMessage(USER_SERVICE.getUserModelById(id));
     }
 
     @GetMapping("/get-current")
-    public ResponseMessage<UserModel> getCurrentUser() {
-        return new ResponseMessage<UserModel>().prepareSuccessMessage(USER_SERVICE.getCurrentUserModel());
+    public ResponseMessage<BaseUser> getCurrentUser() {
+        return new ResponseMessage<BaseUser>().prepareSuccessMessage(USER_SERVICE.getCurrentUserModel());
     }
 
     @PutMapping("/update")
-    public ResponseMessage<UserModel> update(@RequestBody User user) {
-        return new ResponseMessage<UserModel>()
-                .prepareSuccessMessage(USER_SERVICE.updateUser(user));
+    public ResponseMessage<BaseUser> update(@RequestBody UpdateUserModel updateUserModel) {
+        return new ResponseMessage<BaseUser>()
+                .prepareSuccessMessage(USER_SERVICE.updateUser(updateUserModel));
     }
 
     @DeleteMapping("/delete")
-    public ResponseMessage<UserModel> delete() {
-        return new ResponseMessage<UserModel>()
+    public ResponseMessage<BaseUser> delete() {
+        return new ResponseMessage<BaseUser>()
                 .prepareSuccessMessage(USER_SERVICE.deleteUser());
     }
 }

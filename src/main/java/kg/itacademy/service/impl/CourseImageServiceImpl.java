@@ -5,7 +5,7 @@ import kg.itacademy.entity.Course;
 import kg.itacademy.entity.CourseImage;
 import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.course.CourseImageModel;
+import kg.itacademy.model.courseImage.CourseImageModel;
 import kg.itacademy.repository.CourseImageRepository;
 import kg.itacademy.service.CourseImageService;
 
@@ -69,7 +69,6 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public CourseImageModel updateImage(MultipartFile multipartFile, Long id) {
-
         try {
             CourseImage updateCourseImage = getById(id);
 
@@ -77,6 +76,7 @@ public class CourseImageServiceImpl implements CourseImageService {
                 throw new ApiFailException("Course image by id " + id + " not found");
 
             updateCourseImage.setCourseImageUrl(USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile));
+
             return new CourseImageConverter().convertFromEntity(COURSE_IMAGE_REPOSITORY.save(updateCourseImage));
         } catch (Exception e) {
             throw new ApiErrorException(e.getMessage());

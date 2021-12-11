@@ -1,6 +1,6 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.course.LikeModel;
+import kg.itacademy.model.LikeModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.LikeService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class LikeController {
 
     private final LikeService likeService;
 
-    @GetMapping("/create/{courseId}")
+    @PostMapping("/create/{courseId}")
     public ResponseMessage<LikeModel> save(@PathVariable Long courseId) {
         return new ResponseMessage<LikeModel>()
                 .prepareSuccessMessage(likeService.createLikeByCourseId(courseId));

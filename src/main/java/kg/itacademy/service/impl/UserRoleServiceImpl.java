@@ -2,7 +2,7 @@ package kg.itacademy.service.impl;
 
 import kg.itacademy.converter.UserRoleConverter;
 import kg.itacademy.entity.UserRole;
-import kg.itacademy.model.user.UserRoleModel;
+import kg.itacademy.model.UserRoleModel;
 import kg.itacademy.repository.UserRoleRepository;
 import kg.itacademy.service.UserRoleService;
 import lombok.RequiredArgsConstructor;

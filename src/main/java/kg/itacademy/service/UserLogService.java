@@ -1,7 +1,7 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.UserLog;
-import kg.itacademy.model.user.UserLogModel;
+import kg.itacademy.model.UserLogModel;
 
 import java.util.List;
 

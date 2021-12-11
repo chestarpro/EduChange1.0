@@ -1,6 +1,6 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.course.CourseProgramModel;
+import kg.itacademy.model.courseProgram.CourseProgramModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.CourseProgramService;
 import lombok.RequiredArgsConstructor;

@@ -1,9 +1,9 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.course.CommentModel;
-import kg.itacademy.model.course.CreateCommentModel;
+import kg.itacademy.model.comment.CommentModel;
+import kg.itacademy.model.comment.CreateCommentModel;
 import kg.itacademy.util.ResponseMessage;
-import kg.itacademy.model.course.UpdateCommentModel;
+import kg.itacademy.model.comment.UpdateCommentModel;
 import kg.itacademy.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -1,7 +1,7 @@
 package kg.itacademy.service;
 
 import kg.itacademy.entity.Like;
-import kg.itacademy.model.course.LikeModel;
+import kg.itacademy.model.LikeModel;
 
 import java.util.List;
 

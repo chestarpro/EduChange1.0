@@ -1,12 +1,11 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.model.*;
-import kg.itacademy.model.course.CategoryModel;
-import kg.itacademy.model.course.CommentModel;
-import kg.itacademy.model.user.UserBalanceModel;
-import kg.itacademy.model.user.UserImageModel;
-import kg.itacademy.model.user.UserLogModel;
-import kg.itacademy.model.user.UserModel;
+import kg.itacademy.model.category.CategoryModel;
+import kg.itacademy.model.balance.UserBalanceModel;
+import kg.itacademy.model.user.BaseUser;
+import kg.itacademy.model.userImage.UserImageModel;
+import kg.itacademy.model.UserLogModel;
 import kg.itacademy.service.*;
 import kg.itacademy.util.ResponseMessage;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +39,8 @@ public class AdminController {
     }
 
     @GetMapping("/user/get-all")
-    public ResponseMessage<List<UserModel>> getAllUser() {
-        return new ResponseMessage<List<UserModel>>()
+    public ResponseMessage<List<BaseUser>> getAllUser() {
+        return new ResponseMessage<List<BaseUser>>()
                 .prepareSuccessMessage(userService.getAllUserModels());
     }
 
@@ -51,7 +50,7 @@ public class AdminController {
                 .prepareSuccessMessage(userLogService.getAllByUserId(userId));
     }
 
-    @GetMapping("user-balance/get-all")
+    @GetMapping("/user-balance/get-all")
     public ResponseMessage<List<UserBalanceModel>> getAllUserBalanceModel() {
         return new ResponseMessage<List<UserBalanceModel>>()
                 .prepareSuccessMessage(userBalanceService.getAllUserBalanceModel());
@@ -64,8 +63,8 @@ public class AdminController {
     }
 
     @DeleteMapping("/user/delete/{id}")
-    public ResponseMessage<UserModel> deleteUser(@PathVariable Long id) {
-        return new ResponseMessage<UserModel>()
+    public ResponseMessage<BaseUser> deleteUser(@PathVariable Long id) {
+        return new ResponseMessage<BaseUser>()
                 .prepareSuccessMessage(userService.deleteUserByAdmin(id));
     }
 

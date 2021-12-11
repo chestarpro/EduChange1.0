@@ -2,7 +2,7 @@ package kg.itacademy.service.impl;
 
 import kg.itacademy.converter.UserLogConverter;
 import kg.itacademy.entity.UserLog;
-import kg.itacademy.model.user.UserLogModel;
+import kg.itacademy.model.UserLogModel;
 import kg.itacademy.repository.UserLogRepository;
 import kg.itacademy.service.UserLogService;
 import lombok.RequiredArgsConstructor;

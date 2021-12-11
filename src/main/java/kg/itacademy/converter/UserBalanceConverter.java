@@ -2,7 +2,7 @@ package kg.itacademy.converter;
 
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserBalance;
-import kg.itacademy.model.user.UserBalanceModel;
+import kg.itacademy.model.balance.UserBalanceModel;
 import org.springframework.stereotype.Component;
 
 @Component

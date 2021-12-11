@@ -1,16 +1,14 @@
 package kg.itacademy.service.impl;
 
 import kg.itacademy.converter.CourseConverter;
-import kg.itacademy.converter.LessonConverter;
 import kg.itacademy.entity.Course;
-import kg.itacademy.entity.Lesson;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.course.CourseModel;
 import kg.itacademy.repository.CourseRepository;
 import kg.itacademy.repository.LessonRepository;
 import kg.itacademy.service.*;
-import kg.itacademy.util.VariableValidation;
+import kg.itacademy.util.RegexUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,13 +19,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CourseServiceImpl implements CourseService, VariableValidation<Course> {
+public class CourseServiceImpl implements CourseService{
 
     private final CourseRepository COURSE_REPOSITORY;
     private final UserService USER_SERVICE;
     private final CourseImageService COURSE_IMAGE_SERVICE;
     private final CourseConverter COURSE_CONVERTER;
     private final CourseProgramService PROGRAM_SERVICE;
+    private final RegexUtil REGEX_UTIL;
     @Autowired
     private  CommentService COMMENT_SERVICE;
     @Autowired
@@ -39,7 +38,7 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
 
     @Override
     public Course save(Course course) {
-        validateEmail(course);
+        validateEmailAndPhoneNumber(course);
         validateLengthVariables(course);
         validateVariablesForNullOrIsEmpty(course);
         course.setUser(USER_SERVICE.getCurrentUser());
@@ -80,7 +79,7 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
     public Course update(Course course) {
         if (course.getId() == null)
             throw new ApiFailException("Course id not specified");
-        validateEmail(course);
+        validateEmailAndPhoneNumber(course);
         validateLengthVariablesForUpdate(course);
         validateVariablesForNullOrIsEmptyUpdate(course);
         return COURSE_REPOSITORY.save(course);
@@ -136,12 +135,15 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
         return COURSE_CONVERTER.convertFromEntity(course);
     }
 
-    private void validateEmail(Course course) {
+    private void validateEmailAndPhoneNumber(Course course) {
         if (course.getEmail() != null)
-            USER_SERVICE.validateEmail(course.getEmail());
+            REGEX_UTIL.validateEmail(course.getEmail());
+        if (course.getPhoneNumber() != null) {
+            REGEX_UTIL.validatePhoneNumber(course.getPhoneNumber());
+        }
     }
 
-    @Override
+
     public void validateLengthVariables(Course course) {
         if (course.getCourseShortInfo().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for short ifo");
@@ -149,7 +151,7 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
             throw new ApiFailException("Exceeded character limit (50) for title ifo");
     }
 
-    @Override
+
     public void validateLengthVariablesForUpdate(Course course) {
         if (course.getCourseShortInfo() != null && course.getCourseShortInfo().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for short ifo");
@@ -158,7 +160,6 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
             throw new ApiFailException("Exceeded character limit (50) for title ifo");
     }
 
-    @Override
     public void validateVariablesForNullOrIsEmpty(Course course) {
         if (course.getCategory() == null)
             throw new ApiFailException("Category is not filled");
@@ -183,7 +184,6 @@ public class CourseServiceImpl implements CourseService, VariableValidation<Cour
         }
     }
 
-    @Override
     public void validateVariablesForNullOrIsEmptyUpdate(Course course) {
         if (course.getCourseName() != null && course.getCourseName().isEmpty())
             throw new ApiFailException("Course name is not filled");
