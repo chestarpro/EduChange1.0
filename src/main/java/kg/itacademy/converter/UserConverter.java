@@ -33,14 +33,12 @@ public class UserConverter extends BaseConverter<BaseUserModel, User> {
             user.setFullName(((CreateUserModel) modelToConvert).getFullName());
             user.setUsername(((CreateUserModel) modelToConvert).getUsername());
             user.setEmail(((CreateUserModel) modelToConvert).getEmail());
-            user.setIsActive(((CreateUserModel) modelToConvert).getIsActive());
             user.setPassword(((CreateUserModel) modelToConvert).getPassword());
         } else if (modelToConvert instanceof UpdateUserModel) {
             user.setId(((UpdateUserModel) modelToConvert).getId());
             user.setFullName(((UpdateUserModel) modelToConvert).getFullName());
             user.setUsername(((UpdateUserModel) modelToConvert).getUsername());
             user.setEmail(((UpdateUserModel) modelToConvert).getEmail());
-            user.setIsActive(((UpdateUserModel) modelToConvert).getIsActive());
             user.setPassword(((UpdateUserModel) modelToConvert).getPassword());
         }
         return user;

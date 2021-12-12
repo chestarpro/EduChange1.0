@@ -2,7 +2,6 @@ package kg.itacademy.controller;
 
 import kg.itacademy.model.*;
 import kg.itacademy.model.category.CategoryModel;
-import kg.itacademy.model.balance.UserBalanceModel;
 import kg.itacademy.model.user.BaseUserModel;
 import kg.itacademy.model.userImage.UserImageModel;
 import kg.itacademy.model.UserLogModel;
@@ -20,9 +19,7 @@ public class AdminController {
 
     private final UserService userService;
     private final CategoryService categoryService;
-    private final CommentService commentService;
     private final UserLogService userLogService;
-    private final UserBalanceService userBalanceService;
     private final UserImageService userImageService;
     private final UserCourseMappingService userCourseMappingService;
 
@@ -48,12 +45,6 @@ public class AdminController {
     public ResponseMessage<List<UserLogModel>> getAllUserLogByUserId(@PathVariable Long userId) {
         return new ResponseMessage<List<UserLogModel>>()
                 .prepareSuccessMessage(userLogService.getAllByUserId(userId));
-    }
-
-    @GetMapping("/user-balance/get-all")
-    public ResponseMessage<List<UserBalanceModel>> getAllUserBalanceModel() {
-        return new ResponseMessage<List<UserBalanceModel>>()
-                .prepareSuccessMessage(userBalanceService.getAllUserBalanceModel());
     }
 
     @GetMapping("/user-image/get-all")

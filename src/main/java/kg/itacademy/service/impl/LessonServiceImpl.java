@@ -10,8 +10,10 @@ import kg.itacademy.model.lesson.UpdateLessonModel;
 import kg.itacademy.repository.LessonRepository;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.LessonService;
+import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +28,9 @@ public class LessonServiceImpl implements LessonService {
     private final LessonConverter LESSON_CONVERTER;
     private final CourseService COURSE_SERVICE;
 
+    @Autowired
+    private UserService USER_SERVICE;
+
     @Override
     public Lesson save(Lesson lesson) {
         return LESSON_REPOSITORY.save(lesson);
@@ -33,7 +38,6 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public LessonModel createLesson(CreateLessonModel createLessonModel) {
-
         validateVariablesForNullOrIsEmpty(createLessonModel);
         validateLengthVariables(createLessonModel);
 
@@ -65,13 +69,6 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public List<LessonModel> getAllLessonModel() {
-        return getAll().stream()
-                .map(LESSON_CONVERTER::convertFromEntity)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<LessonModel> getAllByCourseId(Long id) {
         return LESSON_REPOSITORY.findAllByCourse_Id(id).stream()
                 .map(LESSON_CONVERTER::convertFromEntity)
@@ -81,6 +78,7 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonModel updateLesson(UpdateLessonModel updateLessonModel) {
         Long lessonId = updateLessonModel.getId();
+
         if (lessonId == null)
             throw new ApiFailException("Lesson id not specified");
 
@@ -88,6 +86,12 @@ public class LessonServiceImpl implements LessonService {
 
         if (dataLesson == null)
             throw new ApiFailException("Lesson by id " + lessonId + " not found");
+
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = dataLesson.getCourse().getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
 
         validateVariablesForNullOrIsEmptyUpdate(updateLessonModel);
         validateLengthVariablesForUpdate(updateLessonModel);
@@ -100,14 +104,20 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public LessonModel deleteLessonById(Long id) {
-        Lesson lesson = getById(id);
+        Lesson deleteLesson = getById(id);
 
-        if (lesson == null)
+        if (deleteLesson == null)
             throw new ApiFailException("Lesson by id " + id + " not found");
-        LESSON_REPOSITORY.delete(lesson);
-        return LESSON_CONVERTER.convertFromEntity(lesson);
-    }
 
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = deleteLesson.getCourse().getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
+
+        LESSON_REPOSITORY.delete(deleteLesson);
+        return LESSON_CONVERTER.convertFromEntity(deleteLesson);
+    }
 
     public void validateLengthVariables(CreateLessonModel createLessonModel) {
         if (createLessonModel.getLessonInfo().length() > 1000)
@@ -123,17 +133,19 @@ public class LessonServiceImpl implements LessonService {
         if (createLessonModel.getLessonInfo() == null || createLessonModel.getLessonInfo().isEmpty())
             throw new ApiFailException("The description of the lesson is not specified");
         if (createLessonModel.getCourseId() == null)
-            throw new ApiFailException("Не указан id курса");
+            throw new ApiFailException("Course id is not specified");
         else {
             Long curseId = createLessonModel.getCourseId();
             Course course = COURSE_SERVICE.getById(curseId);
             if (course == null)
-                throw new ApiFailException("Курс не найден по id " + curseId);
+                throw new ApiFailException("Course by id " + curseId + " not found");
         }
     }
 
     public void validateVariablesForNullOrIsEmptyUpdate(UpdateLessonModel updateLessonModel) {
         if (updateLessonModel.getLessonInfo() != null && updateLessonModel.getLessonInfo().isEmpty())
+            throw new ApiFailException("The description of the lesson is not specified");
+        if (updateLessonModel.getLessonUrl() != null && updateLessonModel.getLessonUrl().isEmpty())
             throw new ApiFailException("The description of the lesson is not specified");
     }
 

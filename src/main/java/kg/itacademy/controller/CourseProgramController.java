@@ -42,7 +42,7 @@ public class CourseProgramController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseMessage<CourseProgramModel> update(@PathVariable Long id) {
+    public ResponseMessage<CourseProgramModel> delete(@PathVariable Long id) {
         return new ResponseMessage<CourseProgramModel>()
                 .prepareSuccessMessage(courseProgramService.deleteCourseProgram(id));
     }

@@ -60,14 +60,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentModel> getAllCommentModel() {
-        return getAll()
-                .stream()
-                .map(COMMENT_CONVERTER::convertFromEntity)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<CommentModel> getAllCommentModelByCourseId(Long courseId) {
         return COMMENT_REPOSITORY
                 .findAllByCourse_Id(courseId)
@@ -81,15 +73,18 @@ public class CommentServiceImpl implements CommentService {
         Long commentId = updateCommentModel.getId();
 
         if (commentId == null)
-            throw new ApiFailException("Не указан id комментария");
+            throw new ApiFailException("Comment id is not filled");
 
         Comment dataComment = getById(commentId);
 
         if (dataComment == null)
             throw new ApiFailException("Comment by id " + commentId + " not found");
 
-        if (!dataComment.getUser().getId().equals(USER_SERVICE.getCurrentUser().getId()))
-            throw new ApiFailException("Доступ запрещен!");
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCommentId = dataComment.getUser().getId();
+
+        if (!currentUserId.equals(authorCommentId))
+            throw new ApiFailException("Access is denied");
 
         validateVariablesForNullOrIsEmptyUpdate(updateCommentModel);
         validateLengthVariablesForUpdate(updateCommentModel);
@@ -104,41 +99,42 @@ public class CommentServiceImpl implements CommentService {
     public CommentModel deleteComment(Long id) {
         Comment comment = getById(id);
 
-        if (comment == null) {
+        if (comment == null)
             throw new ApiFailException("Comment by id " + id + " not found");
-        }
+
         Long currentUserId = USER_SERVICE.getCurrentUser().getId();
         Long authorCourseId = COURSE_SERVICE.getById(comment.getCourse().getId()).getUser().getId();
 
-        if (!currentUserId.equals(comment.getUser().getId()) && !currentUserId.equals(authorCourseId)) {
+        if (!currentUserId.equals(comment.getUser().getId()) && !currentUserId.equals(authorCourseId))
             throw new ApiFailException("Access is denied");
-        }
 
         COMMENT_REPOSITORY.delete(comment);
-        return COMMENT_CONVERTER.convertFromEntity(comment);
-    }
 
-    private void validateLengthVariables(CreateCommentModel comment) {
-        if (comment.getComment().length() > 255)
-            throw new ApiFailException("Exceeded character limit (255) for comment");
+        return COMMENT_CONVERTER.convertFromEntity(comment);
     }
 
     private void validateVariablesForNullOrIsEmpty(CreateCommentModel createCommentModel) {
         if (createCommentModel.getComment().isEmpty() || createCommentModel.getComment() == null)
             throw new ApiFailException("Comment is not filled");
+
         if (createCommentModel.getCourseId() == null)
             throw new ApiFailException("Course id is not filled");
         else {
             Long curseId = createCommentModel.getCourseId();
             Course course = COURSE_SERVICE.getById(curseId);
             if (course == null)
-                throw new ApiFailException("Курс не найден по id " + curseId);
+                throw new ApiFailException("Course by id " + curseId + " not found");
         }
     }
 
     private void validateVariablesForNullOrIsEmptyUpdate(UpdateCommentModel comment) {
         if (comment.getComment() == null || comment.getComment().isEmpty())
             throw new ApiFailException("Comment is not filled");
+    }
+
+    private void validateLengthVariables(CreateCommentModel comment) {
+        if (comment.getComment().length() > 255)
+            throw new ApiFailException("Exceeded character limit (255) for comment");
     }
 
     private void validateLengthVariablesForUpdate(UpdateCommentModel comment) {

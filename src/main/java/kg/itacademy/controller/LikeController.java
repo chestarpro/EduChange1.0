@@ -13,23 +13,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LikeController {
 
-    private final LikeService likeService;
+    private final LikeService LIKE_SERVICE;
 
     @PostMapping("/create/{courseId}")
     public ResponseMessage<LikeModel> save(@PathVariable Long courseId) {
         return new ResponseMessage<LikeModel>()
-                .prepareSuccessMessage(likeService.createLikeByCourseId(courseId));
+                .prepareSuccessMessage(LIKE_SERVICE.createLikeByCourseId(courseId));
     }
 
-    @GetMapping("/get-All/by-course-id/{courseId}")
+    @GetMapping("/get-all/by-course-id/{courseId}")
     public ResponseMessage<List<LikeModel>> getAllByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<List<LikeModel>>()
-                .prepareSuccessMessage(likeService.getAllLikeModelByCourseId(courseId));
+                .prepareSuccessMessage(LIKE_SERVICE.getAllLikeModelByCourseId(courseId));
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseMessage<LikeModel> delete(@PathVariable Long id) {
+    @DeleteMapping("/delete/{courseId}")
+    public ResponseMessage<LikeModel> delete(@PathVariable Long courseId) {
         return new ResponseMessage<LikeModel>()
-                .prepareSuccessMessage(likeService.deleteLike(id));
+                .prepareSuccessMessage(LIKE_SERVICE.deleteLike(courseId));
     }
 }

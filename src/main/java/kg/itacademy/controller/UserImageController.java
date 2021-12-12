@@ -1,6 +1,5 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.userImage.UserImageUrlModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.userImage.UserImageModel;
 import kg.itacademy.service.UserImageService;

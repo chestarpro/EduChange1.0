@@ -29,10 +29,10 @@ public class CommentController {
                 .prepareSuccessMessage(commentService.getCommentModelById(id));
     }
 
-    @GetMapping("/get-all/by-course-id/{id}")
-    public ResponseMessage<List<CommentModel>> getAllByCourseId(@PathVariable Long id) {
+    @GetMapping("/get-all/by-course-id/{courseId}")
+    public ResponseMessage<List<CommentModel>> getAllByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<List<CommentModel>>()
-                .prepareSuccessMessage(commentService.getAllCommentModelByCourseId(id));
+                .prepareSuccessMessage(commentService.getAllCommentModelByCourseId(courseId));
     }
 
     @PutMapping("/update")

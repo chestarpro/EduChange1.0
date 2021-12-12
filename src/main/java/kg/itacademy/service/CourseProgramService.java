@@ -9,8 +9,12 @@ import java.util.List;
 
 public interface CourseProgramService extends BaseService<CourseProgram> {
     CourseProgramModel createCourseProgram(CreateCourseProgramModel createCourseProgramModel);
-    CourseProgramModel getCourseProgramModelById(Long id);
-    List<CourseProgramModel> getAllCourseProgramModelByCourseId(Long courseId);
+
     CourseProgramModel updateCurseProgram(UpdateCourseProgramModel updateCourseProgramModel);
+
     CourseProgramModel deleteCourseProgram(Long id);
+
+    CourseProgramModel getCourseProgramModelById(Long id);
+
+    List<CourseProgramModel> getAllCourseProgramModelByCourseId(Long courseId);
 }

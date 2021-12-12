@@ -54,6 +54,13 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryModel getCategoryModelById(Long id) {
         return CATEGORY_CONVERTER.convertFromEntity(getById(id));
     }
+    @Override
+    public CategoryModel getByCategoryName(String categoryName) {
+        return CATEGORY_CONVERTER.convertFromEntity(
+                CATEGORY_REPOSITORY.findByCategoryName(categoryName)
+                        .orElse(null)
+        );
+    }
 
     @Override
     public List<Category> getAll() {
@@ -73,13 +80,12 @@ public class CategoryServiceImpl implements CategoryService {
         Long categoryId = categoryModel.getId();
 
         if (categoryId == null)
-            throw new IllegalArgumentException("Не указан id категории");
+            throw new IllegalArgumentException("Category id is not filled");
 
         Category dataCategory = getById(categoryId);
 
         if (dataCategory == null)
             throw new ApiFailException("Category by id " + categoryId + " not found");
-
 
         if (categoryModel.getCategoryName() == null || categoryModel.getCategoryName().isEmpty())
             throw new ApiFailException("Category name is not filled");
@@ -92,20 +98,5 @@ public class CategoryServiceImpl implements CategoryService {
         CATEGORY_REPOSITORY.save(dataCategory);
 
         return categoryModel;
-    }
-
-    @Override
-    public CategoryModel getByCategoryName(String categoryName) {
-        return CATEGORY_CONVERTER.convertFromEntity(CATEGORY_REPOSITORY.findByCategoryName(categoryName).orElse(null));
-    }
-
-    @Override
-    public CategoryModel deleteCategory(Long id) {
-        Category category = getById(id);
-        if (category == null) {
-            throw new ApiFailException("Category by id " + id + " not found");
-        }
-        CATEGORY_REPOSITORY.delete(category);
-        return CATEGORY_CONVERTER.convertFromEntity(category);
     }
 }

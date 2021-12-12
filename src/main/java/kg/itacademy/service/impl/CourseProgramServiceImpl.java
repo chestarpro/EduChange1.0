@@ -10,6 +10,7 @@ import kg.itacademy.model.courseProgram.UpdateCourseProgramModel;
 import kg.itacademy.repository.CourseProgramRepository;
 import kg.itacademy.service.CourseProgramService;
 import kg.itacademy.service.CourseService;
+import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,8 +24,12 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     private final CourseProgramRepository COURSE_PROGRAM_REPOSITORY;
     private final CourseProgramConverter COURSE_PROGRAM_CONVERTER;
+
     @Autowired
     private CourseService COURSE_SERVICE;
+
+    @Autowired
+    private UserService USER_SERVICE;
 
     @Override
     public CourseProgram save(CourseProgram courseProgram) {
@@ -33,8 +38,9 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     @Override
     public CourseProgramModel createCourseProgram(CreateCourseProgramModel createCourseProgramModel) {
-        validateLengthVariables(createCourseProgramModel);
         validateVariablesForNullOrIsEmpty(createCourseProgramModel);
+        validateLengthVariables(createCourseProgramModel);
+
         CourseProgram courseProgram = new CourseProgram();
         courseProgram.setTitle(createCourseProgramModel.getTitle());
         courseProgram.setDescription(createCourseProgramModel.getDescription());
@@ -72,12 +78,18 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         Long programId = updateCourseProgramModel.getId();
 
         if (programId == null)
-            throw new ApiFailException("Не указан id программы");
+            throw new ApiFailException("Course program is not specified");
 
         CourseProgram dataCourseProgram = getById(programId);
 
         if (dataCourseProgram == null)
             throw new ApiFailException("Course program by id " + programId + " not found");
+
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = dataCourseProgram.getCourse().getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
 
         validateLengthVariablesForUpdate(updateCourseProgramModel);
         validateVariablesForNullOrIsEmptyUpdate(updateCourseProgramModel);
@@ -91,13 +103,19 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     @Override
     public CourseProgramModel deleteCourseProgram(Long id) {
-        CourseProgram courseProgram = getById(id);
-        if (courseProgram == null)
+        CourseProgram deleteProgram = getById(id);
+        if (deleteProgram == null)
             throw new ApiFailException("Course program by user id " + id + ") not found");
-        COURSE_PROGRAM_REPOSITORY.delete(courseProgram);
-        return new CourseProgramConverter().convertFromEntity(courseProgram);
-    }
 
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = deleteProgram.getCourse().getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
+
+        COURSE_PROGRAM_REPOSITORY.delete(deleteProgram);
+        return COURSE_PROGRAM_CONVERTER.convertFromEntity(deleteProgram);
+    }
 
     public void validateLengthVariables(CreateCourseProgramModel createCourseProgramModel) {
         if (createCourseProgramModel.getTitle().length() > 50)
@@ -121,12 +139,12 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         if (createCourseProgramModel.getDescription() == null || createCourseProgramModel.getDescription().isEmpty())
             throw new ApiFailException("Program description is not filled");
         if (createCourseProgramModel.getCourseId() == null)
-            throw new ApiFailException("Не указан id курса");
+            throw new ApiFailException("Course id is not specified");
         else {
             Long curseId = createCourseProgramModel.getCourseId();
             Course course = COURSE_SERVICE.getById(curseId);
             if (course == null)
-                throw new ApiFailException("Курс не найден по id " + curseId);
+                throw new ApiFailException("Course by id " + curseId + " not found");
         }
     }
 

@@ -6,15 +6,13 @@ import kg.itacademy.model.category.CategoryModel;
 import java.util.List;
 
 public interface CategoryService extends BaseService<Category> {
-    List<CategoryModel> getAllCategoryModel();
+    CategoryModel createCategory(String categoryName);
 
     CategoryModel updateCategory(CategoryModel categoryModel);
 
-    CategoryModel getByCategoryName(String categoryName);
-
-    CategoryModel createCategory(String categoryName);
-
     CategoryModel getCategoryModelById(Long id);
 
-    CategoryModel deleteCategory(Long id);
+    CategoryModel getByCategoryName(String categoryName);
+
+    List<CategoryModel> getAllCategoryModel();
 }

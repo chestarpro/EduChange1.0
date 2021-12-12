@@ -1,6 +1,6 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.courseImage.CourseImageModel;
+import kg.itacademy.model.CourseImageModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.CourseImageService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class CourseImageController {
     }
 
     @GetMapping("/get-by-course-id/{courseId}")
-    public ResponseMessage<CourseImageModel> getAllByCourseId(@PathVariable Long courseId) {
+    public ResponseMessage<CourseImageModel> getByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<CourseImageModel>()
                 .prepareSuccessMessage(courseImageService.getCourseImageModelByCourseId(courseId));
     }

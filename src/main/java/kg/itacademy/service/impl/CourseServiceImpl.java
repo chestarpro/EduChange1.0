@@ -6,13 +6,13 @@ import kg.itacademy.entity.Course;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.course.*;
 import kg.itacademy.repository.CourseRepository;
-import kg.itacademy.repository.LessonRepository;
 import kg.itacademy.service.*;
 import kg.itacademy.util.RegexUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -21,24 +21,23 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
 
-    private final CourseRepository COURSE_REPOSITORY;
-    @Autowired
-    private UserService USER_SERVICE;
-    private final CourseImageService COURSE_IMAGE_SERVICE;
-    private final CourseConverter COURSE_CONVERTER;
-    @Autowired
-    private CourseProgramService PROGRAM_SERVICE;
     private final RegexUtil REGEX_UTIL;
-    @Autowired
-    private CommentService COMMENT_SERVICE;
+    private final CourseConverter COURSE_CONVERTER;
+    private final CourseRepository COURSE_REPOSITORY;
+    private final CourseImageService COURSE_IMAGE_SERVICE;
+
     @Autowired
     private LikeService LIKE_SERVICE;
     @Autowired
-    private LessonService lessonService;
+    private UserService USER_SERVICE;
     @Autowired
-    private LessonRepository lessonRepository;
+    private LessonService LESSON_SERVICE;
+    @Autowired
+    private CommentService COMMENT_SERVICE;
     @Autowired
     private CategoryService CATEGORY_SERVICE;
+    @Autowired
+    private CourseProgramService PROGRAM_SERVICE;
 
     @Override
     public Course save(Course course) {
@@ -47,7 +46,6 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseDataModel createCourse(CreateCourseModel createCourseModel) {
-
         validateEmailAndPhoneNumber(createCourseModel);
         validateLengthVariables(createCourseModel);
         validateVariablesForNullOrIsEmpty(createCourseModel);
@@ -88,16 +86,47 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseDataModel> getAllCourseModel() {
+    public List<CourseDataModel> getAllCourseDataModel() {
         return getAll()
                 .stream()
                 .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<CourseDataModel> getAllCourseDataModelByCourseName(String courseName) {
+        return COURSE_REPOSITORY.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
+                .stream()
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
+                .collect(Collectors.toList());
+    }
 
     @Override
-    public CourseModel updateCourse(UpdateCourseModel updateCourseModel) {
+    public List<CourseDataModel> getAllCourseDataModelByCategoryName(String categoryName) {
+        return COURSE_REPOSITORY.findAllByCategoryName(categoryName.toLowerCase(Locale.ROOT))
+                .stream()
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseDataModel> getAllCourseDataModelByCategoryId(Long id) {
+        return COURSE_REPOSITORY.findAllByCategory_Id(id)
+                .stream()
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CourseDataModel> getAllCourseDataModelByUserId(Long userId) {
+        return COURSE_REPOSITORY.findAllByUser_Id(userId)
+                .stream()
+                .map(i -> getCourseDataModelByCourseId(i.getId()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CourseDataModel updateCourse(UpdateCourseModel updateCourseModel) {
         Long courseId = updateCourseModel.getId();
 
         if (courseId == null)
@@ -108,58 +137,37 @@ public class CourseServiceImpl implements CourseService {
         if (dataCourse == null)
             throw new ApiFailException("Course by id " + courseId + " not found");
 
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = dataCourse.getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
+
         validateEmailAndPhoneNumber(updateCourseModel);
-        validateLengthVariablesForUpdate(updateCourseModel);
         validateVariablesForNullOrIsEmptyUpdate(updateCourseModel);
+        validateLengthVariablesForUpdate(updateCourseModel);
 
         setForUpdateCourse(dataCourse, updateCourseModel);
-
         COURSE_REPOSITORY.save(dataCourse);
 
-        return COURSE_CONVERTER.convertFromEntity(dataCourse);
-    }
-
-    @Override
-    public List<CourseDataModel> getAllByCourseName(String courseName) {
-        return COURSE_REPOSITORY.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
-                .stream()
-                .map(i -> getCourseDataModelByCourseId(i.getId()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CourseDataModel> getAllByCourseCategoryName(String categoryName) {
-        return COURSE_REPOSITORY.findAllByCategoryName(categoryName.toLowerCase(Locale.ROOT))
-                .stream()
-                .map(i -> getCourseDataModelByCourseId(i.getId()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CourseDataModel> getAllByCategoryId(Long id) {
-        return COURSE_REPOSITORY.findAllByCategory_Id(id)
-                .stream()
-                .map(i -> getCourseDataModelByCourseId(i.getId()))
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CourseDataModel> getAllByUserId(Long userId) {
-        return COURSE_REPOSITORY.findAllByUser_Id(userId)
-                .stream()
-                .map(i -> getCourseDataModelByCourseId(i.getId()))
-                .collect(Collectors.toList());
+        return getCourseDataModelByCourseId(courseId);
     }
 
     @Override
     public CourseModel deleteCourseById(Long id) {
-        Course course = getById(id);
+        Course deleteCourse = getById(id);
 
-        if (course == null)
+        if (deleteCourse == null)
             throw new ApiFailException("Course by user id " + id + " not found");
 
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = deleteCourse.getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
+
         COURSE_REPOSITORY.deleteById(id);
-        return COURSE_CONVERTER.convertFromEntity(course);
+        return COURSE_CONVERTER.convertFromEntity(deleteCourse);
     }
 
     private void validateEmailAndPhoneNumber(CreateCourseModel createCourseModel) {
@@ -183,8 +191,9 @@ public class CourseServiceImpl implements CourseService {
             throw new ApiFailException("Exceeded character limit (50) for short info");
         if (createCourseModel.getCourseInfoTitle().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for title info");
+        if (createCourseModel.getCourseInfo().length() > 1000)
+            throw new ApiFailException("Exceeded character limit (1000) for course info");
     }
-
 
     public void validateLengthVariablesForUpdate(UpdateCourseModel updateCourseModel) {
         if (updateCourseModel.getCourseShortInfo() != null && updateCourseModel.getCourseShortInfo().length() > 50)
@@ -192,13 +201,16 @@ public class CourseServiceImpl implements CourseService {
 
         if (updateCourseModel.getCourseInfoTitle() != null && updateCourseModel.getCourseInfoTitle().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for title info");
+
+        if (updateCourseModel.getCourseInfo() != null && updateCourseModel.getCourseInfo().length() > 1000)
+            throw new ApiFailException("Exceeded character limit (1000) for course info");
     }
 
     public void validateVariablesForNullOrIsEmpty(CreateCourseModel createCourseModel) {
         Long categoryId = createCourseModel.getCategoryId();
 
         if (categoryId == null)
-            throw new ApiFailException("Category is not filled");
+            throw new ApiFailException("Category is not specified");
         else {
             Category category = CATEGORY_SERVICE.getById(categoryId);
             if (category == null)
@@ -207,9 +219,6 @@ public class CourseServiceImpl implements CourseService {
 
         if (createCourseModel.getCourseName() == null || createCourseModel.getCourseName().isEmpty())
             throw new ApiFailException("Course name is not filled");
-
-        if (createCourseModel.getPhoneNumber() == null || createCourseModel.getPhoneNumber().isEmpty())
-            throw new ApiFailException("Phone number is not filled");
 
         if (createCourseModel.getCourseShortInfo() == null || createCourseModel.getCourseShortInfo().isEmpty())
             throw new ApiFailException("Short info is not filled");
@@ -220,9 +229,12 @@ public class CourseServiceImpl implements CourseService {
         if (createCourseModel.getCourseInfo() == null || createCourseModel.getCourseInfo().isEmpty())
             throw new ApiFailException("Course info is not filled");
 
-        if (createCourseModel.getPrice().doubleValue() < 0) {
+        if (createCourseModel.getPrice() == null)
+            throw new ApiFailException("Price is not specified");
+
+        else if (createCourseModel.getPrice().compareTo(BigDecimal.ZERO) < 0)
             throw new ApiFailException("Wrong balance format");
-        }
+
     }
 
     public void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseModel updateCourseModel) {
@@ -247,9 +259,11 @@ public class CourseServiceImpl implements CourseService {
         if (updateCourseModel.getCourseInfo() != null && updateCourseModel.getCourseInfo().isEmpty())
             throw new ApiFailException("Course info is not filled");
 
-        if (updateCourseModel.getPrice() != null && updateCourseModel.getPrice().doubleValue() < 0) {
+        if (updateCourseModel.getCourseInfoUrl() != null && updateCourseModel.getCourseInfoUrl().isEmpty())
+            throw new ApiFailException("Info url is not filled");
+
+        if (updateCourseModel.getPrice() != null && updateCourseModel.getPrice().compareTo(BigDecimal.ZERO) < 0)
             throw new ApiFailException("Wrong balance format");
-        }
     }
 
     @Override

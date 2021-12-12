@@ -11,21 +11,21 @@ import java.util.List;
 public interface CourseService extends BaseService<Course> {
     CourseDataModel createCourse(CreateCourseModel createCourseModel);
 
-    List<CourseDataModel> getAllByCourseName(String courseName);
-
-    List<CourseDataModel> getAllByCourseCategoryName(String courseName);
-
-    List<CourseDataModel> getAllByCategoryId(Long id);
-
-    List<CourseDataModel> getAllCourseModel();
-
-    CourseModel updateCourse(UpdateCourseModel updateCourseModel);
-
-    List<CourseDataModel> getAllByUserId(Long userId);
-
-    CourseDataModel getCourseModelById(Long id);
+    CourseDataModel updateCourse(UpdateCourseModel updateCourseModel);
 
     CourseModel deleteCourseById(Long id);
 
+    CourseDataModel getCourseModelById(Long id);
+
     CourseDataModel getCourseDataModelByCourseId(Long courseId);
+
+    List<CourseDataModel> getAllCourseDataModel();
+
+    List<CourseDataModel> getAllCourseDataModelByUserId(Long userId);
+
+    List<CourseDataModel> getAllCourseDataModelByCategoryId(Long id);
+
+    List<CourseDataModel> getAllCourseDataModelByCourseName(String courseName);
+
+    List<CourseDataModel> getAllCourseDataModelByCategoryName(String courseName);
 }

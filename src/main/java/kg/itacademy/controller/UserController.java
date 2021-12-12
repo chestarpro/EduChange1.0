@@ -2,6 +2,7 @@ package kg.itacademy.controller;
 
 import kg.itacademy.model.user.BaseUserModel;
 import kg.itacademy.model.user.UpdateUserModel;
+import kg.itacademy.model.user.UserProfileDataModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,8 @@ public class UserController {
 //    }
 
     @PutMapping("/update")
-    public ResponseMessage<BaseUserModel> update(@RequestBody UpdateUserModel updateUserModel) {
-        return new ResponseMessage<BaseUserModel>()
+    public ResponseMessage<UserProfileDataModel> update(@RequestBody UpdateUserModel updateUserModel) {
+        return new ResponseMessage<UserProfileDataModel>()
                 .prepareSuccessMessage(USER_SERVICE.updateUser(updateUserModel));
     }
 

@@ -70,10 +70,14 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public LikeModel deleteLike(Long id) {
-        Like like = getById(id);
+    public LikeModel deleteLike(Long courseId) {
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+
+        Like like = LIKE_REPOSITORY.findByCourse_IdAndUser_Id(courseId, currentUserId).orElse(null);
+
         if (like == null)
-            throw new ApiFailException("\"Like\" by id " + id + "not found");
+            throw new ApiFailException("\"Like\" not found");
+
         LIKE_REPOSITORY.delete(like);
         return LIKE_CONVERTER.convertFromEntity(like);
     }

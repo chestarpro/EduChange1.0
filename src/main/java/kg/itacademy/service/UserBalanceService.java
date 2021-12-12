@@ -7,10 +7,13 @@ import kg.itacademy.model.balance.UserBalanceModel;
 import java.util.List;
 
 public interface UserBalanceService extends BaseService<UserBalance> {
-    UserBalanceModel getUserBalanceModelByUserId(Long userId);
+    UserBalanceModel updateByUpdateUserBalanceModel(UpdateUserBalanceModel updateUserBalanceModel);
+
     UserBalance getUserBalanceByUserId(Long userId);
-    List<UserBalanceModel> getAllUserBalanceModel();
+
+    UserBalanceModel getUserBalanceModelByUserId(Long userId);
+
     UserBalanceModel getUserBalanceModelById(Long id);
 
-    UserBalanceModel updateByUpdateUserBalanceModel(UpdateUserBalanceModel updateUserBalanceModel);
+    List<UserBalanceModel> getAllUserBalanceModel();
 }

@@ -1,7 +1,6 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.model.course.CourseDataModel;
-import kg.itacademy.model.course.CourseModel;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.model.UserCourseMappingModel;
 import kg.itacademy.service.UserCourseMappingService;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/buy-course")
+@RequestMapping("/api/purchase")
 @RequiredArgsConstructor
 public class UserCourseMappingController {
 

@@ -1,8 +1,6 @@
 package kg.itacademy.entity;
 
 import lombok.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -22,16 +20,16 @@ public class Course extends BaseEntity {
     @Column(name = "course_name", length = 50, nullable = false)
     private String courseName;
 
-    @Column(length = 50)
+    @Column(length = 100)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", length = 50)
     private String phoneNumber;
 
-    @Column(name = "course_short_info", nullable = false)
+    @Column(name = "course_short_info", length = 50, nullable = false)
     private String courseShortInfo;
 
-    @Column(name = "course_info_title", length = 50)
+    @Column(name = "course_info_title", length = 50, nullable = false)
     private String courseInfoTitle;
 
     @Column(name = "course_info", length = 1000)

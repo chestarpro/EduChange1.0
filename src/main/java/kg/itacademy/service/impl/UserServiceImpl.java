@@ -67,11 +67,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileDataModel createUser(CreateUserModel createUserModel) {
         validateVariablesForNullOrIsEmpty(createUserModel);
+        validateLengthVariables(createUserModel);
         validateSpace(createUserModel);
         REGEX_UTIL.validateUsername(createUserModel.getUsername());
         REGEX_UTIL.validateEmail(createUserModel.getEmail());
         checkUsernameAndEmail(createUserModel);
-        validateLengthVariables(createUserModel);
 
         String usernamePasswordPair = createUserModel.getUsername() + ":" + createUserModel.getPassword();
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
@@ -125,24 +125,29 @@ public class UserServiceImpl implements UserService {
         return USER_CONVERTER.convertFromEntity(getCurrentUser());
     }
 
-
     @Override
-    public BaseUserModel updateUser(UpdateUserModel updateUserModel) {
-        if (updateUserModel.getId() == null)
+    public UserProfileDataModel updateUser(UpdateUserModel updateUserModel) {
+        Long userId = updateUserModel.getId();
+        if (userId == null)
             throw new ApiFailException("User id not specified");
 
+        User dataUser = getById(userId);
+
+        if (dataUser == null)
+            throw new ApiFailException("User by id " + userId + " not found");
+
         validateVariablesForNullOrIsEmptyUpdate(updateUserModel);
-        checkUsernameAndEmailForUpdate(updateUserModel);
         validateLengthVariablesForUpdate(updateUserModel);
-        if (updateUserModel.getEmail() != null)
-            REGEX_UTIL.validateEmail(updateUserModel.getEmail());
-        if (updateUserModel.getUsername() != null)
-            REGEX_UTIL.validateUsername(updateUserModel.getUsername());
         validateSpaceForUpdate(updateUserModel);
+        REGEX_UTIL.validateEmail(updateUserModel.getEmail());
+        REGEX_UTIL.validateUsername(updateUserModel.getUsername());
+        checkUsernameAndEmailForUpdate(updateUserModel);
 
-        User user = USER_REPOSITORY.save(USER_CONVERTER.convertFromModel(updateUserModel));
+        setForUpdateUser(dataUser, updateUserModel);
 
-        return USER_CONVERTER.convertFromEntity(user);
+        USER_REPOSITORY.save(dataUser);
+
+        return getUserProfileDataModelByUserId(null, userId);
     }
 
     @Override
@@ -185,7 +190,6 @@ public class UserServiceImpl implements UserService {
         return USER_CONVERTER.convertFromEntity(deleteUser);
     }
 
-
     public void validateVariablesForNullOrIsEmpty(CreateUserModel createUserModel) {
         if (createUserModel.getFullName() == null || createUserModel.getFullName().isEmpty())
             throw new ApiFailException("Full name is not filled");
@@ -196,7 +200,6 @@ public class UserServiceImpl implements UserService {
         if (createUserModel.getPassword() == null || createUserModel.getPassword().isEmpty())
             throw new ApiFailException("Password is not filled");
     }
-
 
     public void validateVariablesForNullOrIsEmptyUpdate(UpdateUserModel userModel) {
         if (userModel.getEmail() != null && userModel.getFullName().isEmpty())
@@ -307,7 +310,7 @@ public class UserServiceImpl implements UserService {
     private UserProfileDataModel getUserProfileDataModelByUserId(String token, Long userId) {
         UserProfileDataModel dataBaseModel = new UserProfileDataModel();
         dataBaseModel.setToken(token);
-        List<CourseDataModel> userCreateCourses = COURSE_SERVICE.getAllByUserId(userId);
+        List<CourseDataModel> userCreateCourses = COURSE_SERVICE.getAllCourseDataModelByUserId(userId);
         List<CourseDataModel> userPurchasedCourses = USER_COURSE_MAPPING_SERVICE.getAllPurchasedCourses(userId);
         dataBaseModel.setUserModelToSend((UserModelToSend) getUserModelById(userId));
         dataBaseModel.setUserBalanceModel(USER_BALANCE_SERVICE.getUserBalanceModelByUserId(userId));
@@ -316,5 +319,18 @@ public class UserServiceImpl implements UserService {
         dataBaseModel.setUserPurchasedCourseModels(userPurchasedCourses);
 
         return dataBaseModel;
+    }
+
+    private void setForUpdateUser(User user, UpdateUserModel updateUserModel) {
+        if (updateUserModel.getUsername() != null)
+            user.setUsername(updateUserModel.getUsername());
+        if (updateUserModel.getFullName() != null)
+            user.setFullName(updateUserModel.getFullName());
+        if (updateUserModel.getEmail() != null)
+            user.setEmail(updateUserModel.getEmail());
+        if (updateUserModel.getPassword() != null)
+            user.setPassword(PASSWORD_ENCODER.encode(updateUserModel.getPassword()));
+        if (updateUserModel.getBirthDay() != null)
+            user.setBirthDay(updateUserModel.getBirthDay());
     }
 }

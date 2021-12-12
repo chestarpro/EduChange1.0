@@ -80,12 +80,6 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     }
 
     @Override
-    public List<UserCourseMappingModel> getAllUserCourseMappingModel() {
-        return getAll().stream()
-                .map(MAPPING_CONVERTER::convertFromEntity).collect(Collectors.toList());
-    }
-
-    @Override
     public List<CourseDataModel> getAllPurchasedCourses(Long userId) {
         return USER_COURSE_MAPPING_REPOSITORY
                 .findAllByUser_Id(userId)

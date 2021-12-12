@@ -30,7 +30,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/admin/**").hasAuthority("ADMIN")
-                
+
                 .antMatchers("/sign/**").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/user/update").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/user/delete").authenticated()
@@ -46,22 +46,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.DELETE, "/api/course/delete/{id}").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/course/get-all").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/course/get/by-id/{id}").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/course/get-all/by-category-id/{id}").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/course/get-all/by-category-id/{categoryId}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/course/get-all/by-user-id/{userId}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/course/get-all/by-name/{courseName}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/course/get-all/by-category-name/{categoryName}").permitAll()
 
-                .antMatchers(HttpMethod.POST, "/api/buy-course/create-by-course-id/{courseId}").authenticated()
-                .antMatchers(HttpMethod.GET, "/api/buy-course/get-all-purchased-curses/{userId}").authenticated()
-                .antMatchers(HttpMethod.GET, "/api/buy-course/get-by-id/{id}").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/purchase/create-by-course-id/{courseId}").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/purchase/get-all-purchased-curses/{userId}").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/purchase/get-by-id/{id}").authenticated()
 
                 .antMatchers(HttpMethod.PUT, "/api/balance/update").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/balance/get-by-user-id/{userId}").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/balance/get-by-id/{id}").authenticated()
 
                 .antMatchers(HttpMethod.POST, "/api/like/create/{courseId}").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/api/like/delete/{id}").authenticated()
-                .antMatchers(HttpMethod.GET, "/api/like/get-All/by-course-id/{courseId}").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/like/delete/{courseId}").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/like/get-all/by-course-id/{courseId}").authenticated()
 
                 .antMatchers(HttpMethod.POST, "/api/lesson/create").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/lesson/update").authenticated()
@@ -70,7 +70,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/api/lesson/get-by-id/{id}").authenticated()
 
                 .antMatchers(HttpMethod.POST, "/api/course-program/create").authenticated()
-                .antMatchers(HttpMethod.PUT, "/api/course-program/create").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/course-program/update").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/course-program/delete/{id}").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/course-program/get-by-id/{id}").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/course-program/get-all/by-course-id/{courseId}").authenticated()
@@ -85,7 +85,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/comment/update").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/comment/delete/{id}").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/comment/get-by-id/{id}").authenticated()
-                .antMatchers(HttpMethod.GET, "/api/comment/get-all/by-course-id/{id}").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/comment/get-all/by-course-id/{courseId}").authenticated()
 
                 .antMatchers(HttpMethod.GET, "/api/category/get-all").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/category/get-by-id/{id}").permitAll()

@@ -4,12 +4,14 @@ import kg.itacademy.converter.CourseImageConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.CourseImage;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.courseImage.CourseImageModel;
+import kg.itacademy.model.CourseImageModel;
 import kg.itacademy.repository.CourseImageRepository;
 import kg.itacademy.service.CourseImageService;
 
 import kg.itacademy.service.UserImageService;
+import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +25,9 @@ public class CourseImageServiceImpl implements CourseImageService {
     private final CourseImageRepository COURSE_IMAGE_REPOSITORY;
     private final UserImageService USER_IMAGE_REPOSITORY;
     private final CourseImageConverter COURSE_IMAGER_CONVERTER;
+
+    @Autowired
+    private UserService USER_SERVICE;
 
     @Override
     public CourseImage save(CourseImage courseImage) {
@@ -76,7 +81,14 @@ public class CourseImageServiceImpl implements CourseImageService {
         if (updateCourseImage == null)
             throw new ApiFailException("Course image by id " + id + " not found");
 
-        updateCourseImage.setCourseImageUrl(USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile));
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = updateCourseImage.getCourse().getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
+
+        String updateImageUrl = USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile);
+        updateCourseImage.setCourseImageUrl(updateImageUrl);
 
         COURSE_IMAGE_REPOSITORY.save(updateCourseImage);
 
@@ -88,6 +100,12 @@ public class CourseImageServiceImpl implements CourseImageService {
         CourseImage deleteCourseImage = getById(id);
         if (deleteCourseImage == null)
             throw new ApiFailException("Course image by id " + id + " not found");
+
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = deleteCourseImage.getCourse().getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
 
         COURSE_IMAGE_REPOSITORY.delete(deleteCourseImage);
 
