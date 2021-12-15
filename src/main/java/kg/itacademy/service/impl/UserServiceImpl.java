@@ -25,25 +25,20 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-
+    @Autowired
+    private UserImageService USER_IMAGE_SERVICE;
+    @Autowired
+    private CourseService COURSE_SERVICE;
+    @Autowired
+    private UserBalanceService USER_BALANCE_SERVICE;
+    @Autowired
+    private UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
     private final UserRepository USER_REPOSITORY;
     private final UserRoleService USER_ROLE_SERVICE;
     private final PasswordEncoder PASSWORD_ENCODER;
     private final UserLogService USER_LOG_SERVICE;
     private final UserConverter USER_CONVERTER;
     private final RegexUtil REGEX_UTIL;
-
-    @Autowired
-    private UserImageService USER_IMAGE_SERVICE;
-
-    @Autowired
-    private CourseService COURSE_SERVICE;
-
-    @Autowired
-    private UserBalanceService USER_BALANCE_SERVICE;
-
-    @Autowired
-    private UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
 
     @Override
     public User save(User user) {
@@ -219,13 +214,13 @@ public class UserServiceImpl implements UserService {
         if (createUserModel.getFullName().length() > 100)
             throw new ApiFailException("Exceeded character limit (100) for full name");
 
-        if (createUserModel.getUsername().length() > 50)
+        if (createUserModel.getUsername().length() > 100)
             throw new ApiFailException("Exceeded character limit (50) for username");
 
-        if (createUserModel.getEmail().length() > 50)
+        if (createUserModel.getEmail().length() > 100)
             throw new ApiFailException("Exceeded character limit (50) for email");
 
-        if (createUserModel.getPassword().length() > 50)
+        if (createUserModel.getPassword().length() > 100)
             throw new ApiFailException("Exceeded character limit (50) for password");
 
         if (createUserModel.getPassword().length() < 6)

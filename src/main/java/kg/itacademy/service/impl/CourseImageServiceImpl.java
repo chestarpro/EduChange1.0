@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CourseImageServiceImpl implements CourseImageService {
-
-    private final CourseImageRepository COURSE_IMAGE_REPOSITORY;
-    private final UserImageService USER_IMAGE_REPOSITORY;
-    private final CourseImageConverter COURSE_IMAGER_CONVERTER;
-
     @Autowired
     private UserService USER_SERVICE;
+    @Autowired
+    private CourseServiceImpl courseService;
+    private final CourseImageRepository COURSE_IMAGE_REPOSITORY;
+    private final UserImageService USER_IMAGE_SERVICE;
+    private final CourseImageConverter COURSE_IMAGER_CONVERTER;
 
     @Override
     public CourseImage save(CourseImage courseImage) {
@@ -36,12 +36,18 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public CourseImageModel createCourseImage(MultipartFile multipartFile, Long courseId) {
-        String savedImageUrl = USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile);
-        CourseImage courseImage = new CourseImage();
+        Course course = checkDataCourseByCourseId(courseId);
+
+        CourseImage courseImage = COURSE_IMAGE_REPOSITORY.findByCourse_Id(courseId).orElse(null);
+
+        if (courseImage != null)
+            throw new ApiFailException("Course image is already");
+
+        String savedImageUrl = USER_IMAGE_SERVICE.saveImageInCloudinary(multipartFile);
+        courseImage = new CourseImage();
         courseImage.setCourseImageUrl(savedImageUrl);
-        Course course = new Course();
-        course.setId(courseId);
         courseImage.setCourse(course);
+
         return COURSE_IMAGER_CONVERTER.convertFromEntity(save(courseImage));
     }
 
@@ -76,39 +82,52 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public CourseImageModel updateImage(MultipartFile multipartFile, Long id) {
-        CourseImage updateCourseImage = getById(id);
-
-        if (updateCourseImage == null)
-            throw new ApiFailException("Course image by id " + id + " not found");
-
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
-        Long authorCourseId = updateCourseImage.getCourse().getUser().getId();
-
-        if (!currentUserId.equals(authorCourseId))
-            throw new ApiFailException("Access is denied");
-
-        String updateImageUrl = USER_IMAGE_REPOSITORY.saveImageInCloudinary(multipartFile);
+        CourseImage updateCourseImage = checkDataCourseImageById(id);
+        String updateImageUrl = USER_IMAGE_SERVICE.saveImageInCloudinary(multipartFile);
         updateCourseImage.setCourseImageUrl(updateImageUrl);
-
         COURSE_IMAGE_REPOSITORY.save(updateCourseImage);
-
         return COURSE_IMAGER_CONVERTER.convertFromEntity(updateCourseImage);
     }
 
     @Override
     public CourseImageModel deleteImage(Long id) {
-        CourseImage deleteCourseImage = getById(id);
-        if (deleteCourseImage == null)
+        CourseImage deleteCourseImage = checkDataCourseImageById(id);
+        COURSE_IMAGE_REPOSITORY.delete(deleteCourseImage);
+        return COURSE_IMAGER_CONVERTER.convertFromEntity(deleteCourseImage);
+    }
+
+    private Course checkDataCourseByCourseId(Long courseId) {
+        if (courseId == null)
+            throw new ApiFailException("Course id not specified");
+
+        Course course = courseService.getById(courseId);
+
+        if (course == null)
+            throw new ApiFailException("Course by id " + courseId + " not found");
+
+        checkAccess(course.getUser().getId());
+        return course;
+    }
+
+    private CourseImage checkDataCourseImageById(Long id) {
+        if (id == null)
+            throw new ApiFailException("Course image id not specified");
+
+        CourseImage dataCourseImage = getById(id);
+
+        if (dataCourseImage == null)
             throw new ApiFailException("Course image by id " + id + " not found");
 
+        Long authorCourseId = dataCourseImage.getCourse().getUser().getId();
+
+        checkAccess(authorCourseId);
+        return dataCourseImage;
+    }
+
+    private void checkAccess(Long authorCourseId) {
         Long currentUserId = USER_SERVICE.getCurrentUser().getId();
-        Long authorCourseId = deleteCourseImage.getCourse().getUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
             throw new ApiFailException("Access is denied");
-
-        COURSE_IMAGE_REPOSITORY.delete(deleteCourseImage);
-
-        return COURSE_IMAGER_CONVERTER.convertFromEntity(deleteCourseImage);
     }
 }

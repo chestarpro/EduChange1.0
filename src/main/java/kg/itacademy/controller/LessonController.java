@@ -14,36 +14,35 @@ import java.util.List;
 @RequestMapping("/api/lesson")
 @RequiredArgsConstructor
 public class LessonController {
-
-    private final LessonService lessonService;
+    private final LessonService LESSON_SERVICE;
 
     @PostMapping("/create")
     public ResponseMessage<LessonModel> save(@RequestBody CreateLessonModel createLessonModel) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(lessonService.createLesson(createLessonModel));
+                .prepareSuccessMessage(LESSON_SERVICE.createLesson(createLessonModel));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<LessonModel> getById(@PathVariable Long id) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(lessonService.getLessonModelById(id));
+                .prepareSuccessMessage(LESSON_SERVICE.getLessonModelById(id));
     }
 
     @GetMapping("/get-all/by-course-id/{id}")
     public ResponseMessage<List<LessonModel>> getAllByCourseId(@PathVariable Long id) {
         return new ResponseMessage<List<LessonModel>>()
-                .prepareSuccessMessage(lessonService.getAllByCourseId(id));
+                .prepareSuccessMessage(LESSON_SERVICE.getAllByCourseId(id));
     }
 
     @PutMapping("/update")
     public ResponseMessage<LessonModel> update(@RequestBody UpdateLessonModel updateLessonModel) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(lessonService.updateLesson(updateLessonModel));
+                .prepareSuccessMessage(LESSON_SERVICE.updateLesson(updateLessonModel));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<LessonModel> delete(@PathVariable Long id) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(lessonService.deleteLessonById(id));
+                .prepareSuccessMessage(LESSON_SERVICE.deleteLessonById(id));
     }
 }

@@ -21,15 +21,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CourseProgramServiceImpl implements CourseProgramService {
-
-    private final CourseProgramRepository COURSE_PROGRAM_REPOSITORY;
-    private final CourseProgramConverter COURSE_PROGRAM_CONVERTER;
-
     @Autowired
     private CourseService COURSE_SERVICE;
-
-    @Autowired
-    private UserService USER_SERVICE;
+    private final CourseProgramRepository COURSE_PROGRAM_REPOSITORY;
+    private final CourseProgramConverter COURSE_PROGRAM_CONVERTER;
+    private final UserService USER_SERVICE;
 
     @Override
     public CourseProgram save(CourseProgram courseProgram) {
@@ -38,6 +34,7 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     @Override
     public CourseProgramModel createCourseProgram(CreateCourseProgramModel createCourseProgramModel) {
+
         validateVariablesForNullOrIsEmpty(createCourseProgramModel);
         validateLengthVariables(createCourseProgramModel);
 

@@ -23,13 +23,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class LessonServiceImpl implements LessonService {
-
+    @Autowired
+    private UserService USER_SERVICE;
     private final LessonRepository LESSON_REPOSITORY;
     private final LessonConverter LESSON_CONVERTER;
     private final CourseService COURSE_SERVICE;
-
-    @Autowired
-    private UserService USER_SERVICE;
 
     @Override
     public Lesson save(Lesson lesson) {
@@ -48,6 +46,7 @@ public class LessonServiceImpl implements LessonService {
         Course course = new Course();
         course.setId(createLessonModel.getCourseId());
         lesson.setCourse(course);
+        save(lesson);
 
         return LESSON_CONVERTER.convertFromEntity(lesson);
     }
@@ -59,8 +58,7 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public LessonModel getLessonModelById(Long id) {
-        Lesson lesson = getById(id);
-        return new LessonConverter().convertFromEntity(lesson);
+        return LESSON_CONVERTER.convertFromEntity(getById(id));
     }
 
     @Override
@@ -70,7 +68,9 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public List<LessonModel> getAllByCourseId(Long id) {
-        return LESSON_REPOSITORY.findAllByCourse_Id(id).stream()
+        return LESSON_REPOSITORY
+                .findAllByCourse_Id(id)
+                .stream()
                 .map(LESSON_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }

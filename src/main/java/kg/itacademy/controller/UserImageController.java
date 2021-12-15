@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/user-image")
 @RequiredArgsConstructor
 public class UserImageController {
-
     private final UserImageService USER_IMAGE_SERVICE;
 
     @PostMapping("/create")

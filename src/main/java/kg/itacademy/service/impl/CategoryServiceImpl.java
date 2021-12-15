@@ -3,7 +3,7 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.CategoryConverter;
 import kg.itacademy.entity.Category;
 import kg.itacademy.exception.ApiFailException;
-import kg.itacademy.model.category.CategoryModel;
+import kg.itacademy.model.CategoryModel;
 import kg.itacademy.repository.CategoryRepository;
 import kg.itacademy.service.CategoryService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
-
     private final CategoryRepository CATEGORY_REPOSITORY;
     private final CategoryConverter CATEGORY_CONVERTER;
 
@@ -32,7 +31,6 @@ public class CategoryServiceImpl implements CategoryService {
 
         if (categoryName.length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for category name");
-
 
         CategoryModel dataCategory = getByCategoryName(categoryName);
 
@@ -54,6 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryModel getCategoryModelById(Long id) {
         return CATEGORY_CONVERTER.convertFromEntity(getById(id));
     }
+
     @Override
     public CategoryModel getByCategoryName(String categoryName) {
         return CATEGORY_CONVERTER.convertFromEntity(
@@ -80,7 +79,7 @@ public class CategoryServiceImpl implements CategoryService {
         Long categoryId = categoryModel.getId();
 
         if (categoryId == null)
-            throw new IllegalArgumentException("Category id is not filled");
+            throw new IllegalArgumentException("Category id is not specified");
 
         Category dataCategory = getById(categoryId);
 
@@ -96,7 +95,6 @@ public class CategoryServiceImpl implements CategoryService {
         dataCategory.setCategoryName(categoryModel.getCategoryName());
 
         CATEGORY_REPOSITORY.save(dataCategory);
-
         return categoryModel;
     }
 }

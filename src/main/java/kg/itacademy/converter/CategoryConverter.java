@@ -1,7 +1,7 @@
 package kg.itacademy.converter;
 
 import kg.itacademy.entity.Category;
-import kg.itacademy.model.category.CategoryModel;
+import kg.itacademy.model.CategoryModel;
 import org.springframework.stereotype.Component;
 
 @Component

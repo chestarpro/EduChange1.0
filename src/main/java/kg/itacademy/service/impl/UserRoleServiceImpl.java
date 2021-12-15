@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserRoleServiceImpl implements UserRoleService {
-
     private final UserRoleRepository USER_ROLE_REPOSITORY;
     private final UserRoleConverter USER_ROLE_CONVERTER;
 
@@ -35,7 +34,6 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     public List<UserRoleModel> getAllUserRoleModel() {
-
         return getAll().stream()
                 .map(USER_ROLE_CONVERTER::convertFromEntity).collect(Collectors.toList());
     }

@@ -15,18 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/sign")
 @RequiredArgsConstructor
 public class LogInLogOutController {
-
-    private final UserService userService;
+    private final UserService USER_SERVICE;
 
     @PostMapping("/up")
     public ResponseMessage<UserProfileDataModel> save(@RequestBody CreateUserModel createUserModel) {
         return new ResponseMessage<UserProfileDataModel>()
-                .prepareSuccessMessage(userService.createUser(createUserModel));
+                .prepareSuccessMessage(USER_SERVICE.createUser(createUserModel));
     }
 
     @PostMapping("/in")
     public ResponseMessage<UserProfileDataModel> getAuthHeader(@RequestBody UserAuthorizModel userAuthorizModel) {
-        UserProfileDataModel authHeader = userService.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
+        UserProfileDataModel authHeader = USER_SERVICE.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
         return new ResponseMessage<UserProfileDataModel>().prepareSuccessMessage(authHeader);
     }
 }

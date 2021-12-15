@@ -12,7 +12,6 @@ import java.util.List;
 @RequestMapping("/api/like")
 @RequiredArgsConstructor
 public class LikeController {
-
     private final LikeService LIKE_SERVICE;
 
     @PostMapping("/create/{courseId}")

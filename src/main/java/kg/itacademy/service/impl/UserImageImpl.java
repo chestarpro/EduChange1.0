@@ -3,6 +3,7 @@ package kg.itacademy.service.impl;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import kg.itacademy.converter.UserImageConverter;
+import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserImage;
 import kg.itacademy.exception.ApiErrorException;
 import kg.itacademy.exception.ApiFailException;
@@ -26,13 +27,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserImageImpl implements UserImageService {
-
+    @Autowired
+    private UserService USER_SERVICE;
     private static final String CLOUDINARY_URL = "cloudinary://349958975956714:wJERqVH-qai2mlMdGYqzSY__kFM@du9qubfii";
     private final UserImageRepository USER_IMAGE_REPOSITORY;
     private final UserImageConverter USER_IMAGE_CONVERTER;
-
-    @Autowired
-    private UserService userService;
 
     @Override
     public UserImage save(UserImage userImage) {
@@ -41,10 +40,16 @@ public class UserImageImpl implements UserImageService {
 
     @Override
     public UserImageModel createUserImage(MultipartFile file) {
+        User user = USER_SERVICE.getCurrentUser();
+
+        UserImage userImage = USER_IMAGE_REPOSITORY.findByUser_Id(user.getId());
+        if (userImage != null)
+            throw new ApiFailException("User image is already");
+
         String savedImageUrl = saveImageInCloudinary(file);
-        UserImage userImage = new UserImage();
+        userImage = new UserImage();
         userImage.setUserImageUrl(savedImageUrl);
-        userImage.setUser(userService.getCurrentUser());
+        userImage.setUser(user);
         return USER_IMAGE_CONVERTER.convertFromEntity(save(userImage));
     }
 
@@ -90,12 +95,13 @@ public class UserImageImpl implements UserImageService {
     @Override
     public List<UserImageModel> getAllUserImageModel() {
         return getAll().stream()
-                .map(USER_IMAGE_CONVERTER::convertFromEntity).collect(Collectors.toList());
+                .map(USER_IMAGE_CONVERTER::convertFromEntity)
+                .collect(Collectors.toList());
     }
 
     @Override
     public UserImageModel updateUserImage(MultipartFile file) {
-        Long userId = userService.getCurrentUser().getId();
+        Long userId = USER_SERVICE.getCurrentUser().getId();
         UserImage updateUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
 
         if (updateUserImage == null)
@@ -104,7 +110,6 @@ public class UserImageImpl implements UserImageService {
         updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
 
         USER_IMAGE_REPOSITORY.save(updateUserImage);
-
         return USER_IMAGE_CONVERTER.convertFromEntity(updateUserImage);
     }
 
@@ -116,7 +121,6 @@ public class UserImageImpl implements UserImageService {
             throw new ApiFailException("User image by id (" + id + ") not found");
 
         USER_IMAGE_REPOSITORY.delete(deleteUserImage);
-
         return USER_IMAGE_CONVERTER.convertFromEntity(deleteUserImage);
     }
 }

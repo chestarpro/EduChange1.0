@@ -20,10 +20,10 @@ public class User extends BaseEntity {
     @Column(name = "birth_day")
     private LocalDate birthDay;
 
-    @Column(name = "username", length = 50, nullable = false, unique = true)
+    @Column(name = "username", length = 100, nullable = false, unique = true)
     private String username;
 
-    @Column(name = "email", length = 50, nullable = false, unique = true)
+    @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)

@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
-
     private final LikeRepository LIKE_REPOSITORY;
     private final CourseService COURSE_SERVICE;
     private final UserService USER_SERVICE;
@@ -33,18 +32,19 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public LikeModel createLikeByCourseId(Long courseId) {
         User user = USER_SERVICE.getCurrentUser();
-        Like dataLike = LIKE_REPOSITORY
+        Like like = LIKE_REPOSITORY
                 .findByCourse_IdAndUser_Id(courseId, user.getId())
                 .orElse(null);
 
-        if (dataLike != null)
+        if (like != null)
             throw new ApiFailException("\"Like\" already exists");
+
         Course course = COURSE_SERVICE.getById(courseId);
-        Like like = new Like();
+        like = new Like();
         like.setCourse(course);
         like.setUser(user);
-
-        return LIKE_CONVERTER.convertFromEntity(save(like));
+        save(like);
+        return LIKE_CONVERTER.convertFromEntity(like);
     }
 
     @Override
@@ -64,7 +64,9 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public List<LikeModel> getAllLikeModelByCourseId(Long id) {
-        return LIKE_REPOSITORY.findAllByCourse_Id(id).stream()
+        return LIKE_REPOSITORY
+                .findAllByCourse_Id(id)
+                .stream()
                 .map(LIKE_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
     }
@@ -73,12 +75,12 @@ public class LikeServiceImpl implements LikeService {
     public LikeModel deleteLike(Long courseId) {
         Long currentUserId = USER_SERVICE.getCurrentUser().getId();
 
-        Like like = LIKE_REPOSITORY.findByCourse_IdAndUser_Id(courseId, currentUserId).orElse(null);
+        Like dataLike = LIKE_REPOSITORY.findByCourse_IdAndUser_Id(courseId, currentUserId).orElse(null);
 
-        if (like == null)
+        if (dataLike == null)
             throw new ApiFailException("\"Like\" not found");
 
-        LIKE_REPOSITORY.delete(like);
-        return LIKE_CONVERTER.convertFromEntity(like);
+        LIKE_REPOSITORY.delete(dataLike);
+        return LIKE_CONVERTER.convertFromEntity(dataLike);
     }
 }

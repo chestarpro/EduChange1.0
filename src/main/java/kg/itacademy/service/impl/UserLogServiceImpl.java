@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserLogServiceImpl implements UserLogService {
-
     private final UserLogRepository USER_LOG_REPOSITORY;
     private final UserLogConverter USER_LOG_CONVERTER;
 

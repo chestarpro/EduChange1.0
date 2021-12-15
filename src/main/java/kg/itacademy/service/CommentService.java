@@ -10,7 +10,7 @@ import java.util.List;
 public interface CommentService extends BaseService<Comment> {
     CommentModel createCommentByCourseId(CreateCommentModel createCommentModel);
 
-    CommentModel updateByUpdateCommentModel(UpdateCommentModel updateCommentModel);
+    CommentModel updateComment(UpdateCommentModel updateCommentModel);
 
     CommentModel deleteComment(Long id);
 

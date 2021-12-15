@@ -14,36 +14,35 @@ import java.util.List;
 @RequestMapping("/api/course-program")
 @RequiredArgsConstructor
 public class CourseProgramController {
-
-    private final CourseProgramService courseProgramService;
+    private final CourseProgramService COURSE_PROGRAM_SERVICE;
 
     @PostMapping("/create")
     public ResponseMessage<CourseProgramModel> save(@RequestBody CreateCourseProgramModel createCourseProgramModel) {
         return new ResponseMessage<CourseProgramModel>()
-                .prepareSuccessMessage(courseProgramService.createCourseProgram(createCourseProgramModel));
+                .prepareSuccessMessage(COURSE_PROGRAM_SERVICE.createCourseProgram(createCourseProgramModel));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<CourseProgramModel> getById(@PathVariable Long id) {
         return new ResponseMessage<CourseProgramModel>()
-                .prepareSuccessMessage(courseProgramService.getCourseProgramModelById(id));
+                .prepareSuccessMessage(COURSE_PROGRAM_SERVICE.getCourseProgramModelById(id));
     }
 
     @GetMapping("/get-all/by-course-id/{courseId}")
     public ResponseMessage<List<CourseProgramModel>> getAllByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<List<CourseProgramModel>>()
-                .prepareSuccessMessage(courseProgramService.getAllCourseProgramModelByCourseId(courseId));
+                .prepareSuccessMessage(COURSE_PROGRAM_SERVICE.getAllCourseProgramModelByCourseId(courseId));
     }
 
     @PutMapping("/update")
     public ResponseMessage<CourseProgramModel> update(@RequestBody UpdateCourseProgramModel updateCourseProgramModel) {
         return new ResponseMessage<CourseProgramModel>()
-                .prepareSuccessMessage(courseProgramService.updateCurseProgram(updateCourseProgramModel));
+                .prepareSuccessMessage(COURSE_PROGRAM_SERVICE.updateCurseProgram(updateCourseProgramModel));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<CourseProgramModel> delete(@PathVariable Long id) {
         return new ResponseMessage<CourseProgramModel>()
-                .prepareSuccessMessage(courseProgramService.deleteCourseProgram(id));
+                .prepareSuccessMessage(COURSE_PROGRAM_SERVICE.deleteCourseProgram(id));
     }
 }

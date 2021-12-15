@@ -14,36 +14,35 @@ import java.util.List;
 @RequestMapping("/api/comment")
 @RequiredArgsConstructor
 public class CommentController {
-
-    private final CommentService commentService;
+    private final CommentService COMMENT_SERVICE;
 
     @PostMapping("/create")
     public ResponseMessage<CommentModel> save(@RequestBody CreateCommentModel createCommentModel) {
         return new ResponseMessage<CommentModel>()
-                .prepareSuccessMessage(commentService.createCommentByCourseId(createCommentModel));
+                .prepareSuccessMessage(COMMENT_SERVICE.createCommentByCourseId(createCommentModel));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<CommentModel> getById(@PathVariable Long id) {
         return new ResponseMessage<CommentModel>()
-                .prepareSuccessMessage(commentService.getCommentModelById(id));
+                .prepareSuccessMessage(COMMENT_SERVICE.getCommentModelById(id));
     }
 
     @GetMapping("/get-all/by-course-id/{courseId}")
     public ResponseMessage<List<CommentModel>> getAllByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<List<CommentModel>>()
-                .prepareSuccessMessage(commentService.getAllCommentModelByCourseId(courseId));
+                .prepareSuccessMessage(COMMENT_SERVICE.getAllCommentModelByCourseId(courseId));
     }
 
     @PutMapping("/update")
     public ResponseMessage<CommentModel> update(@RequestBody UpdateCommentModel updateCommentModel) {
         return new ResponseMessage<CommentModel>()
-                .prepareSuccessMessage(commentService.updateByUpdateCommentModel(updateCommentModel));
+                .prepareSuccessMessage(COMMENT_SERVICE.updateComment(updateCommentModel));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<CommentModel> delete(@PathVariable Long id) {
         return new ResponseMessage<CommentModel>()
-                .prepareSuccessMessage(commentService.deleteComment(id));
+                .prepareSuccessMessage(COMMENT_SERVICE.deleteComment(id));
     }
 }

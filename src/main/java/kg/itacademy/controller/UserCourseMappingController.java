@@ -13,7 +13,6 @@ import java.util.List;
 @RequestMapping("/api/purchase")
 @RequiredArgsConstructor
 public class UserCourseMappingController {
-
     private final UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
 
     @PostMapping("/create-by-course-id/{courseId}")

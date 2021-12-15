@@ -20,12 +20,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
-
-    private final RegexUtil REGEX_UTIL;
-    private final CourseConverter COURSE_CONVERTER;
-    private final CourseRepository COURSE_REPOSITORY;
-    private final CourseImageService COURSE_IMAGE_SERVICE;
-
+    @Autowired
+    private CourseImageService COURSE_IMAGE_SERVICE;
     @Autowired
     private LikeService LIKE_SERVICE;
     @Autowired
@@ -35,9 +31,11 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private CommentService COMMENT_SERVICE;
     @Autowired
-    private CategoryService CATEGORY_SERVICE;
-    @Autowired
     private CourseProgramService PROGRAM_SERVICE;
+    private final RegexUtil REGEX_UTIL;
+    private final CourseConverter COURSE_CONVERTER;
+    private final CourseRepository COURSE_REPOSITORY;
+    private final CategoryService CATEGORY_SERVICE;
 
     @Override
     public Course save(Course course) {
@@ -274,7 +272,6 @@ public class CourseServiceImpl implements CourseService {
         courseDataModel.setPrograms(PROGRAM_SERVICE.getAllCourseProgramModelByCourseId(courseId));
         courseDataModel.setLikes(LIKE_SERVICE.getAllLikeModelByCourseId(courseId));
         courseDataModel.setComments(COMMENT_SERVICE.getAllCommentModelByCourseId(courseId));
-
         return courseDataModel;
     }
 

@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
-
     private final CommentRepository COMMENT_REPOSITORY;
     private final CourseService COURSE_SERVICE;
     private final UserService USER_SERVICE;
@@ -39,8 +38,10 @@ public class CommentServiceImpl implements CommentService {
 
         Course course = COURSE_SERVICE.getById(createCommentModel.getCourseId());
         User user = USER_SERVICE.getCurrentUser();
+        String commentText = createCommentModel.getComment();
 
-        Comment comment = save(new Comment(createCommentModel.getComment(), user, course));
+        Comment comment = new Comment(commentText, user, course);
+        save(comment);
         return COMMENT_CONVERTER.convertFromEntity(comment);
     }
 
@@ -69,11 +70,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentModel updateByUpdateCommentModel(UpdateCommentModel updateCommentModel) {
+    public CommentModel updateComment(UpdateCommentModel updateCommentModel) {
         Long commentId = updateCommentModel.getId();
 
         if (commentId == null)
-            throw new ApiFailException("Comment id is not filled");
+            throw new ApiFailException("Comment id is not specified");
 
         Comment dataComment = getById(commentId);
 
@@ -118,7 +119,7 @@ public class CommentServiceImpl implements CommentService {
             throw new ApiFailException("Comment is not filled");
 
         if (createCommentModel.getCourseId() == null)
-            throw new ApiFailException("Course id is not filled");
+            throw new ApiFailException("Course id is not specified");
         else {
             Long curseId = createCommentModel.getCourseId();
             Course course = COURSE_SERVICE.getById(curseId);

@@ -20,12 +20,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserBalanceImpl implements UserBalanceService {
-
-    private final UserBalanceRepository USER_BALANCE_REPOSITORY;
-    private final UserBalanceConverter USER_BALANCE_CONVERTER;
-
     @Autowired
     private final UserService USER_SERVICE;
+    private final UserBalanceRepository USER_BALANCE_REPOSITORY;
+    private final UserBalanceConverter USER_BALANCE_CONVERTER;
 
     @Override
     public UserBalance save(UserBalance userBalance) {
@@ -66,7 +64,7 @@ public class UserBalanceImpl implements UserBalanceService {
     }
 
     @Override
-    public UserBalanceModel updateByUpdateUserBalanceModel(UpdateUserBalanceModel updateUserBalanceModel) {
+    public UserBalanceModel toUpBalance(UpdateUserBalanceModel updateUserBalanceModel) {
         String username = updateUserBalanceModel.getUsername();
         BigDecimal balance = updateUserBalanceModel.getBalance();
 
@@ -77,17 +75,15 @@ public class UserBalanceImpl implements UserBalanceService {
             throw new ApiFailException("User balance is not filled");
 
         if (balance.compareTo(BigDecimal.ZERO) <= 0)
-            throw new ApiFailException("Сумма (" + updateUserBalanceModel.getBalance() + ") не должна быть меньше или равна 0");
+            throw new ApiFailException("Amount must not be less than or equal to 0");
 
         User dataUser = USER_SERVICE.getByUsername(updateUserBalanceModel.getUsername());
-
         if (dataUser == null)
             throw new ApiFailException("User (" + updateUserBalanceModel.getUsername() + ") not found");
 
         UserBalance dataUserBalance = USER_BALANCE_REPOSITORY.findByUser_Id(dataUser.getId());
         dataUserBalance.setBalance(dataUserBalance.getBalance().add(balance));
         USER_BALANCE_REPOSITORY.save(dataUserBalance);
-
         return USER_BALANCE_CONVERTER.convertFromEntity(dataUserBalance);
     }
 }

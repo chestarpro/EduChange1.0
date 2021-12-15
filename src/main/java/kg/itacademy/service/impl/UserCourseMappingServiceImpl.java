@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserCourseMappingServiceImpl implements UserCourseMappingService {
-
     private final UserCourseMappingRepository USER_COURSE_MAPPING_REPOSITORY;
     private final CourseService COURSE_SERVICE;
     private final UserService USER_SERVICE;
@@ -56,10 +55,9 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
         if (userBalance.getBalance().compareTo(dataCourse.getPrice()) < 0)
             throw new ApiFailException("Not enough balance");
-        else {
-            userBalance.setBalance(userBalance.getBalance().subtract(dataCourse.getPrice()));
-            USER_BALANCE_SERVICE.save(userBalance);
-        }
+
+        userBalance.setBalance(userBalance.getBalance().subtract(dataCourse.getPrice()));
+        USER_BALANCE_SERVICE.save(userBalance);
 
         return MAPPING_CONVERTER.convertFromEntity(save(new UserCourseMapping(user, dataCourse)));
     }
@@ -83,8 +81,10 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     public List<CourseDataModel> getAllPurchasedCourses(Long userId) {
         return USER_COURSE_MAPPING_REPOSITORY
                 .findAllByUser_Id(userId)
-                .stream().map(UserCourseMapping::getCourse)
-                .map(i -> COURSE_SERVICE.getCourseDataModelByCourseId(i.getId())).collect(Collectors.toList());
+                .stream()
+                .map(UserCourseMapping::getCourse)
+                .map(i -> COURSE_SERVICE.getCourseDataModelByCourseId(i.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override

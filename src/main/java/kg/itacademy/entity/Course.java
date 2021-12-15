@@ -17,19 +17,19 @@ public class Course extends BaseEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @Column(name = "course_name", length = 50, nullable = false)
+    @Column(name = "course_name", length = 100, nullable = false)
     private String courseName;
 
     @Column(length = 100)
     private String email;
 
-    @Column(name = "phone_number", length = 50)
+    @Column(name = "phone_number", length = 100)
     private String phoneNumber;
 
-    @Column(name = "course_short_info", length = 50, nullable = false)
+    @Column(name = "course_short_info", length = 100, nullable = false)
     private String courseShortInfo;
 
-    @Column(name = "course_info_title", length = 50, nullable = false)
+    @Column(name = "course_info_title", length = 100, nullable = false)
     private String courseInfoTitle;
 
     @Column(name = "course_info", length = 1000)
