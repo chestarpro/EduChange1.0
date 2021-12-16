@@ -44,6 +44,7 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         Course course = new Course();
         course.setId(createCourseProgramModel.getCourseId());
         courseProgram.setCourse(course);
+        save(courseProgram);
         return COURSE_PROGRAM_CONVERTER.convertFromEntity(courseProgram);
     }
 

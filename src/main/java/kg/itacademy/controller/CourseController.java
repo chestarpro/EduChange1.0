@@ -54,7 +54,7 @@ public class CourseController {
     }
 
     @GetMapping("/get-all/by-category-id/{categoryId}")
-    public ResponseMessage<List<CourseDataModel>> getAllByCourseId(@PathVariable Long categoryId) {
+    public ResponseMessage<List<CourseDataModel>> getAllByCategoryId(@PathVariable Long categoryId) {
         return new ResponseMessage<List<CourseDataModel>>()
                 .prepareSuccessMessage(COURSE_SERVICE.getAllCourseDataModelByCategoryId(categoryId));
     }
