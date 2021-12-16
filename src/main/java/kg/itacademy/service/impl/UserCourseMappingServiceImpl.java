@@ -57,6 +57,10 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
             throw new ApiFailException("Not enough balance");
 
         userBalance.setBalance(userBalance.getBalance().subtract(dataCourse.getPrice()));
+
+        User authorCourse = USER_SERVICE.getById(dataCourse.getUser().getId());
+        UserBalance authorUserBalance = USER_BALANCE_SERVICE.getUserBalanceByUserId(authorCourse.getId());
+        authorUserBalance.setBalance(authorUserBalance.getBalance().add(dataCourse.getPrice()));
         USER_BALANCE_SERVICE.save(userBalance);
 
         return MAPPING_CONVERTER.convertFromEntity(save(new UserCourseMapping(user, dataCourse)));

@@ -24,7 +24,7 @@ public class CourseImageServiceImpl implements CourseImageService {
     @Autowired
     private UserService USER_SERVICE;
     @Autowired
-    private CourseServiceImpl courseService;
+    private CourseServiceImpl COURSE_SERVICE;
     private final CourseImageRepository COURSE_IMAGE_REPOSITORY;
     private final UserImageService USER_IMAGE_SERVICE;
     private final CourseImageConverter COURSE_IMAGER_CONVERTER;
@@ -100,7 +100,7 @@ public class CourseImageServiceImpl implements CourseImageService {
         if (courseId == null)
             throw new ApiFailException("Course id not specified");
 
-        Course course = courseService.getById(courseId);
+        Course course = COURSE_SERVICE.getById(courseId);
 
         if (course == null)
             throw new ApiFailException("Course by id " + courseId + " not found");

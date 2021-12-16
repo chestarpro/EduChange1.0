@@ -145,7 +145,6 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         }
     }
 
-
     public void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseProgramModel updateCourseProgramModel) {
         if (updateCourseProgramModel.getTitle() != null && updateCourseProgramModel.getTitle().isEmpty())
             throw new ApiFailException("Title program is not filled");
