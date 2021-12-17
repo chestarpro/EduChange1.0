@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserBalanceImpl implements UserBalanceService {
     @Autowired
-    private final UserService USER_SERVICE;
+    private UserService USER_SERVICE;
     private final UserBalanceRepository USER_BALANCE_REPOSITORY;
     private final UserBalanceConverter USER_BALANCE_CONVERTER;
 

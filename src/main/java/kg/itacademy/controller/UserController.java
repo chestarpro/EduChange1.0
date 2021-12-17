@@ -20,11 +20,6 @@ public class UserController {
                 .prepareSuccessMessage(USER_SERVICE.getUserModelById(id));
     }
 
-//    @GetMapping("/get-current")
-//    public ResponseMessage<BaseUserModel> getCurrentUser() {
-//        return new ResponseMessage<BaseUserModel>().prepareSuccessMessage(USER_SERVICE.getCurrentUserModel());
-//    }
-
     @PutMapping("/update")
     public ResponseMessage<UserProfileDataModel> update(@RequestBody UpdateUserModel updateUserModel) {
         return new ResponseMessage<UserProfileDataModel>()
