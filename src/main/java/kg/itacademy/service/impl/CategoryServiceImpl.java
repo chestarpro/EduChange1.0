@@ -55,10 +55,10 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryModel getByCategoryName(String categoryName) {
-        return CATEGORY_CONVERTER.convertFromEntity(
-                CATEGORY_REPOSITORY.findByCategoryName(categoryName)
-                        .orElse(null)
-        );
+        return CATEGORY_CONVERTER
+                .convertFromEntity(CATEGORY_REPOSITORY
+                        .findByCategoryName(categoryName)
+                        .orElse(null));
     }
 
     @Override
@@ -77,7 +77,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryModel updateCategory(CategoryModel categoryModel) {
         Long categoryId = categoryModel.getId();
-
         if (categoryId == null)
             throw new IllegalArgumentException("Category id is not specified");
 

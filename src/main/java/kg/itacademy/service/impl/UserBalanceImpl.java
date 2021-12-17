@@ -78,8 +78,9 @@ public class UserBalanceImpl implements UserBalanceService {
             throw new ApiFailException("Amount must not be less than or equal to 0");
 
         User dataUser = USER_SERVICE.getByUsername(updateUserBalanceModel.getUsername());
+
         if (dataUser == null)
-            throw new ApiFailException("User (" + updateUserBalanceModel.getUsername() + ") not found");
+            throw new ApiFailException("User " + updateUserBalanceModel.getUsername() + " not found");
 
         UserBalance dataUserBalance = USER_BALANCE_REPOSITORY.findByUser_Id(dataUser.getId());
         dataUserBalance.setBalance(dataUserBalance.getBalance().add(balance));

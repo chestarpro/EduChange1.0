@@ -47,7 +47,6 @@ public class LessonServiceImpl implements LessonService {
         course.setId(createLessonModel.getCourseId());
         lesson.setCourse(course);
         save(lesson);
-
         return LESSON_CONVERTER.convertFromEntity(lesson);
     }
 

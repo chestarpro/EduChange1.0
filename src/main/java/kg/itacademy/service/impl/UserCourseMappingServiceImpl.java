@@ -62,7 +62,6 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
         UserBalance authorUserBalance = USER_BALANCE_SERVICE.getUserBalanceByUserId(authorCourse.getId());
         authorUserBalance.setBalance(authorUserBalance.getBalance().add(dataCourse.getPrice()));
         USER_BALANCE_SERVICE.save(userBalance);
-
         return MAPPING_CONVERTER.convertFromEntity(save(new UserCourseMapping(user, dataCourse)));
     }
 

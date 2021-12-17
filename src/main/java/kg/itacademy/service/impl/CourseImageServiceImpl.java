@@ -119,7 +119,6 @@ public class CourseImageServiceImpl implements CourseImageService {
             throw new ApiFailException("Course image by id " + id + " not found");
 
         Long authorCourseId = dataCourseImage.getCourse().getUser().getId();
-
         checkAccess(authorCourseId);
         return dataCourseImage;
     }

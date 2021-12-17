@@ -2,6 +2,7 @@ package kg.itacademy.service;
 
 import kg.itacademy.entity.User;
 import kg.itacademy.model.user.*;
+import kg.itacademy.model.userImage.ResetPasswordModel;
 
 import java.util.List;
 
@@ -27,6 +28,8 @@ public interface UserService extends BaseService<User> {
     BaseUserModel getCurrentUserModel();
 
     List<BaseUserModel> getAllUserModels();
+
+    UserProfileDataModel resetPassword(ResetPasswordModel resetPasswordModel);
 
     UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel);
 }

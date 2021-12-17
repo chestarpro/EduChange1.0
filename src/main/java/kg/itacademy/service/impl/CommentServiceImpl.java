@@ -92,7 +92,6 @@ public class CommentServiceImpl implements CommentService {
 
         dataComment.setCourseComment(updateCommentModel.getComment());
         COMMENT_REPOSITORY.save(dataComment);
-
         return COMMENT_CONVERTER.convertFromEntity(dataComment);
     }
 
@@ -110,7 +109,6 @@ public class CommentServiceImpl implements CommentService {
             throw new ApiFailException("Access is denied");
 
         COMMENT_REPOSITORY.delete(comment);
-
         return COMMENT_CONVERTER.convertFromEntity(comment);
     }
 

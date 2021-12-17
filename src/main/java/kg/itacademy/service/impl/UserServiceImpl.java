@@ -11,6 +11,7 @@ import kg.itacademy.model.user.*;
 import kg.itacademy.repository.UserRepository;
 import kg.itacademy.service.*;
 import kg.itacademy.util.RegexUtil;
+import kg.itacademy.model.userImage.ResetPasswordModel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -68,13 +69,9 @@ public class UserServiceImpl implements UserService {
         REGEX_UTIL.validateEmail(createUserModel.getEmail());
         checkUsernameAndEmail(createUserModel);
 
-        String usernamePasswordPair = createUserModel.getUsername() + ":" + createUserModel.getPassword();
-        String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
-
-        String token = "Basic " + authHeader;
+        String token = getToken(createUserModel.getUsername(), createUserModel.getPassword());
 
         User dataUser = save(USER_CONVERTER.convertFromModel(createUserModel));
-
         return getUserProfileDataModelByUserId(token, dataUser.getId());
     }
 
@@ -123,6 +120,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileDataModel updateUser(UpdateUserModel updateUserModel) {
         Long userId = updateUserModel.getId();
+
         if (userId == null)
             throw new ApiFailException("User id not specified");
 
@@ -130,6 +128,9 @@ public class UserServiceImpl implements UserService {
 
         if (dataUser == null)
             throw new ApiFailException("User by id " + userId + " not found");
+
+        if (!userId.equals(getCurrentUser().getId()))
+            throw new ApiFailException("Access is denied");
 
         validateVariablesForNullOrIsEmptyUpdate(updateUserModel);
         validateLengthVariablesForUpdate(updateUserModel);
@@ -139,10 +140,28 @@ public class UserServiceImpl implements UserService {
         checkUsernameAndEmailForUpdate(updateUserModel);
 
         setForUpdateUser(dataUser, updateUserModel);
-
         USER_REPOSITORY.save(dataUser);
-
         return getUserProfileDataModelByUserId(null, userId);
+    }
+
+    @Override
+    public UserProfileDataModel resetPassword(ResetPasswordModel resetPasswordModel) {
+        String email = new String(Base64.getDecoder().decode(resetPasswordModel.getEncodeEmail().getBytes()));
+        User user = getByEmail(email);
+        if (user == null)
+            throw new ApiFailException("Access is denied");
+
+        String newPassword = resetPasswordModel.getPassword();
+
+        if (newPassword == null || newPassword.isEmpty())
+            throw new ApiFailException("Password is not filled");
+        if (newPassword.length() < 6)
+            throw new ApiFailException("The number of password characters must be more than 5");
+
+        user.setPassword(PASSWORD_ENCODER.encode(newPassword));
+        USER_REPOSITORY.save(user);
+        String token = getToken(user.getUsername(), newPassword);
+        return getUserProfileDataModelByUserId(token, user.getId());
     }
 
     @Override
@@ -155,13 +174,9 @@ public class UserServiceImpl implements UserService {
         checkBaningStatus(user);
         checkFailPassword(isPasswordIsCorrect, user);
 
-        String usernamePasswordPair = userAuthorizModel.getUsername() + ":" + userAuthorizModel.getPassword();
-        System.out.println(userAuthorizModel.getPassword());
-        String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
         USER_LOG_SERVICE.save(new UserLog(user, true));
 
-        String token = "Basic " + authHeader;
-
+        String token = getToken(userAuthorizModel.getUsername(), userAuthorizModel.getPassword());
         return getUserProfileDataModelByUserId(token, user.getId());
     }
 
@@ -185,7 +200,13 @@ public class UserServiceImpl implements UserService {
         return USER_CONVERTER.convertFromEntity(deleteUser);
     }
 
-    public void validateVariablesForNullOrIsEmpty(CreateUserModel createUserModel) {
+    private String getToken(String username, String password) {
+        String usernamePasswordPair = username + ":" + password;
+        String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
+        return "Basic " + authHeader;
+    }
+
+    private void validateVariablesForNullOrIsEmpty(CreateUserModel createUserModel) {
         if (createUserModel.getFullName() == null || createUserModel.getFullName().isEmpty())
             throw new ApiFailException("Full name is not filled");
         if (createUserModel.getUsername() == null || createUserModel.getUsername().isEmpty())
@@ -196,50 +217,39 @@ public class UserServiceImpl implements UserService {
             throw new ApiFailException("Password is not filled");
     }
 
-    public void validateVariablesForNullOrIsEmptyUpdate(UpdateUserModel userModel) {
+    private void validateVariablesForNullOrIsEmptyUpdate(UpdateUserModel userModel) {
         if (userModel.getEmail() != null && userModel.getFullName().isEmpty())
             throw new ApiFailException("Full name is not filled");
-
         if (userModel.getUsername() != null && userModel.getUsername().isEmpty())
             throw new ApiFailException("Username is not filled");
-
         if (userModel.getEmail() != null && userModel.getEmail().isEmpty())
             throw new ApiFailException("Email is not filled");
-
         if (userModel.getPassword() != null && userModel.getPassword().isEmpty())
             throw new ApiFailException("Password is not filled");
     }
 
-    public void validateLengthVariables(CreateUserModel createUserModel) {
+    private void validateLengthVariables(CreateUserModel createUserModel) {
         if (createUserModel.getFullName().length() > 100)
             throw new ApiFailException("Exceeded character limit (100) for full name");
-
         if (createUserModel.getUsername().length() > 100)
             throw new ApiFailException("Exceeded character limit (50) for username");
-
         if (createUserModel.getEmail().length() > 100)
             throw new ApiFailException("Exceeded character limit (50) for email");
-
         if (createUserModel.getPassword().length() > 100)
             throw new ApiFailException("Exceeded character limit (50) for password");
-
         if (createUserModel.getPassword().length() < 6)
             throw new ApiFailException("The number of password characters must be more than 5");
     }
 
-    public void validateLengthVariablesForUpdate(UpdateUserModel updateUserModel) {
+    private void validateLengthVariablesForUpdate(UpdateUserModel updateUserModel) {
         if (updateUserModel.getFullName() != null && updateUserModel.getFullName().length() > 100)
             throw new ApiFailException("Exceeded character limit (100) for full name");
-
         if (updateUserModel.getUsername() != null && updateUserModel.getUsername().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for username");
-
         if (updateUserModel.getEmail() != null && updateUserModel.getEmail().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for email");
-
         if (updateUserModel.getPassword() != null && updateUserModel.getPassword().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for password");
-
         else if (updateUserModel.getPassword() != null && updateUserModel.getPassword().length() < 6)
             throw new ApiFailException("The number of password characters must be more than 5");
     }
@@ -269,7 +279,7 @@ public class UserServiceImpl implements UserService {
     private void checkBaningStatus(User user) {
         if (user.getIsActive() == 0) {
             UserLog userLog = USER_LOG_SERVICE.getLastLogByUserId(user.getId());
-            if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(5)))
+            if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(1)))
                 setInActiveUser(user, 1L);
             else throw new ApiFailException("You are blocked for 5 minutes");
         }
@@ -312,7 +322,6 @@ public class UserServiceImpl implements UserService {
         dataBaseModel.setUserImageModel(USER_IMAGE_SERVICE.getUserImageModelByUserId(userId));
         dataBaseModel.setUserCreateCourseModels(userCreateCourses);
         dataBaseModel.setUserPurchasedCourseModels(userPurchasedCourses);
-
         return dataBaseModel;
     }
 

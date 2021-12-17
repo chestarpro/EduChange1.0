@@ -43,6 +43,7 @@ public class UserImageImpl implements UserImageService {
         User user = USER_SERVICE.getCurrentUser();
 
         UserImage userImage = USER_IMAGE_REPOSITORY.findByUser_Id(user.getId());
+
         if (userImage != null)
             throw new ApiFailException("User image is already");
 
@@ -60,11 +61,12 @@ public class UserImageImpl implements UserImageService {
                 throw new ApiFailException("File name not specified");
 
             File file = Files.createTempFile(System.currentTimeMillis() + "",
-                    Objects.requireNonNull(multipartFile.getOriginalFilename()).substring(multipartFile.getOriginalFilename().indexOf('.'))).toFile();
+                    Objects.requireNonNull(multipartFile.getOriginalFilename())
+                            .substring(multipartFile.getOriginalFilename().indexOf('.'))).toFile();
+
             multipartFile.transferTo(file);
             Cloudinary cloudinary = new Cloudinary(CLOUDINARY_URL);
             Map uploadResult = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
-
             return ((String) uploadResult.get("url"));
         } catch (IOException e) {
             throw new ApiErrorException(e.getMessage());
@@ -101,14 +103,15 @@ public class UserImageImpl implements UserImageService {
 
     @Override
     public UserImageModel updateUserImage(MultipartFile file) {
-        Long userId = USER_SERVICE.getCurrentUser().getId();
-        UserImage updateUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        UserImage updateUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(currentUserId);
 
         if (updateUserImage == null)
-            throw new ApiFailException("User image by user id (" + userId + ") not found");
+            throw new ApiFailException("User image by user id (" + currentUserId + ") not found");
+
+        checkAccess(currentUserId, updateUserImage.getUser().getId());
 
         updateUserImage.setUserImageUrl(saveImageInCloudinary(file));
-
         USER_IMAGE_REPOSITORY.save(updateUserImage);
         return USER_IMAGE_CONVERTER.convertFromEntity(updateUserImage);
     }
@@ -118,9 +121,17 @@ public class UserImageImpl implements UserImageService {
         UserImage deleteUserImage = getById(id);
 
         if (deleteUserImage == null)
-            throw new ApiFailException("User image by id (" + id + ") not found");
+            throw new ApiFailException("User image by id " + id + " not found");
+
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        checkAccess(currentUserId, deleteUserImage.getUser().getId());
 
         USER_IMAGE_REPOSITORY.delete(deleteUserImage);
         return USER_IMAGE_CONVERTER.convertFromEntity(deleteUserImage);
+    }
+
+    private void checkAccess(Long currentUserId, Long authorUserId) {
+        if (!authorUserId.equals(currentUserId))
+            throw new ApiFailException("Access is denied");
     }
 }
