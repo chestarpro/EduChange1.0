@@ -25,9 +25,11 @@ import java.util.stream.Collectors;
 public class LessonServiceImpl implements LessonService {
     @Autowired
     private UserService USER_SERVICE;
+    @Autowired
+    private CourseService COURSE_SERVICE;
     private final LessonRepository LESSON_REPOSITORY;
     private final LessonConverter LESSON_CONVERTER;
-    private final CourseService COURSE_SERVICE;
+
 
     @Override
     public Lesson save(Lesson lesson) {
