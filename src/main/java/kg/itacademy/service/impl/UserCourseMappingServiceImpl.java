@@ -14,6 +14,7 @@ import kg.itacademy.service.UserBalanceService;
 import kg.itacademy.service.UserCourseMappingService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,11 +23,16 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserCourseMappingServiceImpl implements UserCourseMappingService {
+
     private final UserCourseMappingRepository USER_COURSE_MAPPING_REPOSITORY;
-    private final CourseService COURSE_SERVICE;
-    private final UserService USER_SERVICE;
-    private final UserBalanceService USER_BALANCE_SERVICE;
-    private final UserCourseMappingConverter MAPPING_CONVERTER;
+    @Autowired
+    private CourseService COURSE_SERVICE;
+    @Autowired
+    private UserService USER_SERVICE;
+    @Autowired
+    private UserBalanceService USER_BALANCE_SERVICE;
+    @Autowired
+    private UserCourseMappingConverter MAPPING_CONVERTER;
 
     @Override
     public UserCourseMapping save(UserCourseMapping userCourseMapping) {
