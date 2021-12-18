@@ -11,6 +11,7 @@ import kg.itacademy.service.CourseService;
 import kg.itacademy.service.LikeService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,9 +20,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
+    @Autowired
+    private CourseService COURSE_SERVICE;
+    @Autowired
+    private UserService USER_SERVICE;
     private final LikeRepository LIKE_REPOSITORY;
-    private final CourseService COURSE_SERVICE;
-    private final UserService USER_SERVICE;
     private final LikeConverter LIKE_CONVERTER;
 
     @Override
