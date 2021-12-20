@@ -13,6 +13,6 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     List<Lesson> findAllByCourse_Id(Long courseId);
 
-    @Query(value = "SELECT COUNT(*) FORM lessons l WHERE l.course_id = :courseId", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM lessons l WHERE l.course_id = :courseId", nativeQuery = true)
     Long getCountLessonByCourseId(@Param("courseId") Long courseId);
 }
