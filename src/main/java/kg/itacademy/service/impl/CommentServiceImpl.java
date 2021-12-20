@@ -12,6 +12,7 @@ import kg.itacademy.model.comment.UpdateCommentModel;
 import kg.itacademy.repository.CommentRepository;
 import kg.itacademy.service.CommentService;
 import kg.itacademy.service.CourseService;
+import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public class CommentServiceImpl implements CommentService {
     private CourseService COURSE_SERVICE;
     @Autowired
     private UserService USER_SERVICE;
+    @Autowired
+    private UserImageService USER_IMAGE_SERVICE;
 
     private final CommentRepository COMMENT_REPOSITORY;
     private final CommentConverter COMMENT_CONVERTER;
@@ -44,8 +47,8 @@ public class CommentServiceImpl implements CommentService {
         Course course = COURSE_SERVICE.getById(createCommentModel.getCourseId());
         User user = USER_SERVICE.getCurrentUser();
         String commentText = createCommentModel.getComment();
-
-        Comment comment = new Comment(commentText, user, course);
+        String userImageUrl = USER_IMAGE_SERVICE.getUserImageModelByUserId(user.getId()).getUserImageUrl();
+        Comment comment = new Comment(commentText, user, userImageUrl, course);
         save(comment);
         return COMMENT_CONVERTER.convertFromEntity(comment);
     }

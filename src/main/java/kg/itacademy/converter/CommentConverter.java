@@ -21,6 +21,7 @@ public class CommentConverter extends BaseConverter<CommentModel, Comment> {
                 .comment(entityToConvert.getCourseComment())
                 .userId(entityToConvert.getUser().getId())
                 .username(entityToConvert.getUser().getUsername())
+                .userImageUrl(entityToConvert.getUserImage())
                 .courseId(entityToConvert.getCourse().getId())
                 .build();
     }
@@ -31,6 +32,7 @@ public class CommentConverter extends BaseConverter<CommentModel, Comment> {
         Comment comment = new Comment();
         comment.setId(modelToConvert.getId());
         comment.setCourseComment(modelToConvert.getComment());
+        comment.setUserImage(modelToConvert.getUserImageUrl());
 
         if (modelToConvert.getCourseId() != null) {
             Course course = new Course();
