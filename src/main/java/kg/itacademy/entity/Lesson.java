@@ -14,7 +14,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 public class Lesson extends BaseEntity {
-    @Column(name = "lesson_info", nullable = false)
+    @Column(name = "lesson_info", nullable = false, length = 1000)
     private String lessonInfo;
 
     @Column(name = "lesson_url")

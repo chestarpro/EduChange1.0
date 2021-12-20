@@ -28,10 +28,16 @@ public class LessonController {
                 .prepareSuccessMessage(LESSON_SERVICE.getLessonModelById(id));
     }
 
-    @GetMapping("/get-all/by-course-id/{id}")
-    public ResponseMessage<List<LessonModel>> getAllByCourseId(@PathVariable Long id) {
+    @GetMapping("/get-first-three/by-course-id/{courseId}")
+    public ResponseMessage<List<LessonModel>> getFirstThreeLessonsByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<List<LessonModel>>()
-                .prepareSuccessMessage(LESSON_SERVICE.getAllByCourseId(id));
+                .prepareSuccessMessage(LESSON_SERVICE.getFirstThreeLessonsByCourseId(courseId));
+    }
+
+    @GetMapping("/get-all/by-course-id/{courseId}")
+    public ResponseMessage<List<LessonModel>> getAllByCourseId(@PathVariable Long courseId) {
+        return new ResponseMessage<List<LessonModel>>()
+                .prepareSuccessMessage(LESSON_SERVICE.getAllByCourseId(courseId));
     }
 
     @PutMapping("/update")

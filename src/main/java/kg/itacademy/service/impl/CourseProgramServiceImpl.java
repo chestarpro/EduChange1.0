@@ -4,6 +4,7 @@ import kg.itacademy.converter.CourseProgramConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.CourseProgram;
 import kg.itacademy.exception.ApiFailException;
+import kg.itacademy.model.courseProgram.BaseCourseProgramModel;
 import kg.itacademy.model.courseProgram.CourseProgramModel;
 import kg.itacademy.model.courseProgram.CreateCourseProgramModel;
 import kg.itacademy.model.courseProgram.UpdateCourseProgramModel;
@@ -34,7 +35,6 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     @Override
     public CourseProgramModel createCourseProgram(CreateCourseProgramModel createCourseProgramModel) {
-
         validateVariablesForNullOrIsEmpty(createCourseProgramModel);
         validateLengthVariables(createCourseProgramModel);
 
@@ -74,14 +74,31 @@ public class CourseProgramServiceImpl implements CourseProgramService {
     @Override
     public CourseProgramModel updateCurseProgram(UpdateCourseProgramModel updateCourseProgramModel) {
         Long programId = updateCourseProgramModel.getId();
+        CourseProgram dataCourseProgram = getDataCourseProgramByIdWithCheckAccess(programId);
 
-        if (programId == null)
+        validateLengthVariables(updateCourseProgramModel);
+        validateVariablesForNullOrIsEmptyUpdate(updateCourseProgramModel);
+
+        setVariablesForUpdateCourseProgram(dataCourseProgram, updateCourseProgramModel);
+        COURSE_PROGRAM_REPOSITORY.save(dataCourseProgram);
+        return COURSE_PROGRAM_CONVERTER.convertFromEntity(dataCourseProgram);
+    }
+
+    @Override
+    public CourseProgramModel deleteCourseProgram(Long id) {
+        CourseProgram deleteProgram = getDataCourseProgramByIdWithCheckAccess(id);
+        COURSE_PROGRAM_REPOSITORY.delete(deleteProgram);
+        return COURSE_PROGRAM_CONVERTER.convertFromEntity(deleteProgram);
+    }
+
+    private CourseProgram getDataCourseProgramByIdWithCheckAccess(Long id) {
+        if (id == null)
             throw new ApiFailException("Course program is not specified");
 
-        CourseProgram dataCourseProgram = getById(programId);
+        CourseProgram dataCourseProgram = getById(id);
 
         if (dataCourseProgram == null)
-            throw new ApiFailException("Course program by id " + programId + " not found");
+            throw new ApiFailException("Course program by id " + id + " not found");
 
         Long currentUserId = USER_SERVICE.getCurrentUser().getId();
         Long authorCourseId = dataCourseProgram.getCourse().getUser().getId();
@@ -89,49 +106,17 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         if (!currentUserId.equals(authorCourseId))
             throw new ApiFailException("Access is denied");
 
-        validateLengthVariablesForUpdate(updateCourseProgramModel);
-        validateVariablesForNullOrIsEmptyUpdate(updateCourseProgramModel);
-
-        setForUpdateProgram(dataCourseProgram, updateCourseProgramModel);
-
-        COURSE_PROGRAM_REPOSITORY.save(dataCourseProgram);
-
-        return COURSE_PROGRAM_CONVERTER.convertFromEntity(dataCourseProgram);
+        return dataCourseProgram;
     }
 
-    @Override
-    public CourseProgramModel deleteCourseProgram(Long id) {
-        CourseProgram deleteProgram = getById(id);
-        if (deleteProgram == null)
-            throw new ApiFailException("Course program by user id " + id + ") not found");
-
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
-        Long authorCourseId = deleteProgram.getCourse().getUser().getId();
-
-        if (!currentUserId.equals(authorCourseId))
-            throw new ApiFailException("Access is denied");
-
-        COURSE_PROGRAM_REPOSITORY.delete(deleteProgram);
-        return COURSE_PROGRAM_CONVERTER.convertFromEntity(deleteProgram);
-    }
-
-    public void validateLengthVariables(CreateCourseProgramModel createCourseProgramModel) {
-        if (createCourseProgramModel.getTitle().length() > 50)
+    private void validateLengthVariables(BaseCourseProgramModel baseCourseProgramModel) {
+        if (baseCourseProgramModel.getTitle() != null && baseCourseProgramModel.getTitle().length() > 50)
             throw new ApiFailException("Exceeded character limit (50) for title program");
-        if (createCourseProgramModel.getDescription().length() > 1000)
-            throw new ApiFailException("Exceeded character limit (100) for program description");
+        if (baseCourseProgramModel.getDescription() != null && baseCourseProgramModel.getDescription().length() > 1000)
+            throw new ApiFailException("Exceeded character limit (1000) for program description");
     }
 
-
-    public void validateLengthVariablesForUpdate(UpdateCourseProgramModel updateCourseProgramModel) {
-        if (updateCourseProgramModel.getTitle() != null && updateCourseProgramModel.getTitle().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for title program");
-        if (updateCourseProgramModel.getDescription() != null && updateCourseProgramModel.getDescription().length() > 1000)
-            throw new ApiFailException("Exceeded character limit (100) for program description");
-    }
-
-
-    public void validateVariablesForNullOrIsEmpty(CreateCourseProgramModel createCourseProgramModel) {
+    private void validateVariablesForNullOrIsEmpty(CreateCourseProgramModel createCourseProgramModel) {
         if (createCourseProgramModel.getTitle() == null || createCourseProgramModel.getTitle().isEmpty())
             throw new ApiFailException("Title program is not filled");
         if (createCourseProgramModel.getDescription() == null || createCourseProgramModel.getDescription().isEmpty())
@@ -146,14 +131,14 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         }
     }
 
-    public void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseProgramModel updateCourseProgramModel) {
+    private void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseProgramModel updateCourseProgramModel) {
         if (updateCourseProgramModel.getTitle() != null && updateCourseProgramModel.getTitle().isEmpty())
             throw new ApiFailException("Title program is not filled");
         if (updateCourseProgramModel.getDescription() != null && updateCourseProgramModel.getDescription().isEmpty())
             throw new ApiFailException("Program description is not filled");
     }
 
-    private void setForUpdateProgram(CourseProgram courseProgram, UpdateCourseProgramModel updateCourseProgramModel) {
+    private void setVariablesForUpdateCourseProgram(CourseProgram courseProgram, UpdateCourseProgramModel updateCourseProgramModel) {
         if (updateCourseProgramModel.getTitle() != null)
             courseProgram.setTitle(updateCourseProgramModel.getTitle());
 

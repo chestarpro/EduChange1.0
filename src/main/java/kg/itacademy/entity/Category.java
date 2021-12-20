@@ -13,6 +13,6 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @Builder
 public class Category extends BaseEntity {
-    @Column(nullable = false, name = "category_name", length = 50, unique = true)
+    @Column(name = "category_name", nullable = false, length = 50, unique = true)
     private String categoryName;
 }

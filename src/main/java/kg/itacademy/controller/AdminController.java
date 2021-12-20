@@ -23,7 +23,7 @@ public class AdminController {
     private final UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
 
     @PostMapping("/category/create/{categoryName}")
-    public ResponseMessage<CategoryModel> saveCategory(@PathVariable String categoryName) {
+    public ResponseMessage<CategoryModel> createCategory(@PathVariable String categoryName) {
         return new ResponseMessage<CategoryModel>()
                 .prepareSuccessMessage(CATEGORY_SERVICE.createCategory(categoryName));
     }
@@ -52,15 +52,9 @@ public class AdminController {
                 .prepareSuccessMessage(USER_IMAGE_SERVICE.getAllUserImageModel());
     }
 
-    @DeleteMapping("/user/delete/{id}")
-    public ResponseMessage<BaseUserModel> deleteUser(@PathVariable Long id) {
+    @DeleteMapping("/user/delete/{userId}")
+    public ResponseMessage<BaseUserModel> deleteUser(@PathVariable Long userId) {
         return new ResponseMessage<BaseUserModel>()
-                .prepareSuccessMessage(USER_SERVICE.deleteUserByAdmin(id));
-    }
-
-    @DeleteMapping("/purchases/delete/{id}")
-    public ResponseMessage<UserCourseMappingModel> delete(@PathVariable Long id) {
-        return new ResponseMessage<UserCourseMappingModel>()
-                .prepareSuccessMessage(USER_COURSE_MAPPING_SERVICE.deleteMapping(id));
+                .prepareSuccessMessage(USER_SERVICE.deleteUserByAdmin(userId));
     }
 }

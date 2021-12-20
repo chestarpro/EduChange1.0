@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @Builder
 public class Course extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @Column(name = "course_name", length = 100, nullable = false)
@@ -29,7 +29,7 @@ public class Course extends BaseEntity {
     @Column(name = "course_short_info", length = 100, nullable = false)
     private String courseShortInfo;
 
-    @Column(name = "course_info_title", length = 100, nullable = false)
+    @Column(name = "course_info_title", length = 100)
     private String courseInfoTitle;
 
     @Column(name = "course_info", length = 1000)

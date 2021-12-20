@@ -11,9 +11,10 @@ import java.math.BigDecimal;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CourseModel {
+public class CourseModel implements BaseCourseModel {
     private Long id;
     private Long categoryId;
+    private String categoryName;
     private String courseName;
     private String email;
     private String phoneNumber;

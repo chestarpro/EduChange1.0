@@ -26,21 +26,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryModel createCategory(String categoryName) {
-        if (categoryName == null || categoryName.isEmpty())
-            throw new ApiFailException("Category name is not filled");
+        validateCategoryName(categoryName);
+        Category category = CATEGORY_REPOSITORY.findByCategoryName(categoryName).orElse(null);
 
-        if (categoryName.length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for category name");
+        if (category != null)
+            throw new ApiFailException("Category " + categoryName + " already exists");
 
-        CategoryModel dataCategory = getByCategoryName(categoryName);
+        category = new Category();
+        category.setCategoryName(categoryName.toLowerCase(Locale.ROOT));
+        save(category);
 
-        if (dataCategory != null)
-            throw new ApiFailException("Category " + dataCategory.getCategoryName() + " already exists");
-
-        return CATEGORY_CONVERTER.convertFromEntity(save(Category
-                .builder()
-                .categoryName(categoryName.toLowerCase(Locale.ROOT))
-                .build()));
+        return CATEGORY_CONVERTER.convertFromEntity(category);
     }
 
     @Override
@@ -57,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryModel getByCategoryName(String categoryName) {
         return CATEGORY_CONVERTER
                 .convertFromEntity(CATEGORY_REPOSITORY
-                        .findByCategoryName(categoryName)
+                        .findByCategoryName(categoryName.toLowerCase(Locale.ROOT))
                         .orElse(null));
     }
 
@@ -77,23 +73,26 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryModel updateCategory(CategoryModel categoryModel) {
         Long categoryId = categoryModel.getId();
+
         if (categoryId == null)
-            throw new IllegalArgumentException("Category id is not specified");
+            throw new ApiFailException("Category id is not specified");
 
         Category dataCategory = getById(categoryId);
 
         if (dataCategory == null)
             throw new ApiFailException("Category by id " + categoryId + " not found");
 
-        if (categoryModel.getCategoryName() == null || categoryModel.getCategoryName().isEmpty())
-            throw new ApiFailException("Category name is not filled");
-
-        if (categoryModel.getCategoryName().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for category name");
-
-        dataCategory.setCategoryName(categoryModel.getCategoryName());
-
+        String updateCategoryName = categoryModel.getCategoryName();
+        validateCategoryName(updateCategoryName);
+        dataCategory.setCategoryName(updateCategoryName.toLowerCase(Locale.ROOT));
         CATEGORY_REPOSITORY.save(dataCategory);
         return categoryModel;
+    }
+
+    private void validateCategoryName(String categoryName) {
+        if (categoryName == null || categoryName.isEmpty())
+            throw new ApiFailException("Category name is not filled");
+        if (categoryName.length() > 50)
+            throw new ApiFailException("Exceeded character limit (50) for category name");
     }
 }

@@ -1,8 +1,6 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.user.BaseUserModel;
-import kg.itacademy.model.user.UpdateUserModel;
-import kg.itacademy.model.user.UserProfileDataModel;
+import kg.itacademy.model.user.*;
 import kg.itacademy.util.ResponseMessage;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +11,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService USER_SERVICE;
+
+    @PostMapping("/sign-up")
+    public ResponseMessage<UserProfileDataModel> save(@RequestBody CreateUserModel createUserModel) {
+        return new ResponseMessage<UserProfileDataModel>()
+                .prepareSuccessMessage(USER_SERVICE.createUser(createUserModel));
+    }
+
+    @PostMapping("/sign-in")
+    public ResponseMessage<UserProfileDataModel> getAuthHeader(@RequestBody UserAuthorizModel userAuthorizModel) {
+        UserProfileDataModel authHeader = USER_SERVICE.getBasicAuthorizHeaderByAuthorizModel(userAuthorizModel);
+        return new ResponseMessage<UserProfileDataModel>().prepareSuccessMessage(authHeader);
+    }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<BaseUserModel> getById(@PathVariable Long id) {

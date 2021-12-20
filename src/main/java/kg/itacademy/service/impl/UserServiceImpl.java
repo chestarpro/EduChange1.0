@@ -64,15 +64,30 @@ public class UserServiceImpl implements UserService {
     public UserProfileDataModel createUser(CreateUserModel createUserModel) {
         validateVariablesForNullOrIsEmpty(createUserModel);
         validateLengthVariables(createUserModel);
-        validateSpace(createUserModel);
         REGEX_UTIL.validateUsername(createUserModel.getUsername());
         REGEX_UTIL.validateEmail(createUserModel.getEmail());
         checkUsernameAndEmail(createUserModel);
 
-        String token = getToken(createUserModel.getUsername(), createUserModel.getPassword());
+        String token = getBasicToken(createUserModel.getUsername(), createUserModel.getPassword());
 
-        User dataUser = save(USER_CONVERTER.convertFromModel(createUserModel));
+        User dataUser = USER_CONVERTER.convertFromModel(createUserModel);
+        save(dataUser);
         return getUserProfileDataModelByUserId(token, dataUser.getId());
+    }
+
+    @Override
+    public UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
+        User user = USER_REPOSITORY.findByUsername(userAuthorizModel.getUsername())
+                .orElseThrow(() -> new ApiFailException("Invalid username or password"));
+
+        boolean isPasswordIsCorrect = PASSWORD_ENCODER.matches(userAuthorizModel.getPassword(), user.getPassword());
+
+        checkBaningStatus(user);
+        checkFailPassword(isPasswordIsCorrect, user);
+
+        USER_LOG_SERVICE.save(new UserLog(user, true));
+        String token = getBasicToken(userAuthorizModel.getUsername(), userAuthorizModel.getPassword());
+        return getUserProfileDataModelByUserId(token, user.getId());
     }
 
     @Override
@@ -119,40 +134,29 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserProfileDataModel updateUser(UpdateUserModel updateUserModel) {
-        Long userId = updateUserModel.getId();
-
-        if (userId == null)
-            throw new ApiFailException("User id not specified");
-
-        User dataUser = getById(userId);
-
-        if (dataUser == null)
-            throw new ApiFailException("User by id " + userId + " not found");
-
-        if (!userId.equals(getCurrentUser().getId()))
-            throw new ApiFailException("Access is denied");
+        User dataUser = getDataUserWithCheckAccess(updateUserModel.getId());
 
         validateVariablesForNullOrIsEmptyUpdate(updateUserModel);
-        validateLengthVariablesForUpdate(updateUserModel);
-        validateSpaceForUpdate(updateUserModel);
+        validateLengthVariables(updateUserModel);
         REGEX_UTIL.validateEmail(updateUserModel.getEmail());
         REGEX_UTIL.validateUsername(updateUserModel.getUsername());
-        checkUsernameAndEmailForUpdate(updateUserModel);
+        checkUsernameAndEmail(updateUserModel);
 
-        setForUpdateUser(dataUser, updateUserModel);
-        USER_REPOSITORY.save(dataUser);
-        return getUserProfileDataModelByUserId(null, userId);
+        setVariablesForUpdateUser(dataUser, updateUserModel);
+        dataUser = USER_REPOSITORY.save(dataUser);
+
+        String token = null;
+        if (updateUserModel.getPassword() != null)
+            token = getBasicToken(dataUser.getUsername(), updateUserModel.getPassword());
+        return getUserProfileDataModelByUserId(token, dataUser.getId());
     }
 
     @Override
-    public UserProfileDataModel resetPassword(ResetPasswordModel resetPasswordModel) {
+    public BaseUserModel resetPassword(ResetPasswordModel resetPasswordModel) {
         String email = new String(Base64.getDecoder().decode(resetPasswordModel.getEncodeEmail().getBytes()));
         User user = getByEmail(email);
-        if (user == null)
-            throw new ApiFailException("Access is denied");
 
         String newPassword = resetPasswordModel.getPassword();
-
         if (newPassword == null || newPassword.isEmpty())
             throw new ApiFailException("Password is not filled");
         if (newPassword.length() < 6)
@@ -160,24 +164,7 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(PASSWORD_ENCODER.encode(newPassword));
         USER_REPOSITORY.save(user);
-        String token = getToken(user.getUsername(), newPassword);
-        return getUserProfileDataModelByUserId(token, user.getId());
-    }
-
-    @Override
-    public UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
-        User user = USER_REPOSITORY.findByUsername(userAuthorizModel.getUsername())
-                .orElseThrow(() -> new ApiFailException("Invalid username or password"));
-
-        boolean isPasswordIsCorrect = PASSWORD_ENCODER.matches(userAuthorizModel.getPassword(), user.getPassword());
-
-        checkBaningStatus(user);
-        checkFailPassword(isPasswordIsCorrect, user);
-
-        USER_LOG_SERVICE.save(new UserLog(user, true));
-
-        String token = getToken(userAuthorizModel.getUsername(), userAuthorizModel.getPassword());
-        return getUserProfileDataModelByUserId(token, user.getId());
+        return USER_CONVERTER.convertFromEntity(user);
     }
 
     @Override
@@ -200,7 +187,21 @@ public class UserServiceImpl implements UserService {
         return USER_CONVERTER.convertFromEntity(deleteUser);
     }
 
-    private String getToken(String username, String password) {
+    private User getDataUserWithCheckAccess(Long userId) {
+        if (userId == null)
+            throw new ApiFailException("User id not specified");
+
+        User dataUser = getById(userId);
+        if (dataUser == null)
+            throw new ApiFailException("User by id " + userId + " not found");
+
+        if (!userId.equals(getCurrentUser().getId()))
+            throw new ApiFailException("Access is denied");
+
+        return dataUser;
+    }
+
+    private String getBasicToken(String username, String password) {
         String usernamePasswordPair = username + ":" + password;
         String authHeader = new String(Base64.getEncoder().encode(usernamePasswordPair.getBytes()));
         return "Basic " + authHeader;
@@ -228,35 +229,22 @@ public class UserServiceImpl implements UserService {
             throw new ApiFailException("Password is not filled");
     }
 
-    private void validateLengthVariables(CreateUserModel createUserModel) {
-        if (createUserModel.getFullName().length() > 100)
+    private void validateLengthVariables(BaseUserModel baseUserModel) {
+        if (baseUserModel.getFullName() != null && baseUserModel.getFullName().length() > 100)
             throw new ApiFailException("Exceeded character limit (100) for full name");
-        if (createUserModel.getUsername().length() > 100)
-            throw new ApiFailException("Exceeded character limit (50) for username");
-        if (createUserModel.getEmail().length() > 100)
-            throw new ApiFailException("Exceeded character limit (50) for email");
-        if (createUserModel.getPassword().length() > 100)
-            throw new ApiFailException("Exceeded character limit (50) for password");
-        if (createUserModel.getPassword().length() < 6)
+        if (baseUserModel.getUsername() != null && baseUserModel.getUsername().length() > 100)
+            throw new ApiFailException("Exceeded character limit (100) for username");
+        if (baseUserModel.getEmail() != null && baseUserModel.getEmail().length() > 100)
+            throw new ApiFailException("Exceeded character limit (100) for email");
+        if (baseUserModel.getPassword() != null && baseUserModel.getPassword().length() > 100)
+            throw new ApiFailException("Exceeded character limit (100) for password");
+        else if (baseUserModel.getPassword() != null && baseUserModel.getPassword().length() < 6)
             throw new ApiFailException("The number of password characters must be more than 5");
     }
 
-    private void validateLengthVariablesForUpdate(UpdateUserModel updateUserModel) {
-        if (updateUserModel.getFullName() != null && updateUserModel.getFullName().length() > 100)
-            throw new ApiFailException("Exceeded character limit (100) for full name");
-        if (updateUserModel.getUsername() != null && updateUserModel.getUsername().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for username");
-        if (updateUserModel.getEmail() != null && updateUserModel.getEmail().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for email");
-        if (updateUserModel.getPassword() != null && updateUserModel.getPassword().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for password");
-        else if (updateUserModel.getPassword() != null && updateUserModel.getPassword().length() < 6)
-            throw new ApiFailException("The number of password characters must be more than 5");
-    }
-
-    private void checkUsernameAndEmail(CreateUserModel createUserModel) {
-        User dataUserByUserName = getByUsername(createUserModel.getUsername());
-        User dataUserByEmail = getByEmail(createUserModel.getEmail());
+    private void checkUsernameAndEmail(BaseUserModel baseUserModel) {
+        User dataUserByUserName = getByUsername(baseUserModel.getUsername());
+        User dataUserByEmail = getByEmail(baseUserModel.getEmail());
 
         if (dataUserByUserName != null)
             throw new ApiFailException("Such user " + dataUserByUserName.getUsername() + " already exists");
@@ -265,21 +253,10 @@ public class UserServiceImpl implements UserService {
             throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " is already in use");
     }
 
-    private void checkUsernameAndEmailForUpdate(UpdateUserModel updateUserModel) {
-        User dataUserByUserName = getByUsername(updateUserModel.getUsername());
-        User dataUserByEmail = getByEmail(updateUserModel.getEmail());
-
-        if (updateUserModel.getUsername() != null && dataUserByUserName != null)
-            throw new ApiFailException("Such user " + dataUserByUserName.getUsername() + " already exists");
-
-        if (updateUserModel.getEmail() != null && dataUserByEmail != null)
-            throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " is already in use");
-    }
-
     private void checkBaningStatus(User user) {
         if (user.getIsActive() == 0) {
             UserLog userLog = USER_LOG_SERVICE.getLastLogByUserId(user.getId());
-            if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(1)))
+            if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(5)))
                 setInActiveUser(user, 1L);
             else throw new ApiFailException("You are blocked for 5 minutes");
         }
@@ -298,20 +275,6 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private void validateSpace(CreateUserModel createUserModel) {
-        if (createUserModel.getUsername().contains(" "))
-            throw new ApiFailException("Invalid username format");
-        if (createUserModel.getEmail().contains(" "))
-            throw new ApiFailException("Invalid email format");
-    }
-
-    private void validateSpaceForUpdate(UpdateUserModel updateUserModel) {
-        if (updateUserModel.getUsername() != null && updateUserModel.getUsername().contains(" "))
-            throw new ApiFailException("Invalid username format");
-        if (updateUserModel.getUsername() != null && updateUserModel.getEmail().contains(" "))
-            throw new ApiFailException("Invalid email format");
-    }
-
     private UserProfileDataModel getUserProfileDataModelByUserId(String token, Long userId) {
         UserProfileDataModel dataBaseModel = new UserProfileDataModel();
         dataBaseModel.setToken(token);
@@ -325,7 +288,7 @@ public class UserServiceImpl implements UserService {
         return dataBaseModel;
     }
 
-    private void setForUpdateUser(User user, UpdateUserModel updateUserModel) {
+    private void setVariablesForUpdateUser(User user, UpdateUserModel updateUserModel) {
         if (updateUserModel.getUsername() != null)
             user.setUsername(updateUserModel.getUsername());
         if (updateUserModel.getFullName() != null)

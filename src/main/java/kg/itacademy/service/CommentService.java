@@ -8,7 +8,7 @@ import kg.itacademy.model.comment.UpdateCommentModel;
 import java.util.List;
 
 public interface CommentService extends BaseService<Comment> {
-    CommentModel createCommentByCourseId(CreateCommentModel createCommentModel);
+    CommentModel createComment(CreateCommentModel createCommentModel);
 
     CommentModel updateComment(UpdateCommentModel updateCommentModel);
 

@@ -9,8 +9,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateLessonModel {
+public class UpdateLessonModel implements BaseLessonModel{
     private Long id;
     private String lessonInfo;
     private String lessonUrl;
+
+    @Override
+    public Long getCourseId() {
+        return null;
+    }
 }

@@ -14,7 +14,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 public class Comment extends BaseEntity {
-    @Column(name = "comment", nullable = false)
+    @Column(name = "comment", length = 1000, nullable = false)
     private String courseComment;
 
     @ManyToOne

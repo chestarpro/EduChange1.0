@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCommentModel {
+public class CreateCommentModel implements BaseCommentModel {
     private String comment;
     private Long courseId;
 }

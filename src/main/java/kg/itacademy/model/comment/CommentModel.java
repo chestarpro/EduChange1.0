@@ -13,5 +13,6 @@ public class CommentModel {
     private Long id;
     private String comment;
     private Long userId;
+    private String username;
     private Long courseId;
 }

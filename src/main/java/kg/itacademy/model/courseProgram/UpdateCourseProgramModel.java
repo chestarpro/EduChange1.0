@@ -9,8 +9,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateCourseProgramModel {
+public class UpdateCourseProgramModel implements BaseCourseProgramModel {
     private Long id;
     private String title;
     private String description;
+
+    @Override
+    public Long getCourseId() {
+        return null;
+    }
 }

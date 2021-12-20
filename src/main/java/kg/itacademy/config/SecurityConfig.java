@@ -31,18 +31,25 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/admin/**").hasRole("ADMIN")
 
-                .antMatchers("/sign/**").permitAll()
                 .antMatchers(HttpMethod.PUT, "/api/user/update").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/user/delete").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/user/get-by-id/{id}").authenticated()
 
-                .antMatchers(HttpMethod.POST, "/api/user-image/create").authenticated()
-                .antMatchers(HttpMethod.PUT, "/api/user-image/update").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/api/user-image/delete/{id}").authenticated()
+                .antMatchers(HttpMethod.POST, "/api/course-image/create/{courseId}").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/course-image/update/{id}").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/course-image/delete/{id}").authenticated()
 
                 .antMatchers(HttpMethod.POST, "/api/course/create").authenticated()
                 .antMatchers(HttpMethod.PUT, "api/course/update").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/course/delete/{id}").authenticated()
+
+                .antMatchers(HttpMethod.POST, "/api/course-image/create/{courseId}").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/course-image/update/{id}").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/course-image/delete/{id}").authenticated()
+
+                .antMatchers(HttpMethod.POST, "/api/user-image/create").authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/user-image/update").authenticated()
+                .antMatchers(HttpMethod.DELETE, "/api/user-image/delete").authenticated()
 
                 .antMatchers(HttpMethod.POST, "/api/purchase/create-by-course-id/{courseId}").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/purchase/get-all-purchased-curses/{userId}").authenticated()
@@ -58,15 +65,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.POST, "/api/lesson/create").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/lesson/update").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/lesson/delete/{id}").authenticated()
-                .antMatchers(HttpMethod.GET, "/api/lesson/get-all/by-course-id/{id}").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/lesson/get-all/by-course-id/{courseId}").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/lesson/get-by-id/{id}").authenticated()
 
                 .antMatchers(HttpMethod.POST, "/api/course-program/create").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/course-program/update").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/course-program/delete/{id}").authenticated()
-
-                .antMatchers(HttpMethod.POST, "/api/course-image/create/{courseId}").authenticated()
-                .antMatchers(HttpMethod.PUT, "/api/course-image/update/{id}").authenticated()
 
                 .antMatchers(HttpMethod.POST, "/api/comment/create").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/comment/update").authenticated()

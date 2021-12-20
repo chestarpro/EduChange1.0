@@ -3,13 +3,16 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.LessonConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.Lesson;
+import kg.itacademy.entity.UserCourseMapping;
 import kg.itacademy.exception.ApiFailException;
+import kg.itacademy.model.lesson.BaseLessonModel;
 import kg.itacademy.model.lesson.CreateLessonModel;
 import kg.itacademy.model.lesson.LessonModel;
 import kg.itacademy.model.lesson.UpdateLessonModel;
 import kg.itacademy.repository.LessonRepository;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.LessonService;
+import kg.itacademy.service.UserCourseMappingService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,8 @@ public class LessonServiceImpl implements LessonService {
     private UserService USER_SERVICE;
     @Autowired
     private CourseService COURSE_SERVICE;
+    @Autowired
+    private UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
     private final LessonRepository LESSON_REPOSITORY;
     private final LessonConverter LESSON_CONVERTER;
 
@@ -68,9 +73,21 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public List<LessonModel> getAllByCourseId(Long id) {
+    public List<LessonModel> getAllByCourseId(Long courseId) {
+        if (!checkThePurchaseOfTheCourse(courseId))
+            throw new ApiFailException("Access is denied");
+
         return LESSON_REPOSITORY
-                .findAllByCourse_Id(id)
+                .findAllByCourse_Id(courseId)
+                .stream()
+                .map(LESSON_CONVERTER::convertFromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LessonModel> getFirstThreeLessonsByCourseId(Long courseId) {
+        return LESSON_REPOSITORY
+                .findFirstThreeLessonsByCourseId(courseId)
                 .stream()
                 .map(LESSON_CONVERTER::convertFromEntity)
                 .collect(Collectors.toList());
@@ -79,25 +96,12 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonModel updateLesson(UpdateLessonModel updateLessonModel) {
         Long lessonId = updateLessonModel.getId();
-
-        if (lessonId == null)
-            throw new ApiFailException("Lesson id not specified");
-
-        Lesson dataLesson = getById(lessonId);
-
-        if (dataLesson == null)
-            throw new ApiFailException("Lesson by id " + lessonId + " not found");
-
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
-        Long authorCourseId = dataLesson.getCourse().getUser().getId();
-
-        if (!currentUserId.equals(authorCourseId))
-            throw new ApiFailException("Access is denied");
+        Lesson dataLesson = getDataLessonByIdWithCheckAccess(lessonId);
 
         validateVariablesForNullOrIsEmptyUpdate(updateLessonModel);
-        validateLengthVariablesForUpdate(updateLessonModel);
+        validateLengthVariables(updateLessonModel);
 
-        setForUpdateLesson(dataLesson, updateLessonModel);
+        setVariablesForUpdateLesson(dataLesson, updateLessonModel);
 
         LESSON_REPOSITORY.save(dataLesson);
         return LESSON_CONVERTER.convertFromEntity(dataLesson);
@@ -105,32 +109,49 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public LessonModel deleteLessonById(Long id) {
-        Lesson deleteLesson = getById(id);
-
-        if (deleteLesson == null)
-            throw new ApiFailException("Lesson by id " + id + " not found");
-
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
-        Long authorCourseId = deleteLesson.getCourse().getUser().getId();
-
-        if (!currentUserId.equals(authorCourseId))
-            throw new ApiFailException("Access is denied");
-
+        Lesson deleteLesson = getDataLessonByIdWithCheckAccess(id);
         LESSON_REPOSITORY.delete(deleteLesson);
         return LESSON_CONVERTER.convertFromEntity(deleteLesson);
     }
 
-    public void validateLengthVariables(CreateLessonModel createLessonModel) {
-        if (createLessonModel.getLessonInfo().length() > 1000)
+    private Lesson getDataLessonByIdWithCheckAccess(Long id) {
+        if (id == null)
+            throw new ApiFailException("Lesson id not specified");
+
+        Lesson dataLesson = getById(id);
+
+        if (dataLesson == null)
+            throw new ApiFailException("Lesson by id " + id + " not found");
+
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long authorCourseId = dataLesson.getCourse().getUser().getId();
+
+        if (!currentUserId.equals(authorCourseId))
+            throw new ApiFailException("Access is denied");
+
+        return dataLesson;
+    }
+
+    private boolean checkThePurchaseOfTheCourse(Long courseId) {
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Course course = COURSE_SERVICE.getById(courseId);
+
+        UserCourseMapping userCourseMapping = USER_COURSE_MAPPING_SERVICE
+                .getByCourseIdAndUserId(courseId, currentUserId);
+
+        if (userCourseMapping == null) {
+            if (!course.getUser().getId().equals(currentUserId))
+                return false;
+        }
+        return true;
+    }
+
+    private void validateLengthVariables(BaseLessonModel baseLessonModel) {
+        if (baseLessonModel.getLessonInfo() != null && baseLessonModel.getLessonInfo().length() > 1000)
             throw new ApiFailException("Exceeded character limit (1000) for lesson info");
     }
 
-    public void validateLengthVariablesForUpdate(UpdateLessonModel updateLessonModel) {
-        if (updateLessonModel.getLessonInfo() != null && updateLessonModel.getLessonInfo().length() > 1000)
-            throw new ApiFailException("Exceeded character limit (1000) for lesson info");
-    }
-
-    public void validateVariablesForNullOrIsEmpty(CreateLessonModel createLessonModel) {
+    private void validateVariablesForNullOrIsEmpty(CreateLessonModel createLessonModel) {
         if (createLessonModel.getLessonInfo() == null || createLessonModel.getLessonInfo().isEmpty())
             throw new ApiFailException("The description of the lesson is not specified");
         if (createLessonModel.getCourseId() == null)
@@ -143,14 +164,14 @@ public class LessonServiceImpl implements LessonService {
         }
     }
 
-    public void validateVariablesForNullOrIsEmptyUpdate(UpdateLessonModel updateLessonModel) {
+    private void validateVariablesForNullOrIsEmptyUpdate(UpdateLessonModel updateLessonModel) {
         if (updateLessonModel.getLessonInfo() != null && updateLessonModel.getLessonInfo().isEmpty())
             throw new ApiFailException("The description of the lesson is not specified");
         if (updateLessonModel.getLessonUrl() != null && updateLessonModel.getLessonUrl().isEmpty())
             throw new ApiFailException("The description of the lesson is not specified");
     }
 
-    private void setForUpdateLesson(Lesson lesson, UpdateLessonModel updateLessonModel) {
+    private void setVariablesForUpdateLesson(Lesson lesson, UpdateLessonModel updateLessonModel) {
         if (updateLessonModel.getLessonUrl() != null)
             lesson.setLessonUrl(updateLessonModel.getLessonUrl());
         if (updateLessonModel.getLessonInfo() != null)

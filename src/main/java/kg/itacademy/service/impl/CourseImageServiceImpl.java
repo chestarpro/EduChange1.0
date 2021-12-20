@@ -7,9 +7,8 @@ import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.CourseImageModel;
 import kg.itacademy.repository.CourseImageRepository;
 import kg.itacademy.service.CourseImageService;
-
-import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
+import kg.itacademy.util.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class CourseImageServiceImpl implements CourseImageService {
     @Autowired
     private CourseServiceImpl COURSE_SERVICE;
     private final CourseImageRepository COURSE_IMAGE_REPOSITORY;
-    private final UserImageService USER_IMAGE_SERVICE;
+
     private final CourseImageConverter COURSE_IMAGER_CONVERTER;
 
     @Override
@@ -36,19 +35,20 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public CourseImageModel createCourseImage(MultipartFile multipartFile, Long courseId) {
-        Course course = checkDataCourseByCourseId(courseId);
+        Course course = getDataCourseByCourseIdWithCheckAccess(courseId);
 
         CourseImage courseImage = COURSE_IMAGE_REPOSITORY.findByCourse_Id(courseId).orElse(null);
 
         if (courseImage != null)
             throw new ApiFailException("Course image is already");
 
-        String savedImageUrl = USER_IMAGE_SERVICE.saveImageInCloudinary(multipartFile);
+        String savedImageUrl = ImageUtil.saveImageInCloudinary(multipartFile);
         courseImage = new CourseImage();
         courseImage.setCourseImageUrl(savedImageUrl);
         courseImage.setCourse(course);
+        save(courseImage);
 
-        return COURSE_IMAGER_CONVERTER.convertFromEntity(save(courseImage));
+        return COURSE_IMAGER_CONVERTER.convertFromEntity(courseImage);
     }
 
     @Override
@@ -82,8 +82,8 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public CourseImageModel updateImage(MultipartFile multipartFile, Long id) {
-        CourseImage updateCourseImage = checkDataCourseImageById(id);
-        String updateImageUrl = USER_IMAGE_SERVICE.saveImageInCloudinary(multipartFile);
+        CourseImage updateCourseImage = getDataCourseImageByIdWithCheckAccess(id);
+        String updateImageUrl = ImageUtil.saveImageInCloudinary(multipartFile);
         updateCourseImage.setCourseImageUrl(updateImageUrl);
         COURSE_IMAGE_REPOSITORY.save(updateCourseImage);
         return COURSE_IMAGER_CONVERTER.convertFromEntity(updateCourseImage);
@@ -91,12 +91,12 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     @Override
     public CourseImageModel deleteImage(Long id) {
-        CourseImage deleteCourseImage = checkDataCourseImageById(id);
+        CourseImage deleteCourseImage = getDataCourseImageByIdWithCheckAccess(id);
         COURSE_IMAGE_REPOSITORY.delete(deleteCourseImage);
         return COURSE_IMAGER_CONVERTER.convertFromEntity(deleteCourseImage);
     }
 
-    private Course checkDataCourseByCourseId(Long courseId) {
+    private Course getDataCourseByCourseIdWithCheckAccess(Long courseId) {
         if (courseId == null)
             throw new ApiFailException("Course id not specified");
 
@@ -109,7 +109,7 @@ public class CourseImageServiceImpl implements CourseImageService {
         return course;
     }
 
-    private CourseImage checkDataCourseImageById(Long id) {
+    private CourseImage getDataCourseImageByIdWithCheckAccess(Long id) {
         if (id == null)
             throw new ApiFailException("Course image id not specified");
 

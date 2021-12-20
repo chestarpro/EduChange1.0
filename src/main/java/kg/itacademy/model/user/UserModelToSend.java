@@ -18,4 +18,9 @@ public class UserModelToSend implements BaseUserModel {
     private String username;
     private String email;
     private Long isActive;
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
 }

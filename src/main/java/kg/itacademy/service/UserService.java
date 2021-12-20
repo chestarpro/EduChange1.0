@@ -29,7 +29,7 @@ public interface UserService extends BaseService<User> {
 
     List<BaseUserModel> getAllUserModels();
 
-    UserProfileDataModel resetPassword(ResetPasswordModel resetPasswordModel);
+    BaseUserModel resetPassword(ResetPasswordModel resetPasswordModel);
 
     UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel);
 }

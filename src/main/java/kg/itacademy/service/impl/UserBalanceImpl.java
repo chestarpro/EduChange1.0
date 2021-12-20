@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,19 +56,13 @@ public class UserBalanceImpl implements UserBalanceService {
     }
 
     @Override
-    public List<UserBalanceModel> getAllUserBalanceModel() {
-        return getAll().stream()
-                .map(USER_BALANCE_CONVERTER::convertFromEntity)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public UserBalanceModel toUpBalance(UpdateUserBalanceModel updateUserBalanceModel) {
         String username = updateUserBalanceModel.getUsername();
-        BigDecimal balance = updateUserBalanceModel.getBalance();
 
         if (username == null || username.isEmpty())
             throw new ApiFailException("Username is not filled");
+
+        BigDecimal balance = updateUserBalanceModel.getBalance();
 
         if (balance == null)
             throw new ApiFailException("User balance is not filled");
@@ -77,10 +70,10 @@ public class UserBalanceImpl implements UserBalanceService {
         if (balance.compareTo(BigDecimal.ZERO) <= 0)
             throw new ApiFailException("Amount must not be less than or equal to 0");
 
-        User dataUser = USER_SERVICE.getByUsername(updateUserBalanceModel.getUsername());
+        User dataUser = USER_SERVICE.getByUsername(username);
 
         if (dataUser == null)
-            throw new ApiFailException("User " + updateUserBalanceModel.getUsername() + " not found");
+            throw new ApiFailException("User " + username + " not found");
 
         UserBalance dataUserBalance = USER_BALANCE_REPOSITORY.findByUser_Id(dataUser.getId());
         dataUserBalance.setBalance(dataUserBalance.getBalance().add(balance));

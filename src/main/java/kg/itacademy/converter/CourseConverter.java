@@ -19,6 +19,7 @@ public class CourseConverter extends BaseConverter<CourseModel, Course> {
         return CourseModel.builder()
                 .id(entityToConvert.getId())
                 .categoryId(entityToConvert.getCategory().getId())
+                .categoryName(entityToConvert.getCategory().getCategoryName())
                 .courseName(entityToConvert.getCourseName())
                 .email(entityToConvert.getEmail())
                 .phoneNumber(entityToConvert.getPhoneNumber())

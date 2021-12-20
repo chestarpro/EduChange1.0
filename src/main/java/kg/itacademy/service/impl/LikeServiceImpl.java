@@ -40,7 +40,7 @@ public class LikeServiceImpl implements LikeService {
                 .orElse(null);
 
         if (like != null)
-            throw new ApiFailException("\"Like\" already exists");
+            throw new ApiFailException("Like is already exists");
 
         Course course = COURSE_SERVICE.getById(courseId);
         like = new Like();
@@ -81,7 +81,7 @@ public class LikeServiceImpl implements LikeService {
         Like dataLike = LIKE_REPOSITORY.findByCourse_IdAndUser_Id(courseId, currentUserId).orElse(null);
 
         if (dataLike == null)
-            throw new ApiFailException("\"Like\" not found");
+            throw new ApiFailException("Like not found");
 
         LIKE_REPOSITORY.delete(dataLike);
         return LIKE_CONVERTER.convertFromEntity(dataLike);

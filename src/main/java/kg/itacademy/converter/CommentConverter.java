@@ -20,6 +20,7 @@ public class CommentConverter extends BaseConverter<CommentModel, Comment> {
                 .id(entityToConvert.getId())
                 .comment(entityToConvert.getCourseComment())
                 .userId(entityToConvert.getUser().getId())
+                .username(entityToConvert.getUser().getUsername())
                 .courseId(entityToConvert.getCourse().getId())
                 .build();
     }

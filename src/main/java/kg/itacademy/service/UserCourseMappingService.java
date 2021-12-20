@@ -9,9 +9,9 @@ import java.util.List;
 public interface UserCourseMappingService extends BaseService<UserCourseMapping> {
     UserCourseMappingModel createByCourseId(Long courseId);
 
-    UserCourseMappingModel deleteMapping(Long id);
-
     UserCourseMappingModel getUserCourseMappingModelById(Long id);
 
     List<CourseDataModel> getAllPurchasedCourses(Long userId);
+
+    UserCourseMapping getByCourseIdAndUserId(Long courseId, Long userId);
 }

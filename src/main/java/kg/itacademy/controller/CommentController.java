@@ -19,7 +19,7 @@ public class CommentController {
     @PostMapping("/create")
     public ResponseMessage<CommentModel> save(@RequestBody CreateCommentModel createCommentModel) {
         return new ResponseMessage<CommentModel>()
-                .prepareSuccessMessage(COMMENT_SERVICE.createCommentByCourseId(createCommentModel));
+                .prepareSuccessMessage(COMMENT_SERVICE.createComment(createCommentModel));
     }
 
     @GetMapping("/get-by-id/{id}")

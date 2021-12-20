@@ -9,11 +9,9 @@ import java.util.List;
 public interface UserImageService extends BaseService<UserImage> {
     UserImageModel createUserImage(MultipartFile file);
 
-    String saveImageInCloudinary(MultipartFile multipartFile);
-
     UserImageModel updateUserImage(MultipartFile file);
 
-    UserImageModel deleteImage(Long id);
+    UserImageModel deleteImage();
 
     UserImageModel getUserImageModelById(Long id);
 

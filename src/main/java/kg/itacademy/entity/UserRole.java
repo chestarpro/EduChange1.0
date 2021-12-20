@@ -14,7 +14,6 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 public class UserRole extends BaseEntity {
-
     @Column(name = "role_name", nullable = false)
     private String roleName;
 

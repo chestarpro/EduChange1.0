@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateCourseModel {
+public class UpdateCourseModel implements BaseCourseModel {
     private Long id;
     private Long categoryId;
     private String courseName;
@@ -22,4 +22,9 @@ public class UpdateCourseModel {
     private String courseInfo;
     private String courseInfoUrl;
     private BigDecimal price;
+
+    @Override
+    public Long getUserId() {
+        return null;
+    }
 }

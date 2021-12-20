@@ -1,6 +1,5 @@
 package kg.itacademy.service.impl;
 
-import kg.itacademy.converter.UserRoleConverter;
 import kg.itacademy.entity.UserRole;
 import kg.itacademy.repository.UserRoleRepository;
 import kg.itacademy.service.UserRoleService;
@@ -13,7 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserRoleServiceImpl implements UserRoleService {
     private final UserRoleRepository USER_ROLE_REPOSITORY;
-    private final UserRoleConverter USER_ROLE_CONVERTER;
 
     @Override
     public UserRole save(UserRole userRole) {

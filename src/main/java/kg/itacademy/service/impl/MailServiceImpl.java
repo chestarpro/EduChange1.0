@@ -1,5 +1,6 @@
 package kg.itacademy.service.impl;
 
+import kg.itacademy.entity.User;
 import kg.itacademy.service.MailService;
 import kg.itacademy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,12 @@ import java.util.Objects;
 
 @Service
 public class MailServiceImpl implements MailService {
-    private final String RESET_URL = "http://localhost:8080/api/mail/reset-password";
+    private final String RESET_URL = "https://educhange.herokuapp.com/api/mail/reset-password";
     private final String INFO = "Carefully! If you haven't tried to reset your password, ignore this message!\n" +
-                                "If this is you, then follow the link and enter the password reset key. ";
+            "If this is you, then follow the link and enter the password reset key: ";
+
+    @Autowired
+    private UserService USER_SERVICE;
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -29,7 +33,9 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public boolean send(String email) {
-       String encodeEmail = new String(Base64.getEncoder().encode(email.getBytes()));
+        User user = USER_SERVICE.getByEmail(email);
+        if (user == null) return false;
+        String encodeEmail = new String(Base64.getEncoder().encode(email.getBytes()));
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             message.setSubject(INFO + encodeEmail, "UTF-8");

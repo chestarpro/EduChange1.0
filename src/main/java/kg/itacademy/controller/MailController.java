@@ -1,5 +1,6 @@
 package kg.itacademy.controller;
 
+import kg.itacademy.model.user.BaseUserModel;
 import kg.itacademy.model.user.UserProfileDataModel;
 import kg.itacademy.model.userImage.ResetPasswordModel;
 import kg.itacademy.service.MailService;
@@ -16,14 +17,14 @@ public class MailController {
     private final MailService MAIL_SERVICE;
     private final UserService USER_SERVICE;
 
-    @GetMapping("/send-url-reset/{email}")
+    @GetMapping("/send-message-reset-password/{email}")
     public boolean send(@PathVariable String email) {
         return MAIL_SERVICE.send(email);
     }
 
     @PutMapping("/reset-password")
-    private ResponseMessage<UserProfileDataModel> resetPassword(@RequestBody ResetPasswordModel resetPasswordModel) {
-        return new ResponseMessage<UserProfileDataModel>()
+    private ResponseMessage<BaseUserModel> resetPassword(@RequestBody ResetPasswordModel resetPasswordModel) {
+        return new ResponseMessage<BaseUserModel>()
                 .prepareSuccessMessage(USER_SERVICE.resetPassword(resetPasswordModel));
     }
 }
