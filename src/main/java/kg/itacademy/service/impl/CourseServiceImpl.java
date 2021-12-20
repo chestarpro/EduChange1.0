@@ -33,6 +33,7 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private CommentService COMMENT_SERVICE;
     @Autowired
+    @Lazy
     private CourseProgramService PROGRAM_SERVICE;
     private final RegexUtil REGEX_UTIL;
     private final CourseConverter COURSE_CONVERTER;

@@ -26,7 +26,8 @@ public class CourseProgramServiceImpl implements CourseProgramService {
     private CourseService COURSE_SERVICE;
     private final CourseProgramRepository COURSE_PROGRAM_REPOSITORY;
     private final CourseProgramConverter COURSE_PROGRAM_CONVERTER;
-    private final UserService USER_SERVICE;
+    @Autowired
+    private UserService USER_SERVICE;
 
     @Override
     public CourseProgram save(CourseProgram courseProgram) {
