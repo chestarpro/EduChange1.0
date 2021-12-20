@@ -19,4 +19,6 @@ public interface LessonService extends BaseService<Lesson> {
     List<LessonModel> getAllByCourseId(Long courseId);
 
     List<LessonModel> getFirstThreeLessonsByCourseId(Long courseId);
+
+    Long getCountLessonByCourseId(Long courseId);
 }

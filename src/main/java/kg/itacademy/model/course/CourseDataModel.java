@@ -18,6 +18,7 @@ import java.util.List;
 public class CourseDataModel {
     private CourseModel courseModel;
     private CourseImageModel imageModel;
+    private Long lessonCount;
     private List<CourseProgramModel> programs;
     private List<LikeModel> likes;
     private List<CommentModel> comments;

@@ -40,6 +40,12 @@ public class LessonController {
                 .prepareSuccessMessage(LESSON_SERVICE.getAllByCourseId(courseId));
     }
 
+    @GetMapping("/get-count-lesson/by-course_id/{courseId}")
+    public ResponseMessage<Long> getCountLessonByCourseId(@PathVariable Long courseId) {
+        return new ResponseMessage<Long>()
+                .prepareSuccessMessage(LESSON_SERVICE.getCountLessonByCourseId(courseId));
+    }
+
     @PutMapping("/update")
     public ResponseMessage<LessonModel> update(@RequestBody UpdateLessonModel updateLessonModel) {
         return new ResponseMessage<LessonModel>()

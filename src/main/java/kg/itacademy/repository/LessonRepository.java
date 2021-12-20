@@ -12,4 +12,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findFirstThreeLessonsByCourseId(@Param("courseId") Long courseId);
 
     List<Lesson> findAllByCourse_Id(Long courseId);
+
+    @Query(value = "select count(*) from lessons l where l.course_id = :courseId", nativeQuery = true)
+    Long getCountLessonByCourseId(@Param("courseId") Long courseId);
 }

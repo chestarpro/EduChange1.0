@@ -81,6 +81,7 @@ public class CourseServiceImpl implements CourseService {
         CourseDataModel courseDataModel = new CourseDataModel();
         courseDataModel.setCourseModel(COURSE_CONVERTER.convertFromEntity(getById(courseId)));
         courseDataModel.setImageModel(COURSE_IMAGE_SERVICE.getCourseImageModelByCourseId(courseId));
+        courseDataModel.setLessonCount(LESSON_SERVICE.getCountLessonByCourseId(courseId));
         courseDataModel.setPrograms(PROGRAM_SERVICE.getAllCourseProgramModelByCourseId(courseId));
         courseDataModel.setLikes(LIKE_SERVICE.getAllLikeModelByCourseId(courseId));
         courseDataModel.setComments(COMMENT_SERVICE.getAllCommentModelByCourseId(courseId));

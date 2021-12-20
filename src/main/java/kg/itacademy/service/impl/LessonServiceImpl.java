@@ -73,6 +73,11 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
+    public Long getCountLessonByCourseId(Long courseId) {
+        return LESSON_REPOSITORY.getCountLessonByCourseId(courseId);
+    }
+
+    @Override
     public List<LessonModel> getAllByCourseId(Long courseId) {
         if (!checkThePurchaseOfTheCourse(courseId))
             throw new ApiFailException("Access is denied");
