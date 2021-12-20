@@ -18,7 +18,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserBalanceImpl implements UserBalanceService {
+public class UserBalanceServiceImpl implements UserBalanceService {
     @Autowired
     private UserService USER_SERVICE;
     private final UserBalanceRepository USER_BALANCE_REPOSITORY;

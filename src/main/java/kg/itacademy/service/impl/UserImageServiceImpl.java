@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserImageImpl implements UserImageService {
+public class UserImageServiceImpl implements UserImageService {
     @Autowired
     private UserService USER_SERVICE;
     private static final String CLOUDINARY_URL = "cloudinary://349958975956714:wJERqVH-qai2mlMdGYqzSY__kFM@du9qubfii";
