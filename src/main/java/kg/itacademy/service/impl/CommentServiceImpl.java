@@ -14,6 +14,7 @@ import kg.itacademy.service.CommentService;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,8 +23,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
+    @Autowired
+    private CourseService COURSE_SERVICE;
     private final CommentRepository COMMENT_REPOSITORY;
-    private final CourseService COURSE_SERVICE;
     private final UserService USER_SERVICE;
     private final CommentConverter COMMENT_CONVERTER;
 

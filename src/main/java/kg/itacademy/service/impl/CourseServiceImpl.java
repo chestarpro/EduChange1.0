@@ -10,6 +10,7 @@ import kg.itacademy.service.*;
 import kg.itacademy.util.RegexUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +28,7 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private UserService USER_SERVICE;
     @Autowired
+    @Lazy
     private LessonService LESSON_SERVICE;
     @Autowired
     private CommentService COMMENT_SERVICE;
