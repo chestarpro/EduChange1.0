@@ -1,10 +1,9 @@
 package kg.itacademy.controller;
 
-import kg.itacademy.model.*;
 import kg.itacademy.model.CategoryModel;
+import kg.itacademy.model.UserLogModel;
 import kg.itacademy.model.user.BaseUserModel;
 import kg.itacademy.model.userImage.UserImageModel;
-import kg.itacademy.model.UserLogModel;
 import kg.itacademy.service.*;
 import kg.itacademy.util.ResponseMessage;
 import lombok.RequiredArgsConstructor;

@@ -25,7 +25,6 @@ public class CourseImageServiceImpl implements CourseImageService {
     @Autowired
     private CourseServiceImpl COURSE_SERVICE;
     private final CourseImageRepository COURSE_IMAGE_REPOSITORY;
-
     private final CourseImageConverter COURSE_IMAGER_CONVERTER;
 
     @Override
