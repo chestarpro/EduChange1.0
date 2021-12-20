@@ -31,7 +31,7 @@ public class UserBalanceServiceImpl implements UserBalanceService {
 
     @Override
     public UserBalance getUserBalanceByUserId(Long userId) {
-        return USER_BALANCE_REPOSITORY.findByUser_Id(userId);
+        return USER_BALANCE_REPOSITORY.findByUser_Id(userId).orElse(null);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class UserBalanceServiceImpl implements UserBalanceService {
 
     @Override
     public UserBalanceModel getUserBalanceModelByUserId(Long userId) {
-        UserBalance userBalance = USER_BALANCE_REPOSITORY.findByUser_Id(userId);
+        UserBalance userBalance = getUserBalanceByUserId(userId);
         return USER_BALANCE_CONVERTER.convertFromEntity(userBalance);
     }
 
@@ -75,7 +75,7 @@ public class UserBalanceServiceImpl implements UserBalanceService {
         if (dataUser == null)
             throw new ApiFailException("User " + username + " not found");
 
-        UserBalance dataUserBalance = USER_BALANCE_REPOSITORY.findByUser_Id(dataUser.getId());
+        UserBalance dataUserBalance = getUserBalanceByUserId(dataUser.getId());
         dataUserBalance.setBalance(dataUserBalance.getBalance().add(balance));
         USER_BALANCE_REPOSITORY.save(dataUserBalance);
         return USER_BALANCE_CONVERTER.convertFromEntity(dataUserBalance);
