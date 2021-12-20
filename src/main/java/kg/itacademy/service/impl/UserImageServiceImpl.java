@@ -58,10 +58,15 @@ public class UserImageServiceImpl implements UserImageService {
         return USER_IMAGE_CONVERTER.convertFromEntity(getById(id));
     }
 
+
+    @Override
+    public UserImage getUserImageByUserId(Long userId) {
+        return USER_IMAGE_REPOSITORY.findByUser_Id(userId);
+    }
+
     @Override
     public UserImageModel getUserImageModelByUserId(Long userId) {
-        UserImage userImage = USER_IMAGE_REPOSITORY.findByUser_Id(userId);
-        return USER_IMAGE_CONVERTER.convertFromEntity(userImage);
+        return USER_IMAGE_CONVERTER.convertFromEntity(getUserImageByUserId(userId));
     }
 
     @Override

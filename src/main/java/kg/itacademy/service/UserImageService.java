@@ -17,5 +17,7 @@ public interface UserImageService extends BaseService<UserImage> {
 
     UserImageModel getUserImageModelByUserId(Long userId);
 
+    UserImage getUserImageByUserId(Long userId);
+
     List<UserImageModel> getAllUserImageModel();
 }

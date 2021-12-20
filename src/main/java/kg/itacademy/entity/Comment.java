@@ -22,8 +22,9 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "user_image_url")
-    private String userImage;
+    @ManyToOne
+    @JoinColumn(name = "user_image_id")
+    private UserImage userImage;
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)

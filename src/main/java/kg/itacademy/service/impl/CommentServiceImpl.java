@@ -4,6 +4,7 @@ import kg.itacademy.converter.CommentConverter;
 import kg.itacademy.entity.Comment;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.User;
+import kg.itacademy.entity.UserImage;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.comment.BaseCommentModel;
 import kg.itacademy.model.comment.CommentModel;
@@ -47,8 +48,8 @@ public class CommentServiceImpl implements CommentService {
         Course course = COURSE_SERVICE.getById(createCommentModel.getCourseId());
         User user = USER_SERVICE.getCurrentUser();
         String commentText = createCommentModel.getComment();
-        String userImageUrl = USER_IMAGE_SERVICE.getUserImageModelByUserId(user.getId()).getUserImageUrl();
-        Comment comment = new Comment(commentText, user, userImageUrl, course);
+        UserImage userImage = USER_IMAGE_SERVICE.getUserImageByUserId(user.getId());
+        Comment comment = new Comment(commentText, user, userImage, course);
         save(comment);
         return COMMENT_CONVERTER.convertFromEntity(comment);
     }
