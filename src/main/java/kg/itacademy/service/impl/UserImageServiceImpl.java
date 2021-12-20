@@ -26,7 +26,6 @@ public class UserImageServiceImpl implements UserImageService {
     private UserService USER_SERVICE;
     @Autowired
     private CommentRepository COMMENT_REPOSITORY;
-    private static final String CLOUDINARY_URL = "cloudinary://349958975956714:wJERqVH-qai2mlMdGYqzSY__kFM@du9qubfii";
     private final UserImageRepository USER_IMAGE_REPOSITORY;
     private final UserImageConverter USER_IMAGE_CONVERTER;
 

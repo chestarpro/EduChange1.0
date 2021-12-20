@@ -31,7 +31,6 @@ public class CommentServiceImpl implements CommentService {
     private UserService USER_SERVICE;
     @Autowired
     private UserImageService USER_IMAGE_SERVICE;
-
     private final CommentRepository COMMENT_REPOSITORY;
     private final CommentConverter COMMENT_CONVERTER;
 

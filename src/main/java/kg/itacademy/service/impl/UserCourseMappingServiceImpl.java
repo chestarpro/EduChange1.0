@@ -30,8 +30,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     private UserService USER_SERVICE;
     @Autowired
     private UserBalanceService USER_BALANCE_SERVICE;
-    @Autowired
-    private UserCourseMappingConverter MAPPING_CONVERTER;
+    private final UserCourseMappingConverter MAPPING_CONVERTER;
     private final UserCourseMappingRepository USER_COURSE_MAPPING_REPOSITORY;
 
     @Override

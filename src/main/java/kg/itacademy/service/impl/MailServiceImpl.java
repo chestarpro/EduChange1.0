@@ -16,7 +16,6 @@ import java.util.Objects;
 @Service
 public class MailServiceImpl implements MailService {
     private final String RESET_URL = "https://educhange.herokuapp.com/api/mail/reset-password";
-    //  "https://educhange.herokuapp.com/api/mail/reset-password";
     private final String INFO = "Carefully! If you haven't tried to reset your password, ignore this message!\n" +
             "If this is you, then follow the link and enter the password reset key: ";
 

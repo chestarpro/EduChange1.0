@@ -24,10 +24,10 @@ import java.util.stream.Collectors;
 public class CourseProgramServiceImpl implements CourseProgramService {
     @Autowired
     private CourseService COURSE_SERVICE;
-    private final CourseProgramRepository COURSE_PROGRAM_REPOSITORY;
-    private final CourseProgramConverter COURSE_PROGRAM_CONVERTER;
     @Autowired
     private UserService USER_SERVICE;
+    private final CourseProgramRepository COURSE_PROGRAM_REPOSITORY;
+    private final CourseProgramConverter COURSE_PROGRAM_CONVERTER;
 
     @Override
     public CourseProgram save(CourseProgram courseProgram) {
