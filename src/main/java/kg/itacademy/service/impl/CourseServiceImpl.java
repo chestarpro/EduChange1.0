@@ -31,6 +31,7 @@ public class CourseServiceImpl implements CourseService {
     @Lazy
     private LessonService LESSON_SERVICE;
     @Autowired
+    @Lazy
     private CommentService COMMENT_SERVICE;
     @Autowired
     @Lazy

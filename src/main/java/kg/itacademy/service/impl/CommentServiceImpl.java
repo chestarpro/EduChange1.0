@@ -25,8 +25,10 @@ import java.util.stream.Collectors;
 public class CommentServiceImpl implements CommentService {
     @Autowired
     private CourseService COURSE_SERVICE;
+    @Autowired
+    private UserService USER_SERVICE;
+
     private final CommentRepository COMMENT_REPOSITORY;
-    private final UserService USER_SERVICE;
     private final CommentConverter COMMENT_CONVERTER;
 
     @Override
