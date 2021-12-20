@@ -1,10 +1,12 @@
 package kg.itacademy.service.impl;
 
 import kg.itacademy.converter.UserImageConverter;
+import kg.itacademy.entity.Comment;
 import kg.itacademy.entity.User;
 import kg.itacademy.entity.UserImage;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.userImage.UserImageModel;
+import kg.itacademy.repository.CommentRepository;
 import kg.itacademy.repository.UserImageRepository;
 import kg.itacademy.service.UserImageService;
 import kg.itacademy.service.UserService;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 public class UserImageServiceImpl implements UserImageService {
     @Autowired
     private UserService USER_SERVICE;
+    @Autowired
+    private CommentRepository COMMENT_REPOSITORY;
     private static final String CLOUDINARY_URL = "cloudinary://349958975956714:wJERqVH-qai2mlMdGYqzSY__kFM@du9qubfii";
     private final UserImageRepository USER_IMAGE_REPOSITORY;
     private final UserImageConverter USER_IMAGE_CONVERTER;
@@ -35,7 +39,7 @@ public class UserImageServiceImpl implements UserImageService {
     public UserImageModel createUserImage(MultipartFile file) {
         User user = USER_SERVICE.getCurrentUser();
 
-        UserImage userImage = USER_IMAGE_REPOSITORY.findByUser_Id(user.getId());
+        UserImage userImage = getUserImageByUserId(user.getId());
 
         if (userImage != null)
             throw new ApiFailException("User image is already");
@@ -45,6 +49,7 @@ public class UserImageServiceImpl implements UserImageService {
         userImage.setUserImageUrl(savedImageUrl);
         userImage.setUser(user);
         save(userImage);
+        updateUserImageUrlForCommentsByUserId(user.getId(), savedImageUrl);
         return USER_IMAGE_CONVERTER.convertFromEntity(userImage);
     }
 
@@ -61,7 +66,7 @@ public class UserImageServiceImpl implements UserImageService {
 
     @Override
     public UserImage getUserImageByUserId(Long userId) {
-        return USER_IMAGE_REPOSITORY.findByUser_Id(userId);
+        return USER_IMAGE_REPOSITORY.findByUser_Id(userId).orElse(null);
     }
 
     @Override
@@ -83,27 +88,40 @@ public class UserImageServiceImpl implements UserImageService {
 
     @Override
     public UserImageModel updateUserImage(MultipartFile file) {
-        UserImage updateUserImage = getDataUserImageByCurrentUser();
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        UserImage updateUserImage = getDataUserImageByCurrentUser(currentUserId);
         String updateImageUrl = ImageUtil.saveImageInCloudinary(file);
         updateUserImage.setUserImageUrl(updateImageUrl);
         USER_IMAGE_REPOSITORY.save(updateUserImage);
+        updateUserImageUrlForCommentsByUserId(currentUserId, updateImageUrl);
         return USER_IMAGE_CONVERTER.convertFromEntity(updateUserImage);
     }
 
     @Override
     public UserImageModel deleteImage() {
-        UserImage deleteUserImage = getDataUserImageByCurrentUser();
+        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        UserImage deleteUserImage = getDataUserImageByCurrentUser(currentUserId);
         USER_IMAGE_REPOSITORY.delete(deleteUserImage);
+        updateUserImageUrlForCommentsByUserId(currentUserId, null);
         return USER_IMAGE_CONVERTER.convertFromEntity(deleteUserImage);
     }
 
-    private UserImage getDataUserImageByCurrentUser() {
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
-        UserImage dataUserImage = USER_IMAGE_REPOSITORY.findByUser_Id(currentUserId);
+    private UserImage getDataUserImageByCurrentUser(Long currentUserId) {
+        UserImage dataUserImage = getUserImageByUserId(currentUserId);
 
         if (dataUserImage == null)
             throw new ApiFailException("User image by user id " + currentUserId + " not found");
 
         return dataUserImage;
+    }
+
+    private void updateUserImageUrlForCommentsByUserId(Long userId, String url) {
+        List<Comment> comments = COMMENT_REPOSITORY.findAllByUser_Id(userId);
+        if (!comments.isEmpty()) {
+            for (Comment comment : comments) {
+                comment.setUserImageUrl(url);
+            }
+            COMMENT_REPOSITORY.saveAll(comments);
+        }
     }
 }

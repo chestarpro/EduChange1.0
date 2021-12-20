@@ -48,8 +48,15 @@ public class CommentServiceImpl implements CommentService {
         Course course = COURSE_SERVICE.getById(createCommentModel.getCourseId());
         User user = USER_SERVICE.getCurrentUser();
         String commentText = createCommentModel.getComment();
+
+        Comment comment = new Comment();
+        comment.setCourseComment(commentText);
+        comment.setUser(user);
+        comment.setCourse(course);
         UserImage userImage = USER_IMAGE_SERVICE.getUserImageByUserId(user.getId());
-        Comment comment = new Comment(commentText, user, userImage, course);
+        if (userImage != null) {
+            comment.setUserImageUrl(userImage.getUserImageUrl());
+        }
         save(comment);
         return COMMENT_CONVERTER.convertFromEntity(comment);
     }
