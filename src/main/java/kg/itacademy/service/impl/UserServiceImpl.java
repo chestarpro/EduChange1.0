@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
 
         boolean isPasswordIsCorrect = PASSWORD_ENCODER.matches(userAuthorizModel.getPassword(), user.getPassword());
 
-        checkBaningStatus(user);
+        checkUserActiveStatus(user);
         checkFailPassword(isPasswordIsCorrect, user);
 
         USER_LOG_SERVICE.save(new UserLog(user, true));
@@ -253,7 +253,9 @@ public class UserServiceImpl implements UserService {
             throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " is already in use");
     }
 
-    private void checkBaningStatus(User user) {
+    private void checkUserActiveStatus(User user) {
+        if (user.getIsActive() == -1)
+            throw new ApiFailException("User nut found");
         if (user.getIsActive() == 0) {
             UserLog userLog = USER_LOG_SERVICE.getLastLogByUserId(user.getId());
             if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(5)))
