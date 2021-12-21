@@ -3,7 +3,6 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.LessonConverter;
 import kg.itacademy.entity.Course;
 import kg.itacademy.entity.Lesson;
-import kg.itacademy.entity.UserCourseMapping;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.lesson.BaseLessonModel;
 import kg.itacademy.model.lesson.CreateLessonModel;
@@ -80,7 +79,7 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public List<LessonModel> getAllByCourseId(Long courseId) {
         return lessonRepository
-                .findAllByCourse_Id(courseId)
+                .findAllByCourse_IdOrderByIdAsc(courseId)
                 .stream()
                 .map(lessonConverter::convertFromEntity)
                 .collect(Collectors.toList());
@@ -133,7 +132,7 @@ public class LessonServiceImpl implements LessonService {
 
         return dataLesson;
     }
-    
+
     private void validateLengthVariables(BaseLessonModel baseLessonModel) {
         if (baseLessonModel.getLessonInfo() != null && baseLessonModel.getLessonInfo().length() > 1000)
             throw new ApiFailException("Exceeded character limit (1000) for lesson info");
