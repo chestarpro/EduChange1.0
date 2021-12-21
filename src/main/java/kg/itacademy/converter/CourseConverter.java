@@ -16,10 +16,13 @@ public class CourseConverter extends BaseConverter<CourseModel, Course> {
     private static CourseModel convertToModel(Course entityToConvert) {
         if (entityToConvert == null) return null;
 
+        Long categoryId = null;
+        if (entityToConvert.getCategory() != null)
+            categoryId = entityToConvert.getCategory().getId();
+
         return CourseModel.builder()
                 .id(entityToConvert.getId())
-                .categoryId(entityToConvert.getCategory().getId())
-                .categoryName(entityToConvert.getCategory().getCategoryName())
+                .categoryId(categoryId)
                 .courseName(entityToConvert.getCourseName())
                 .email(entityToConvert.getEmail())
                 .phoneNumber(entityToConvert.getPhoneNumber())

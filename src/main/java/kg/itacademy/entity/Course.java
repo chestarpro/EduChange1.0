@@ -32,7 +32,7 @@ public class Course extends BaseEntity {
     @Column(name = "course_info_title", length = 100)
     private String courseInfoTitle;
 
-    @Column(name = "course_info", length = 1000)
+    @Column(name = "course_info", length = 2000)
     private String courseInfo;
 
     @Column(name = "course_info_url")

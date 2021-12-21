@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 public class CourseModel implements BaseCourseModel {
     private Long id;
     private Long categoryId;
-    private String categoryName;
     private String courseName;
     private String email;
     private String phoneNumber;

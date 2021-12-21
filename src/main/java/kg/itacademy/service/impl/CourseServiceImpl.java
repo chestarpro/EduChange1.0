@@ -46,9 +46,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseDataModel createCourse(CreateCourseModel createCourseModel) {
-        validateEmailAndPhoneNumber(createCourseModel);
-        validateLengthVariables(createCourseModel);
         validateVariablesForNullOrIsEmpty(createCourseModel);
+        validateLengthVariables(createCourseModel);
+        validateEmailAndPhoneNumber(createCourseModel);
 
         Course course = initCourse(createCourseModel);
         courseRepository.save(course);
@@ -146,10 +146,12 @@ public class CourseServiceImpl implements CourseService {
 
     private Course initCourse(CreateCourseModel createCourseModel) {
         Course course = new Course();
-        Category category = new Category();
-        category.setId(createCourseModel.getCategoryId());
+        if (createCourseModel.getCategoryId() != null) {
+            Category category = new Category();
+            category.setId(createCourseModel.getCategoryId());
+            course.setCategory(category);
+        }
 
-        course.setCategory(category);
         course.setCourseName(createCourseModel.getCourseName().toLowerCase(Locale.ROOT));
         course.setCourseShortInfo(createCourseModel.getCourseShortInfo());
         course.setCourseInfo(createCourseModel.getCourseInfo());
