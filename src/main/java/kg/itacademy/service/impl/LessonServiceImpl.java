@@ -48,6 +48,7 @@ public class LessonServiceImpl implements LessonService {
         Lesson lesson = new Lesson();
         lesson.setLessonInfo(createLessonModel.getLessonInfo());
         lesson.setLessonUrl(createLessonModel.getLessonUrl());
+        lesson.setIsVisible(createLessonModel.getIsVisible());
 
         Course course = new Course();
         course.setId(createLessonModel.getCourseId());
@@ -158,6 +159,8 @@ public class LessonServiceImpl implements LessonService {
     private void validateVariablesForNullOrIsEmpty(CreateLessonModel createLessonModel) {
         if (createLessonModel.getLessonInfo() == null || createLessonModel.getLessonInfo().isEmpty())
             throw new ApiFailException("The description of the lesson is not specified");
+        if (createLessonModel.getIsVisible() == null)
+            throw new ApiFailException("Lesson visible is not specified");
         if (createLessonModel.getCourseId() == null)
             throw new ApiFailException("Course id is not specified");
         else {
@@ -180,5 +183,7 @@ public class LessonServiceImpl implements LessonService {
             lesson.setLessonUrl(updateLessonModel.getLessonUrl());
         if (updateLessonModel.getLessonInfo() != null)
             lesson.setLessonInfo(updateLessonModel.getLessonInfo());
+        if (updateLessonModel.getIsVisible() != null)
+            lesson.setIsVisible(updateLessonModel.getIsVisible());
     }
 }

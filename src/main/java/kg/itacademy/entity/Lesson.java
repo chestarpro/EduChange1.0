@@ -20,7 +20,7 @@ public class Lesson extends BaseEntity {
     @Column(name = "lesson_url")
     private String lessonUrl;
 
-    @Column(name = "is_visible", nullable = false)
+    @Column(name = "is_visible")
     private Boolean isVisible;
 
     @ManyToOne

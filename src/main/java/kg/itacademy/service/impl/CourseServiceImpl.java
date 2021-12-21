@@ -36,10 +36,8 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     @Lazy
     private CourseProgramService courseProgramService;
-    private final RegexUtil regexUtil;
     private final CourseConverter courseConverter;
     private final CourseRepository courseRepository;
-    private final CategoryService categoryService;
 
     @Override
     public Course save(Course course) {
@@ -184,9 +182,9 @@ public class CourseServiceImpl implements CourseService {
 
     private void validateEmailAndPhoneNumber(BaseCourseModel baseCourseModel) {
         if (baseCourseModel.getEmail() != null)
-            regexUtil.validateEmail(baseCourseModel.getEmail());
+            RegexUtil.validateEmail(baseCourseModel.getEmail());
         if (baseCourseModel.getPhoneNumber() != null) {
-            regexUtil.validatePhoneNumber(baseCourseModel.getPhoneNumber());
+            RegexUtil.validatePhoneNumber(baseCourseModel.getPhoneNumber());
         }
     }
 
@@ -234,53 +232,22 @@ public class CourseServiceImpl implements CourseService {
     }
 
     public void validateVariablesForNullOrIsEmpty(CreateCourseModel createCourseModel) {
-        Long categoryId = createCourseModel.getCategoryId();
-
-        if (categoryId == null)
-            throw new ApiFailException("Category is not specified");
-        else {
-            Category category = categoryService.getById(categoryId);
-            if (category == null)
-                throw new ApiFailException("Category by id " + categoryId + " not found");
-        }
         if (createCourseModel.getCourseName() == null || createCourseModel.getCourseName().isEmpty())
             throw new ApiFailException("Course name is not filled");
-
         if (createCourseModel.getCourseShortInfo() == null || createCourseModel.getCourseShortInfo().isEmpty())
             throw new ApiFailException("Short info is not filled");
-
-        if (createCourseModel.getCourseInfoTitle() == null || createCourseModel.getCourseInfoTitle().isEmpty())
-            throw new ApiFailException("Title info is not filled");
-
-        if (createCourseModel.getCourseInfo() == null || createCourseModel.getCourseInfo().isEmpty())
-            throw new ApiFailException("Course info is not filled");
-
         if (createCourseModel.getPrice() == null)
             throw new ApiFailException("Price is not specified");
-
         else if (createCourseModel.getPrice().compareTo(BigDecimal.ZERO) < 0)
             throw new ApiFailException("Wrong price format");
     }
 
     public void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseModel updateCourseModel) {
-        Long categoryId = updateCourseModel.getCategoryId();
-        if (categoryId != null) {
-            Category category = categoryService.getById(categoryId);
-            if (category == null)
-                throw new ApiFailException("Category by id " + categoryId + " not found");
-        }
-
         if (updateCourseModel.getCourseName() != null && updateCourseModel.getCourseName().isEmpty())
             throw new ApiFailException("Course name is not filled");
 
         if (updateCourseModel.getCourseShortInfo() != null && updateCourseModel.getCourseShortInfo().isEmpty())
             throw new ApiFailException("Short info is not filled");
-
-        if (updateCourseModel.getCourseInfoTitle() != null && updateCourseModel.getCourseInfoTitle().isEmpty())
-            throw new ApiFailException("Title info is not filled");
-
-        if (updateCourseModel.getCourseInfo() != null && updateCourseModel.getCourseInfo().isEmpty())
-            throw new ApiFailException("Course info is not filled");
 
         if (updateCourseModel.getPrice() != null && updateCourseModel.getPrice().compareTo(BigDecimal.ZERO) < 0)
             throw new ApiFailException("Wrong balance format");

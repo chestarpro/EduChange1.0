@@ -39,7 +39,6 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserLogService userLogService;
     private final UserConverter converter;
-    private final RegexUtil regexUtil;
 
     @Override
     public User save(User user) {
@@ -64,8 +63,8 @@ public class UserServiceImpl implements UserService {
     public UserProfileDataModel createUser(CreateUserModel createUserModel) {
         validateVariablesForNullOrIsEmpty(createUserModel);
         validateLengthVariables(createUserModel);
-        regexUtil.validateUsername(createUserModel.getUsername());
-        regexUtil.validateEmail(createUserModel.getEmail());
+        RegexUtil.validateUsername(createUserModel.getUsername());
+        RegexUtil.validateEmail(createUserModel.getEmail());
         checkUsernameAndEmail(createUserModel);
 
         String token = getBasicToken(createUserModel.getUsername(), createUserModel.getPassword());
@@ -138,8 +137,8 @@ public class UserServiceImpl implements UserService {
 
         validateVariablesForNullOrIsEmptyUpdate(updateUserModel);
         validateLengthVariables(updateUserModel);
-        regexUtil.validateEmail(updateUserModel.getEmail());
-        regexUtil.validateUsername(updateUserModel.getUsername());
+        RegexUtil.validateEmail(updateUserModel.getEmail());
+        RegexUtil.validateUsername(updateUserModel.getUsername());
         checkUsernameAndEmail(updateUserModel);
 
         setVariablesForUpdateUser(dataUser, updateUserModel);
