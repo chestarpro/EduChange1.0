@@ -11,29 +11,29 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/user-image")
 @RequiredArgsConstructor
 public class UserImageController {
-    private final UserImageService USER_IMAGE_SERVICE;
+    private final UserImageService userImageService;
 
     @PostMapping("/create")
     public ResponseMessage<UserImageModel> save(@RequestParam(name = "file") MultipartFile file) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(USER_IMAGE_SERVICE.createUserImage(file));
+                .prepareSuccessMessage(userImageService.createUserImage(file));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<UserImageModel> getById(@PathVariable Long id) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(USER_IMAGE_SERVICE.getUserImageModelById(id));
+                .prepareSuccessMessage(userImageService.getUserImageModelById(id));
     }
 
     @PutMapping("/update")
     public ResponseMessage<UserImageModel> update(@RequestParam(name = "file") MultipartFile file) {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(USER_IMAGE_SERVICE.updateUserImage(file));
+                .prepareSuccessMessage(userImageService.updateUserImage(file));
     }
 
     @DeleteMapping("/delete")
     public ResponseMessage<UserImageModel> delete() {
         return new ResponseMessage<UserImageModel>()
-                .prepareSuccessMessage(USER_IMAGE_SERVICE.deleteImage());
+                .prepareSuccessMessage(userImageService.deleteImage());
     }
 }

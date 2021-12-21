@@ -23,15 +23,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseProgramServiceImpl implements CourseProgramService {
     @Autowired
-    private CourseService COURSE_SERVICE;
+    private CourseService courseService;
     @Autowired
-    private UserService USER_SERVICE;
-    private final CourseProgramRepository COURSE_PROGRAM_REPOSITORY;
-    private final CourseProgramConverter COURSE_PROGRAM_CONVERTER;
+    private UserService userService;
+    private final CourseProgramRepository courseProgramRepository;
+    private final CourseProgramConverter courseProgramConverter;
 
     @Override
     public CourseProgram save(CourseProgram courseProgram) {
-        return COURSE_PROGRAM_REPOSITORY.save(courseProgram);
+        return courseProgramRepository.save(courseProgram);
     }
 
     @Override
@@ -46,17 +46,17 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         course.setId(createCourseProgramModel.getCourseId());
         courseProgram.setCourse(course);
         save(courseProgram);
-        return COURSE_PROGRAM_CONVERTER.convertFromEntity(courseProgram);
+        return courseProgramConverter.convertFromEntity(courseProgram);
     }
 
     @Override
     public CourseProgram getById(Long id) {
-        return COURSE_PROGRAM_REPOSITORY.findById(id).orElse(null);
+        return courseProgramRepository.findById(id).orElse(null);
     }
 
     @Override
     public CourseProgramModel getCourseProgramModelById(Long id) {
-        return COURSE_PROGRAM_CONVERTER.convertFromEntity(getById(id));
+        return courseProgramConverter.convertFromEntity(getById(id));
     }
 
     @Override
@@ -66,9 +66,9 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     @Override
     public List<CourseProgramModel> getAllCourseProgramModelByCourseId(Long id) {
-        return COURSE_PROGRAM_REPOSITORY.findAllByCourse_Id(id)
+        return courseProgramRepository.findAllByCourse_Id(id)
                 .stream()
-                .map(COURSE_PROGRAM_CONVERTER::convertFromEntity)
+                .map(courseProgramConverter::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -81,15 +81,15 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         validateVariablesForNullOrIsEmptyUpdate(updateCourseProgramModel);
 
         setVariablesForUpdateCourseProgram(dataCourseProgram, updateCourseProgramModel);
-        COURSE_PROGRAM_REPOSITORY.save(dataCourseProgram);
-        return COURSE_PROGRAM_CONVERTER.convertFromEntity(dataCourseProgram);
+        courseProgramRepository.save(dataCourseProgram);
+        return courseProgramConverter.convertFromEntity(dataCourseProgram);
     }
 
     @Override
     public CourseProgramModel deleteCourseProgram(Long id) {
         CourseProgram deleteProgram = getDataCourseProgramByIdWithCheckAccess(id);
-        COURSE_PROGRAM_REPOSITORY.delete(deleteProgram);
-        return COURSE_PROGRAM_CONVERTER.convertFromEntity(deleteProgram);
+        courseProgramRepository.delete(deleteProgram);
+        return courseProgramConverter.convertFromEntity(deleteProgram);
     }
 
     private CourseProgram getDataCourseProgramByIdWithCheckAccess(Long id) {
@@ -101,7 +101,7 @@ public class CourseProgramServiceImpl implements CourseProgramService {
         if (dataCourseProgram == null)
             throw new ApiFailException("Course program by id " + id + " not found");
 
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long currentUserId = userService.getCurrentUser().getId();
         Long authorCourseId = dataCourseProgram.getCourse().getUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
@@ -126,7 +126,7 @@ public class CourseProgramServiceImpl implements CourseProgramService {
             throw new ApiFailException("Course id is not specified");
         else {
             Long curseId = createCourseProgramModel.getCourseId();
-            Course course = COURSE_SERVICE.getById(curseId);
+            Course course = courseService.getById(curseId);
             if (course == null)
                 throw new ApiFailException("Course by id " + curseId + " not found");
         }

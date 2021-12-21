@@ -12,17 +12,17 @@ import java.util.List;
 @RequestMapping("/api/category")
 @RequiredArgsConstructor
 public class CategoryController {
-    private final CategoryService CATEGORY_SERVICE;
+    private final CategoryService categoryService;
 
     @GetMapping("/get-all")
     public ResponseMessage<List<CategoryModel>> getAll() {
        return new ResponseMessage<List<CategoryModel>>()
-                .prepareSuccessMessage(CATEGORY_SERVICE.getAllCategoryModel());
+                .prepareSuccessMessage(categoryService.getAllCategoryModel());
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<CategoryModel> getById(@PathVariable Long id) {
         return new ResponseMessage<CategoryModel>()
-                .prepareSuccessMessage(CATEGORY_SERVICE.getCategoryModelById(id));
+                .prepareSuccessMessage(categoryService.getCategoryModelById(id));
     }
 }

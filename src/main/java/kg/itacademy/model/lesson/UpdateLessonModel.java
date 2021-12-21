@@ -13,6 +13,7 @@ public class UpdateLessonModel implements BaseLessonModel{
     private Long id;
     private String lessonInfo;
     private String lessonUrl;
+    private Boolean isVisible;
 
     @Override
     public Long getCourseId() {

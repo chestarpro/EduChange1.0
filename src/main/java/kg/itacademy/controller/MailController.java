@@ -1,7 +1,6 @@
 package kg.itacademy.controller;
 
 import kg.itacademy.model.user.BaseUserModel;
-import kg.itacademy.model.user.UserProfileDataModel;
 import kg.itacademy.model.userImage.ResetPasswordModel;
 import kg.itacademy.service.MailService;
 import kg.itacademy.service.UserService;
@@ -14,17 +13,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class MailController {
 
-    private final MailService MAIL_SERVICE;
-    private final UserService USER_SERVICE;
+    private final MailService mailService;
+    private final UserService userService;
 
     @GetMapping("/send-message-reset-password/{email}")
     public boolean send(@PathVariable String email) {
-        return MAIL_SERVICE.send(email);
+        return mailService.send(email);
     }
 
     @PutMapping("/reset-password")
     private ResponseMessage<BaseUserModel> resetPassword(@RequestBody ResetPasswordModel resetPasswordModel) {
         return new ResponseMessage<BaseUserModel>()
-                .prepareSuccessMessage(USER_SERVICE.resetPassword(resetPasswordModel));
+                .prepareSuccessMessage(userService.resetPassword(resetPasswordModel));
     }
 }

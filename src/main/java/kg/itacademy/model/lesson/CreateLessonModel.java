@@ -1,6 +1,5 @@
 package kg.itacademy.model.lesson;
 
-import kg.itacademy.model.course.BaseCourseModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 public class CreateLessonModel implements BaseLessonModel {
     private String lessonInfo;
     private String lessonUrl;
+    private Boolean isVisible;
     private Long courseId;
 
     @Override

@@ -27,18 +27,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LessonServiceImpl implements LessonService {
     @Autowired
-    private UserService USER_SERVICE;
+    private UserService userService;
     @Autowired
-    private CourseService COURSE_SERVICE;
+    private CourseService courseService;
     @Autowired
-    private UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
-    private final LessonRepository LESSON_REPOSITORY;
-    private final LessonConverter LESSON_CONVERTER;
-
+    private UserCourseMappingService userCourseMappingService;
+    private final LessonRepository lessonRepository;
+    private final LessonConverter lessonConverter;
 
     @Override
     public Lesson save(Lesson lesson) {
-        return LESSON_REPOSITORY.save(lesson);
+        return lessonRepository.save(lesson);
     }
 
     @Override
@@ -54,27 +53,27 @@ public class LessonServiceImpl implements LessonService {
         course.setId(createLessonModel.getCourseId());
         lesson.setCourse(course);
         save(lesson);
-        return LESSON_CONVERTER.convertFromEntity(lesson);
+        return lessonConverter.convertFromEntity(lesson);
     }
 
     @Override
     public Lesson getById(Long id) {
-        return LESSON_REPOSITORY.findById(id).orElse(null);
+        return lessonRepository.findById(id).orElse(null);
     }
 
     @Override
     public LessonModel getLessonModelById(Long id) {
-        return LESSON_CONVERTER.convertFromEntity(getById(id));
+        return lessonConverter.convertFromEntity(getById(id));
     }
 
     @Override
     public List<Lesson> getAll() {
-        return LESSON_REPOSITORY.findAll();
+        return lessonRepository.findAll();
     }
 
     @Override
     public Long getCountLessonByCourseId(Long courseId) {
-        return LESSON_REPOSITORY.getCountLessonByCourseId(courseId);
+        return lessonRepository.getCountLessonByCourseId(courseId);
     }
 
     @Override
@@ -82,19 +81,19 @@ public class LessonServiceImpl implements LessonService {
         if (!checkThePurchaseOfTheCourse(courseId))
             throw new ApiFailException("Access is denied");
 
-        return LESSON_REPOSITORY
+        return lessonRepository
                 .findAllByCourse_Id(courseId)
                 .stream()
-                .map(LESSON_CONVERTER::convertFromEntity)
+                .map(lessonConverter::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<LessonModel> getFirstThreeLessonsByCourseId(Long courseId) {
-        return LESSON_REPOSITORY
+        return lessonRepository
                 .findFirstThreeLessonsByCourseId(courseId)
                 .stream()
-                .map(LESSON_CONVERTER::convertFromEntity)
+                .map(lessonConverter::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -108,15 +107,15 @@ public class LessonServiceImpl implements LessonService {
 
         setVariablesForUpdateLesson(dataLesson, updateLessonModel);
 
-        LESSON_REPOSITORY.save(dataLesson);
-        return LESSON_CONVERTER.convertFromEntity(dataLesson);
+        lessonRepository.save(dataLesson);
+        return lessonConverter.convertFromEntity(dataLesson);
     }
 
     @Override
     public LessonModel deleteLessonById(Long id) {
         Lesson deleteLesson = getDataLessonByIdWithCheckAccess(id);
-        LESSON_REPOSITORY.delete(deleteLesson);
-        return LESSON_CONVERTER.convertFromEntity(deleteLesson);
+        lessonRepository.delete(deleteLesson);
+        return lessonConverter.convertFromEntity(deleteLesson);
     }
 
     private Lesson getDataLessonByIdWithCheckAccess(Long id) {
@@ -128,7 +127,7 @@ public class LessonServiceImpl implements LessonService {
         if (dataLesson == null)
             throw new ApiFailException("Lesson by id " + id + " not found");
 
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long currentUserId = userService.getCurrentUser().getId();
         Long authorCourseId = dataLesson.getCourse().getUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
@@ -138,10 +137,10 @@ public class LessonServiceImpl implements LessonService {
     }
 
     private boolean checkThePurchaseOfTheCourse(Long courseId) {
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
-        Course course = COURSE_SERVICE.getById(courseId);
+        Long currentUserId = userService.getCurrentUser().getId();
+        Course course = courseService.getById(courseId);
 
-        UserCourseMapping userCourseMapping = USER_COURSE_MAPPING_SERVICE
+        UserCourseMapping userCourseMapping = userCourseMappingService
                 .getByCourseIdAndUserId(courseId, currentUserId);
 
         if (userCourseMapping == null) {
@@ -163,7 +162,7 @@ public class LessonServiceImpl implements LessonService {
             throw new ApiFailException("Course id is not specified");
         else {
             Long curseId = createLessonModel.getCourseId();
-            Course course = COURSE_SERVICE.getById(curseId);
+            Course course = courseService.getById(curseId);
             if (course == null)
                 throw new ApiFailException("Course by id " + curseId + " not found");
         }

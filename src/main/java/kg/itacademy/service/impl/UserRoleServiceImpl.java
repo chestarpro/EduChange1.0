@@ -11,20 +11,20 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserRoleServiceImpl implements UserRoleService {
-    private final UserRoleRepository USER_ROLE_REPOSITORY;
+    private final UserRoleRepository userRoleRepository;
 
     @Override
     public UserRole save(UserRole userRole) {
-        return USER_ROLE_REPOSITORY.save(userRole);
+        return userRoleRepository.save(userRole);
     }
 
     @Override
     public UserRole getById(Long id) {
-        return USER_ROLE_REPOSITORY.findById(id).orElse(null);
+        return userRoleRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<UserRole> getAll() {
-        return USER_ROLE_REPOSITORY.findAll();
+        return userRoleRepository.findAll();
     }
 }

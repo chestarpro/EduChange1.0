@@ -13,5 +13,6 @@ public class LessonModel {
     private Long id;
     private String lessonInfo;
     private String lessonUrl;
+    private Boolean isVisible;
     private Long courseId;
 }

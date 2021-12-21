@@ -20,39 +20,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserBalanceServiceImpl implements UserBalanceService {
     @Autowired
-    private UserService USER_SERVICE;
-    private final UserBalanceRepository USER_BALANCE_REPOSITORY;
-    private final UserBalanceConverter USER_BALANCE_CONVERTER;
+    private UserService userService;
+    private final UserBalanceRepository userBalanceRepository;
+    private final UserBalanceConverter userBalanceConverter;
 
     @Override
     public UserBalance save(UserBalance userBalance) {
-        return USER_BALANCE_REPOSITORY.save(userBalance);
+        return userBalanceRepository.save(userBalance);
     }
 
     @Override
     public UserBalance getUserBalanceByUserId(Long userId) {
-        return USER_BALANCE_REPOSITORY.findByUser_Id(userId).orElse(null);
+        return userBalanceRepository.findByUser_Id(userId).orElse(null);
     }
 
     @Override
     public UserBalance getById(Long id) {
-        return USER_BALANCE_REPOSITORY.findById(id).orElse(null);
+        return userBalanceRepository.findById(id).orElse(null);
     }
 
     @Override
     public UserBalanceModel getUserBalanceModelById(Long id) {
-        return USER_BALANCE_CONVERTER.convertFromEntity(getById(id));
+        return userBalanceConverter.convertFromEntity(getById(id));
     }
 
     @Override
     public UserBalanceModel getUserBalanceModelByUserId(Long userId) {
         UserBalance userBalance = getUserBalanceByUserId(userId);
-        return USER_BALANCE_CONVERTER.convertFromEntity(userBalance);
+        return userBalanceConverter.convertFromEntity(userBalance);
     }
 
     @Override
     public List<UserBalance> getAll() {
-        return USER_BALANCE_REPOSITORY.findAll();
+        return userBalanceRepository.findAll();
     }
 
     @Override
@@ -70,14 +70,14 @@ public class UserBalanceServiceImpl implements UserBalanceService {
         if (balance.compareTo(BigDecimal.ZERO) <= 0)
             throw new ApiFailException("Amount must not be less than or equal to 0");
 
-        User dataUser = USER_SERVICE.getByUsername(username);
+        User dataUser = userService.getByUsername(username);
 
         if (dataUser == null)
             throw new ApiFailException("User " + username + " not found");
 
         UserBalance dataUserBalance = getUserBalanceByUserId(dataUser.getId());
         dataUserBalance.setBalance(dataUserBalance.getBalance().add(balance));
-        USER_BALANCE_REPOSITORY.save(dataUserBalance);
-        return USER_BALANCE_CONVERTER.convertFromEntity(dataUserBalance);
+        userBalanceRepository.save(dataUserBalance);
+        return userBalanceConverter.convertFromEntity(dataUserBalance);
     }
 }

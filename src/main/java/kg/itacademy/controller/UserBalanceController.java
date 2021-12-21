@@ -11,23 +11,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/balance")
 @RequiredArgsConstructor
 public class UserBalanceController {
-    private final UserBalanceService USER_BALANCE_SERVICE;
+    private final UserBalanceService userBalanceService;
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<UserBalanceModel> getById(@PathVariable Long id) {
         return new ResponseMessage<UserBalanceModel>()
-                .prepareSuccessMessage(USER_BALANCE_SERVICE.getUserBalanceModelById(id));
+                .prepareSuccessMessage(userBalanceService.getUserBalanceModelById(id));
     }
 
     @GetMapping("/get-by-user-id/{userId}")
     public ResponseMessage<UserBalanceModel> getByUserId(@PathVariable Long userId) {
         return new ResponseMessage<UserBalanceModel>()
-                .prepareSuccessMessage(USER_BALANCE_SERVICE.getUserBalanceModelByUserId(userId));
+                .prepareSuccessMessage(userBalanceService.getUserBalanceModelByUserId(userId));
     }
 
     @PutMapping("/update")
     public ResponseMessage<UserBalanceModel> update(@RequestBody UpdateUserBalanceModel updateUserBalanceModel) {
         return new ResponseMessage<UserBalanceModel>()
-                .prepareSuccessMessage(USER_BALANCE_SERVICE.toUpBalance(updateUserBalanceModel));
+                .prepareSuccessMessage(userBalanceService.toUpBalance(updateUserBalanceModel));
     }
 }

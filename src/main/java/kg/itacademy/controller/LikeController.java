@@ -12,23 +12,23 @@ import java.util.List;
 @RequestMapping("/api/like")
 @RequiredArgsConstructor
 public class LikeController {
-    private final LikeService LIKE_SERVICE;
+    private final LikeService likeService;
 
     @PostMapping("/create/{courseId}")
     public ResponseMessage<LikeModel> save(@PathVariable Long courseId) {
         return new ResponseMessage<LikeModel>()
-                .prepareSuccessMessage(LIKE_SERVICE.createLikeByCourseId(courseId));
+                .prepareSuccessMessage(likeService.createLikeByCourseId(courseId));
     }
 
     @GetMapping("/get-all/by-course-id/{courseId}")
     public ResponseMessage<List<LikeModel>> getAllByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<List<LikeModel>>()
-                .prepareSuccessMessage(LIKE_SERVICE.getAllLikeModelByCourseId(courseId));
+                .prepareSuccessMessage(likeService.getAllLikeModelByCourseId(courseId));
     }
 
     @DeleteMapping("/delete/{courseId}")
     public ResponseMessage<LikeModel> delete(@PathVariable Long courseId) {
         return new ResponseMessage<LikeModel>()
-                .prepareSuccessMessage(LIKE_SERVICE.deleteLike(courseId));
+                .prepareSuccessMessage(likeService.deleteLike(courseId));
     }
 }

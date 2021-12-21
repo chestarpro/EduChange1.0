@@ -23,20 +23,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserImageServiceImpl implements UserImageService {
     @Autowired
-    private UserService USER_SERVICE;
+    private UserService userService;
     @Autowired
-    private CommentRepository COMMENT_REPOSITORY;
-    private final UserImageRepository USER_IMAGE_REPOSITORY;
-    private final UserImageConverter USER_IMAGE_CONVERTER;
+    private CommentRepository commentRepository;
+    private final UserImageRepository userImageRepository;
+    private final UserImageConverter userImageConverter;
 
     @Override
     public UserImage save(UserImage userImage) {
-        return USER_IMAGE_REPOSITORY.save(userImage);
+        return userImageRepository.save(userImage);
     }
 
     @Override
     public UserImageModel createUserImage(MultipartFile file) {
-        User user = USER_SERVICE.getCurrentUser();
+        User user = userService.getCurrentUser();
 
         UserImage userImage = getUserImageByUserId(user.getId());
 
@@ -49,60 +49,60 @@ public class UserImageServiceImpl implements UserImageService {
         userImage.setUser(user);
         save(userImage);
         updateUserImageUrlForCommentsByUserId(user.getId(), savedImageUrl);
-        return USER_IMAGE_CONVERTER.convertFromEntity(userImage);
+        return userImageConverter.convertFromEntity(userImage);
     }
 
     @Override
     public UserImage getById(Long id) {
-        return USER_IMAGE_REPOSITORY.findById(id).orElse(null);
+        return userImageRepository.findById(id).orElse(null);
     }
 
     @Override
     public UserImageModel getUserImageModelById(Long id) {
-        return USER_IMAGE_CONVERTER.convertFromEntity(getById(id));
+        return userImageConverter.convertFromEntity(getById(id));
     }
 
 
     @Override
     public UserImage getUserImageByUserId(Long userId) {
-        return USER_IMAGE_REPOSITORY.findByUser_Id(userId).orElse(null);
+        return userImageRepository.findByUser_Id(userId).orElse(null);
     }
 
     @Override
     public UserImageModel getUserImageModelByUserId(Long userId) {
-        return USER_IMAGE_CONVERTER.convertFromEntity(getUserImageByUserId(userId));
+        return userImageConverter.convertFromEntity(getUserImageByUserId(userId));
     }
 
     @Override
     public List<UserImage> getAll() {
-        return USER_IMAGE_REPOSITORY.findAll();
+        return userImageRepository.findAll();
     }
 
     @Override
     public List<UserImageModel> getAllUserImageModel() {
         return getAll().stream()
-                .map(USER_IMAGE_CONVERTER::convertFromEntity)
+                .map(userImageConverter::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public UserImageModel updateUserImage(MultipartFile file) {
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long currentUserId = userService.getCurrentUser().getId();
         UserImage updateUserImage = getDataUserImageByCurrentUser(currentUserId);
         String updateImageUrl = ImageUtil.saveImageInCloudinary(file);
         updateUserImage.setUserImageUrl(updateImageUrl);
-        USER_IMAGE_REPOSITORY.save(updateUserImage);
+        userImageRepository.save(updateUserImage);
         updateUserImageUrlForCommentsByUserId(currentUserId, updateImageUrl);
-        return USER_IMAGE_CONVERTER.convertFromEntity(updateUserImage);
+        return userImageConverter.convertFromEntity(updateUserImage);
     }
 
     @Override
     public UserImageModel deleteImage() {
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long currentUserId = userService.getCurrentUser().getId();
         UserImage deleteUserImage = getDataUserImageByCurrentUser(currentUserId);
-        USER_IMAGE_REPOSITORY.delete(deleteUserImage);
+        userImageRepository.delete(deleteUserImage);
         updateUserImageUrlForCommentsByUserId(currentUserId, null);
-        return USER_IMAGE_CONVERTER.convertFromEntity(deleteUserImage);
+        return userImageConverter.convertFromEntity(deleteUserImage);
     }
 
     private UserImage getDataUserImageByCurrentUser(Long currentUserId) {
@@ -115,12 +115,12 @@ public class UserImageServiceImpl implements UserImageService {
     }
 
     private void updateUserImageUrlForCommentsByUserId(Long userId, String url) {
-        List<Comment> comments = COMMENT_REPOSITORY.findAllByUser_Id(userId);
+        List<Comment> comments = commentRepository.findAllByUser_Id(userId);
         if (!comments.isEmpty()) {
             for (Comment comment : comments) {
                 comment.setUserImageUrl(url);
             }
-            COMMENT_REPOSITORY.saveAll(comments);
+            commentRepository.saveAll(comments);
         }
     }
 }

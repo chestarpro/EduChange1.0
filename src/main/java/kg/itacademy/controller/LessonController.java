@@ -14,47 +14,47 @@ import java.util.List;
 @RequestMapping("/api/lesson")
 @RequiredArgsConstructor
 public class LessonController {
-    private final LessonService LESSON_SERVICE;
+    private final LessonService lessonService;
 
     @PostMapping("/create")
     public ResponseMessage<LessonModel> save(@RequestBody CreateLessonModel createLessonModel) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(LESSON_SERVICE.createLesson(createLessonModel));
+                .prepareSuccessMessage(lessonService.createLesson(createLessonModel));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<LessonModel> getById(@PathVariable Long id) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(LESSON_SERVICE.getLessonModelById(id));
+                .prepareSuccessMessage(lessonService.getLessonModelById(id));
     }
 
     @GetMapping("/get-first-three/by-course-id/{courseId}")
     public ResponseMessage<List<LessonModel>> getFirstThreeLessonsByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<List<LessonModel>>()
-                .prepareSuccessMessage(LESSON_SERVICE.getFirstThreeLessonsByCourseId(courseId));
+                .prepareSuccessMessage(lessonService.getFirstThreeLessonsByCourseId(courseId));
     }
 
     @GetMapping("/get-all/by-course-id/{courseId}")
     public ResponseMessage<List<LessonModel>> getAllByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<List<LessonModel>>()
-                .prepareSuccessMessage(LESSON_SERVICE.getAllByCourseId(courseId));
+                .prepareSuccessMessage(lessonService.getAllByCourseId(courseId));
     }
 
     @GetMapping("/get-count-lesson/by-course_id/{courseId}")
     public ResponseMessage<Long> getCountLessonByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<Long>()
-                .prepareSuccessMessage(LESSON_SERVICE.getCountLessonByCourseId(courseId));
+                .prepareSuccessMessage(lessonService.getCountLessonByCourseId(courseId));
     }
 
     @PutMapping("/update")
     public ResponseMessage<LessonModel> update(@RequestBody UpdateLessonModel updateLessonModel) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(LESSON_SERVICE.updateLesson(updateLessonModel));
+                .prepareSuccessMessage(lessonService.updateLesson(updateLessonModel));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<LessonModel> delete(@PathVariable Long id) {
         return new ResponseMessage<LessonModel>()
-                .prepareSuccessMessage(LESSON_SERVICE.deleteLessonById(id));
+                .prepareSuccessMessage(lessonService.deleteLessonById(id));
     }
 }

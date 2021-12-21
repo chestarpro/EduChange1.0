@@ -16,37 +16,37 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserLogServiceImpl implements UserLogService {
-    private final UserLogRepository USER_LOG_REPOSITORY;
-    private final UserLogConverter USER_LOG_CONVERTER;
+    private final UserLogRepository userLogRepository;
+    private final UserLogConverter userLogConverter;
 
     @Override
     public UserLog save(UserLog userLog) {
-        return USER_LOG_REPOSITORY.save(userLog);
+        return userLogRepository.save(userLog);
     }
 
     @Override
     public UserLog getById(Long id) {
-        return USER_LOG_REPOSITORY.findById(id).orElse(null);
+        return userLogRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<UserLog> getAll() {
-        return USER_LOG_REPOSITORY.findAll();
+        return userLogRepository.findAll();
     }
 
     @Override
     public List<UserLogModel> getAllByUserId(Long id) {
-        return USER_LOG_REPOSITORY.findAllByUser_Id(id).stream()
-                .map(USER_LOG_CONVERTER::convertFromEntity).collect(Collectors.toList());
+        return userLogRepository.findAllByUser_Id(id).stream()
+                .map(userLogConverter::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
     public boolean hasThreeFailsLastsLogsByUserId(Long id) {
-        return USER_LOG_REPOSITORY.hasThreeFailsInARowByUserId(id);
+        return userLogRepository.hasThreeFailsInARowByUserId(id);
     }
 
     @Override
     public UserLog getLastLogByUserId(Long id) {
-        return USER_LOG_REPOSITORY.findLastLogByUserId(id).orElse(null);
+        return userLogRepository.findLastLogByUserId(id).orElse(null);
     }
 }

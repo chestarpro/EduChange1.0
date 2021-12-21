@@ -11,37 +11,37 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/course-image")
 @RequiredArgsConstructor
 public class CourseImageController {
-    private final CourseImageService COURSE_IMAGE_SERVICE;
+    private final CourseImageService courseImageService;
 
     @PostMapping("/create/{courseId}")
     public ResponseMessage<CourseImageModel> save(@RequestParam(name = "file") MultipartFile file,
                                                   @PathVariable Long courseId) {
         return new ResponseMessage<CourseImageModel>()
-                .prepareSuccessMessage(COURSE_IMAGE_SERVICE.createCourseImage(file, courseId));
+                .prepareSuccessMessage(courseImageService.createCourseImage(file, courseId));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<CourseImageModel> getById(@PathVariable Long id) {
         return new ResponseMessage<CourseImageModel>()
-                .prepareSuccessMessage(COURSE_IMAGE_SERVICE.getCourseImageModelById(id));
+                .prepareSuccessMessage(courseImageService.getCourseImageModelById(id));
     }
 
     @GetMapping("/get-by-course-id/{courseId}")
     public ResponseMessage<CourseImageModel> getByCourseId(@PathVariable Long courseId) {
         return new ResponseMessage<CourseImageModel>()
-                .prepareSuccessMessage(COURSE_IMAGE_SERVICE.getCourseImageModelByCourseId(courseId));
+                .prepareSuccessMessage(courseImageService.getCourseImageModelByCourseId(courseId));
     }
 
     @PutMapping("/update/{id}")
     public ResponseMessage<CourseImageModel> update(@RequestParam(name = "file") MultipartFile multipartFile,
                                                     @PathVariable Long id) {
         return new ResponseMessage<CourseImageModel>()
-                .prepareSuccessMessage(COURSE_IMAGE_SERVICE.updateImage(multipartFile, id));
+                .prepareSuccessMessage(courseImageService.updateImage(multipartFile, id));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<CourseImageModel> delete(@PathVariable Long id) {
         return new ResponseMessage<CourseImageModel>()
-                .prepareSuccessMessage(COURSE_IMAGE_SERVICE.deleteImage(id));
+                .prepareSuccessMessage(courseImageService.deleteImage(id));
     }
 }

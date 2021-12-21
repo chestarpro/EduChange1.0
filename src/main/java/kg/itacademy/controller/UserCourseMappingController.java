@@ -13,23 +13,23 @@ import java.util.List;
 @RequestMapping("/api/purchase")
 @RequiredArgsConstructor
 public class UserCourseMappingController {
-    private final UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
+    private final UserCourseMappingService userCourseMappingService;
 
     @PostMapping("/create-by-course-id/{courseId}")
     public ResponseMessage<UserCourseMappingModel> create(@PathVariable Long courseId) {
         return new ResponseMessage<UserCourseMappingModel>()
-                .prepareSuccessMessage(USER_COURSE_MAPPING_SERVICE.createByCourseId(courseId));
+                .prepareSuccessMessage(userCourseMappingService.createByCourseId(courseId));
     }
 
     @GetMapping("/get-by-id/{id}")
     public ResponseMessage<UserCourseMappingModel> getById(@PathVariable Long id) {
         return new ResponseMessage<UserCourseMappingModel>()
-                .prepareSuccessMessage(USER_COURSE_MAPPING_SERVICE.getUserCourseMappingModelById(id));
+                .prepareSuccessMessage(userCourseMappingService.getUserCourseMappingModelById(id));
     }
 
     @GetMapping("/get-all-purchased-curses/{userId}")
     public ResponseMessage<List<CourseDataModel>> getAllPurchasedCourses(@PathVariable Long userId) {
         return new ResponseMessage<List<CourseDataModel>>()
-                .prepareSuccessMessage(USER_COURSE_MAPPING_SERVICE.getAllPurchasedCourses(userId));
+                .prepareSuccessMessage(userCourseMappingService.getAllPurchasedCourses(userId));
     }
 }

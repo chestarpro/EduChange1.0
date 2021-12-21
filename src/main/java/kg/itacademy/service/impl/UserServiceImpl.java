@@ -27,32 +27,32 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     @Autowired
-    private UserImageService USER_IMAGE_SERVICE;
+    private UserImageService userImageService;
     @Autowired
-    private CourseService COURSE_SERVICE;
+    private CourseService courseService;
     @Autowired
-    private UserBalanceService USER_BALANCE_SERVICE;
+    private UserBalanceService userBalanceService;
     @Autowired
-    private UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
-    private final UserRepository USER_REPOSITORY;
-    private final UserRoleService USER_ROLE_SERVICE;
-    private final PasswordEncoder PASSWORD_ENCODER;
-    private final UserLogService USER_LOG_SERVICE;
-    private final UserConverter USER_CONVERTER;
-    private final RegexUtil REGEX_UTIL;
+    private UserCourseMappingService userCourseMappingService;
+    private final UserRepository userRepository;
+    private final UserRoleService userRoleService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserLogService userLogService;
+    private final UserConverter converter;
+    private final RegexUtil regexUtil;
 
     @Override
     public User save(User user) {
-        user.setPassword(PASSWORD_ENCODER.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsActive(1L);
-        USER_REPOSITORY.save(user);
+        userRepository.save(user);
 
-        USER_ROLE_SERVICE.save(UserRole.builder()
+        userRoleService.save(UserRole.builder()
                 .roleName("ROLE_USER")
                 .user(user)
                 .build());
 
-        USER_BALANCE_SERVICE.save(UserBalance.builder()
+        userBalanceService.save(UserBalance.builder()
                 .user(user)
                 .balance(new BigDecimal(0))
                 .build());
@@ -64,61 +64,61 @@ public class UserServiceImpl implements UserService {
     public UserProfileDataModel createUser(CreateUserModel createUserModel) {
         validateVariablesForNullOrIsEmpty(createUserModel);
         validateLengthVariables(createUserModel);
-        REGEX_UTIL.validateUsername(createUserModel.getUsername());
-        REGEX_UTIL.validateEmail(createUserModel.getEmail());
+        regexUtil.validateUsername(createUserModel.getUsername());
+        regexUtil.validateEmail(createUserModel.getEmail());
         checkUsernameAndEmail(createUserModel);
 
         String token = getBasicToken(createUserModel.getUsername(), createUserModel.getPassword());
 
-        User dataUser = USER_CONVERTER.convertFromModel(createUserModel);
+        User dataUser = converter.convertFromModel(createUserModel);
         save(dataUser);
         return getUserProfileDataModelByUserId(token, dataUser.getId());
     }
 
     @Override
     public UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
-        User user = USER_REPOSITORY.findByUsername(userAuthorizModel.getUsername())
+        User user = userRepository.findByUsername(userAuthorizModel.getUsername())
                 .orElseThrow(() -> new ApiFailException("Invalid username or password"));
 
-        boolean isPasswordIsCorrect = PASSWORD_ENCODER.matches(userAuthorizModel.getPassword(), user.getPassword());
+        boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
 
         checkUserActiveStatus(user);
         checkFailPassword(isPasswordIsCorrect, user);
 
-        USER_LOG_SERVICE.save(new UserLog(user, true));
+        userLogService.save(new UserLog(user, true));
         String token = getBasicToken(userAuthorizModel.getUsername(), userAuthorizModel.getPassword());
         return getUserProfileDataModelByUserId(token, user.getId());
     }
 
     @Override
     public List<User> getAll() {
-        return USER_REPOSITORY.findAll();
+        return userRepository.findAll();
     }
 
     @Override
     public List<BaseUserModel> getAllUserModels() {
         return getAll().stream()
-                .map(USER_CONVERTER::convertFromEntity).collect(Collectors.toList());
+                .map(converter::convertFromEntity).collect(Collectors.toList());
     }
 
     @Override
     public User getById(Long id) {
-        return USER_REPOSITORY.findById(id).orElse(null);
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
     public BaseUserModel getUserModelById(Long id) {
-        return USER_CONVERTER.convertFromEntity(getById(id));
+        return converter.convertFromEntity(getById(id));
     }
 
     @Override
     public User getByUsername(String username) {
-        return USER_REPOSITORY.findByUsername(username).orElse(null);
+        return userRepository.findByUsername(username).orElse(null);
     }
 
     @Override
     public User getByEmail(String email) {
-        return USER_REPOSITORY.findByEmail(email).orElse(null);
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public BaseUserModel getCurrentUserModel() {
-        return USER_CONVERTER.convertFromEntity(getCurrentUser());
+        return converter.convertFromEntity(getCurrentUser());
     }
 
     @Override
@@ -138,12 +138,12 @@ public class UserServiceImpl implements UserService {
 
         validateVariablesForNullOrIsEmptyUpdate(updateUserModel);
         validateLengthVariables(updateUserModel);
-        REGEX_UTIL.validateEmail(updateUserModel.getEmail());
-        REGEX_UTIL.validateUsername(updateUserModel.getUsername());
+        regexUtil.validateEmail(updateUserModel.getEmail());
+        regexUtil.validateUsername(updateUserModel.getUsername());
         checkUsernameAndEmail(updateUserModel);
 
         setVariablesForUpdateUser(dataUser, updateUserModel);
-        dataUser = USER_REPOSITORY.save(dataUser);
+        dataUser = userRepository.save(dataUser);
 
         String token = null;
         if (updateUserModel.getPassword() != null)
@@ -162,29 +162,29 @@ public class UserServiceImpl implements UserService {
         if (newPassword.length() < 6)
             throw new ApiFailException("The number of password characters must be more than 5");
 
-        user.setPassword(PASSWORD_ENCODER.encode(newPassword));
-        USER_REPOSITORY.save(user);
-        return USER_CONVERTER.convertFromEntity(user);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        return converter.convertFromEntity(user);
     }
 
     @Override
     public User setInActiveUser(User user, Long status) {
         user.setIsActive(status);
-        return USER_REPOSITORY.save(user);
+        return userRepository.save(user);
     }
 
     @Override
     public BaseUserModel deleteUser() {
         User user = getCurrentUser();
         User deleteUser = setInActiveUser(user, -1L);
-        return USER_CONVERTER.convertFromEntity(deleteUser);
+        return converter.convertFromEntity(deleteUser);
     }
 
     @Override
     public BaseUserModel deleteUserByAdmin(Long userId) {
         User user = getById(userId);
         User deleteUser = setInActiveUser(user, -1L);
-        return USER_CONVERTER.convertFromEntity(deleteUser);
+        return converter.convertFromEntity(deleteUser);
     }
 
     private User getDataUserWithCheckAccess(Long userId) {
@@ -257,7 +257,7 @@ public class UserServiceImpl implements UserService {
         if (user.getIsActive() == -1)
             throw new ApiFailException("User nut found");
         if (user.getIsActive() == 0) {
-            UserLog userLog = USER_LOG_SERVICE.getLastLogByUserId(user.getId());
+            UserLog userLog = userLogService.getLastLogByUserId(user.getId());
             if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(5)))
                 setInActiveUser(user, 1L);
             else throw new ApiFailException("You are blocked for 5 minutes");
@@ -266,9 +266,9 @@ public class UserServiceImpl implements UserService {
 
     private void checkFailPassword(boolean isPasswordIsCorrect, User user) {
         if (!isPasswordIsCorrect) {
-            USER_LOG_SERVICE.save(new UserLog(user, false));
+            userLogService.save(new UserLog(user, false));
 
-            boolean needToBan = USER_LOG_SERVICE.hasThreeFailsLastsLogsByUserId(user.getId());
+            boolean needToBan = userLogService.hasThreeFailsLastsLogsByUserId(user.getId());
 
             if (needToBan)
                 setInActiveUser(user, 0L);
@@ -280,11 +280,11 @@ public class UserServiceImpl implements UserService {
     private UserProfileDataModel getUserProfileDataModelByUserId(String token, Long userId) {
         UserProfileDataModel dataBaseModel = new UserProfileDataModel();
         dataBaseModel.setToken(token);
-        List<CourseDataModel> userCreateCourses = COURSE_SERVICE.getAllCourseDataModelByUserId(userId);
-        List<CourseDataModel> userPurchasedCourses = USER_COURSE_MAPPING_SERVICE.getAllPurchasedCourses(userId);
+        List<CourseDataModel> userCreateCourses = courseService.getAllCourseDataModelByUserId(userId);
+        List<CourseDataModel> userPurchasedCourses = userCourseMappingService.getAllPurchasedCourses(userId);
         dataBaseModel.setUserModelToSend((UserModelToSend) getUserModelById(userId));
-        dataBaseModel.setUserBalanceModel(USER_BALANCE_SERVICE.getUserBalanceModelByUserId(userId));
-        dataBaseModel.setUserImageModel(USER_IMAGE_SERVICE.getUserImageModelByUserId(userId));
+        dataBaseModel.setUserBalanceModel(userBalanceService.getUserBalanceModelByUserId(userId));
+        dataBaseModel.setUserImageModel(userImageService.getUserImageModelByUserId(userId));
         dataBaseModel.setUserCreateCourseModels(userCreateCourses);
         dataBaseModel.setUserPurchasedCourseModels(userPurchasedCourses);
         return dataBaseModel;
@@ -298,7 +298,7 @@ public class UserServiceImpl implements UserService {
         if (updateUserModel.getEmail() != null)
             user.setEmail(updateUserModel.getEmail());
         if (updateUserModel.getPassword() != null)
-            user.setPassword(PASSWORD_ENCODER.encode(updateUserModel.getPassword()));
+            user.setPassword(passwordEncoder.encode(updateUserModel.getPassword()));
         if (updateUserModel.getBirthDay() != null)
             user.setBirthDay(updateUserModel.getBirthDay());
     }

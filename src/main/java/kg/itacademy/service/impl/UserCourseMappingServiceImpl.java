@@ -25,27 +25,27 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     @Autowired
-    private CourseService COURSE_SERVICE;
+    private CourseService courseService;
     @Autowired
-    private UserService USER_SERVICE;
+    private UserService userService;
     @Autowired
-    private UserBalanceService USER_BALANCE_SERVICE;
-    private final UserCourseMappingConverter MAPPING_CONVERTER;
-    private final UserCourseMappingRepository USER_COURSE_MAPPING_REPOSITORY;
+    private UserBalanceService userBalanceService;
+    private final UserCourseMappingConverter userCourseMappingConverter;
+    private final UserCourseMappingRepository userCourseMappingRepository;
 
     @Override
     public UserCourseMapping save(UserCourseMapping userCourseMapping) {
-        return USER_COURSE_MAPPING_REPOSITORY.save(userCourseMapping);
+        return userCourseMappingRepository.save(userCourseMapping);
     }
 
     @Override
     public UserCourseMappingModel createByCourseId(Long courseId) {
-        Course dataCourse = COURSE_SERVICE.getById(courseId);
+        Course dataCourse = courseService.getById(courseId);
 
         if (dataCourse == null)
             throw new ApiFailException("Course by id " + courseId + " not found");
 
-        User user = USER_SERVICE.getCurrentUser();
+        User user = userService.getCurrentUser();
         Long currentUserId = user.getId();
         Long authorCourseId = dataCourse.getUser().getId();
 
@@ -58,52 +58,52 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
             throw new ApiFailException("User " + user.getUsername() + " is the author of the course");
 
         transaction(dataCourse.getPrice(), currentUserId, authorCourseId);
-        return MAPPING_CONVERTER.convertFromEntity(save(new UserCourseMapping(user, dataCourse)));
+        return userCourseMappingConverter.convertFromEntity(save(new UserCourseMapping(user, dataCourse)));
     }
 
     @Override
     public UserCourseMapping getById(Long id) {
-        return USER_COURSE_MAPPING_REPOSITORY.findById(id).orElse(null);
+        return userCourseMappingRepository.findById(id).orElse(null);
     }
 
     @Override
     public UserCourseMappingModel getUserCourseMappingModelById(Long id) {
-        return MAPPING_CONVERTER.convertFromEntity(getById(id));
+        return userCourseMappingConverter.convertFromEntity(getById(id));
     }
 
     @Override
     public UserCourseMapping getByCourseIdAndUserId(Long courseId, Long userId) {
-        return USER_COURSE_MAPPING_REPOSITORY
+        return userCourseMappingRepository
                 .findByCourse_IdAndUser_Id(courseId, userId)
                 .orElse(null);
     }
 
     @Override
     public List<UserCourseMapping> getAll() {
-        return USER_COURSE_MAPPING_REPOSITORY.findAll();
+        return userCourseMappingRepository.findAll();
     }
 
     @Override
     public List<CourseDataModel> getAllPurchasedCourses(Long userId) {
-        return USER_COURSE_MAPPING_REPOSITORY
+        return userCourseMappingRepository
                 .findAllByUser_Id(userId)
                 .stream()
                 .map(UserCourseMapping::getCourse)
-                .map(i -> COURSE_SERVICE.getCourseDataModelByCourseId(i.getId()))
+                .map(i -> courseService.getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
     }
 
     private void transaction(BigDecimal coursePrice, Long currentUserId, Long authorCourseUserId) {
-        UserBalance currentUserBalance = USER_BALANCE_SERVICE.getUserBalanceByUserId(currentUserId);
+        UserBalance currentUserBalance = userBalanceService.getUserBalanceByUserId(currentUserId);
 
         if (currentUserBalance.getBalance().compareTo(coursePrice) < 0)
             throw new ApiFailException("Not enough balance");
 
         currentUserBalance.setBalance(currentUserBalance.getBalance().subtract(coursePrice));
-        USER_BALANCE_SERVICE.save(currentUserBalance);
+        userBalanceService.save(currentUserBalance);
 
-        UserBalance authorUserBalance = USER_BALANCE_SERVICE.getUserBalanceByUserId(authorCourseUserId);
+        UserBalance authorUserBalance = userBalanceService.getUserBalanceByUserId(authorCourseUserId);
         authorUserBalance.setBalance(authorUserBalance.getBalance().add(coursePrice));
-        USER_BALANCE_SERVICE.save(authorUserBalance);
+        userBalanceService.save(authorUserBalance);
     }
 }

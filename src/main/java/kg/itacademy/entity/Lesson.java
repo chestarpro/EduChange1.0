@@ -20,6 +20,9 @@ public class Lesson extends BaseEntity {
     @Column(name = "lesson_url")
     private String lessonUrl;
 
+    @Column(name = "is_visible", nullable = false)
+    private Boolean isVisible;
+
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "course_id", nullable = false)

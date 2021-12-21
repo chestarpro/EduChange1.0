@@ -21,22 +21,22 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseImageServiceImpl implements CourseImageService {
     @Autowired
-    private UserService USER_SERVICE;
+    private UserService userService;
     @Autowired
-    private CourseServiceImpl COURSE_SERVICE;
-    private final CourseImageRepository COURSE_IMAGE_REPOSITORY;
-    private final CourseImageConverter COURSE_IMAGER_CONVERTER;
+    private CourseServiceImpl courseService;
+    private final CourseImageRepository courseImageRepository;
+    private final CourseImageConverter courseImageConverter;
 
     @Override
     public CourseImage save(CourseImage courseImage) {
-        return COURSE_IMAGE_REPOSITORY.save(courseImage);
+        return courseImageRepository.save(courseImage);
     }
 
     @Override
     public CourseImageModel createCourseImage(MultipartFile multipartFile, Long courseId) {
         Course course = getDataCourseByCourseIdWithCheckAccess(courseId);
 
-        CourseImage courseImage = COURSE_IMAGE_REPOSITORY.findByCourse_Id(courseId).orElse(null);
+        CourseImage courseImage = courseImageRepository.findByCourse_Id(courseId).orElse(null);
 
         if (courseImage != null)
             throw new ApiFailException("Course image is already");
@@ -47,35 +47,35 @@ public class CourseImageServiceImpl implements CourseImageService {
         courseImage.setCourse(course);
         save(courseImage);
 
-        return COURSE_IMAGER_CONVERTER.convertFromEntity(courseImage);
+        return courseImageConverter.convertFromEntity(courseImage);
     }
 
     @Override
     public CourseImage getById(Long id) {
-        return COURSE_IMAGE_REPOSITORY.findById(id).orElse(null);
+        return courseImageRepository.findById(id).orElse(null);
     }
 
     @Override
     public CourseImageModel getCourseImageModelById(Long id) {
-        return COURSE_IMAGER_CONVERTER.convertFromEntity(getById(id));
+        return courseImageConverter.convertFromEntity(getById(id));
     }
 
     @Override
     public CourseImageModel getCourseImageModelByCourseId(Long courseId) {
-        CourseImage courseImage = COURSE_IMAGE_REPOSITORY.findByCourse_Id(courseId).orElse(null);
-        return COURSE_IMAGER_CONVERTER.convertFromEntity(courseImage);
+        CourseImage courseImage = courseImageRepository.findByCourse_Id(courseId).orElse(null);
+        return courseImageConverter.convertFromEntity(courseImage);
     }
 
     @Override
     public List<CourseImage> getAll() {
-        return COURSE_IMAGE_REPOSITORY.findAll();
+        return courseImageRepository.findAll();
     }
 
     @Override
     public List<CourseImageModel> getAllUserImageModel() {
         return getAll()
                 .stream()
-                .map(COURSE_IMAGER_CONVERTER::convertFromEntity)
+                .map(courseImageConverter::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -84,22 +84,22 @@ public class CourseImageServiceImpl implements CourseImageService {
         CourseImage updateCourseImage = getDataCourseImageByIdWithCheckAccess(id);
         String updateImageUrl = ImageUtil.saveImageInCloudinary(multipartFile);
         updateCourseImage.setCourseImageUrl(updateImageUrl);
-        COURSE_IMAGE_REPOSITORY.save(updateCourseImage);
-        return COURSE_IMAGER_CONVERTER.convertFromEntity(updateCourseImage);
+        courseImageRepository.save(updateCourseImage);
+        return courseImageConverter.convertFromEntity(updateCourseImage);
     }
 
     @Override
     public CourseImageModel deleteImage(Long id) {
         CourseImage deleteCourseImage = getDataCourseImageByIdWithCheckAccess(id);
-        COURSE_IMAGE_REPOSITORY.delete(deleteCourseImage);
-        return COURSE_IMAGER_CONVERTER.convertFromEntity(deleteCourseImage);
+        courseImageRepository.delete(deleteCourseImage);
+        return courseImageConverter.convertFromEntity(deleteCourseImage);
     }
 
     private Course getDataCourseByCourseIdWithCheckAccess(Long courseId) {
         if (courseId == null)
             throw new ApiFailException("Course id not specified");
 
-        Course course = COURSE_SERVICE.getById(courseId);
+        Course course = courseService.getById(courseId);
 
         if (course == null)
             throw new ApiFailException("Course by id " + courseId + " not found");
@@ -123,7 +123,7 @@ public class CourseImageServiceImpl implements CourseImageService {
     }
 
     private void checkAccess(Long authorCourseId) {
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long currentUserId = userService.getCurrentUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
             throw new ApiFailException("Access is denied");

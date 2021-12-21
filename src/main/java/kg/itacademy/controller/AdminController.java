@@ -15,45 +15,45 @@ import java.util.List;
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
-    private final UserService USER_SERVICE;
-    private final CategoryService CATEGORY_SERVICE;
-    private final UserLogService USER_LOG_SERVICE;
-    private final UserImageService USER_IMAGE_SERVICE;
-    private final UserCourseMappingService USER_COURSE_MAPPING_SERVICE;
+    private final UserService userService;
+    private final CategoryService categoryService;
+    private final UserLogService userLogService;
+    private final UserImageService userImageService;
+    private final UserCourseMappingService userCourseMappingService;
 
     @PostMapping("/category/create/{categoryName}")
     public ResponseMessage<CategoryModel> createCategory(@PathVariable String categoryName) {
         return new ResponseMessage<CategoryModel>()
-                .prepareSuccessMessage(CATEGORY_SERVICE.createCategory(categoryName));
+                .prepareSuccessMessage(categoryService.createCategory(categoryName));
     }
 
     @PutMapping("/category/update")
     public ResponseMessage<CategoryModel> updateCategory(@RequestBody CategoryModel categoryModel) {
         return new ResponseMessage<CategoryModel>()
-                .prepareSuccessMessage(CATEGORY_SERVICE.updateCategory(categoryModel));
+                .prepareSuccessMessage(categoryService.updateCategory(categoryModel));
     }
 
     @GetMapping("/user/get-all")
     public ResponseMessage<List<BaseUserModel>> getAllUser() {
         return new ResponseMessage<List<BaseUserModel>>()
-                .prepareSuccessMessage(USER_SERVICE.getAllUserModels());
+                .prepareSuccessMessage(userService.getAllUserModels());
     }
 
     @GetMapping("/user-log/get-all/by-user-id/{userId}")
     public ResponseMessage<List<UserLogModel>> getAllUserLogByUserId(@PathVariable Long userId) {
         return new ResponseMessage<List<UserLogModel>>()
-                .prepareSuccessMessage(USER_LOG_SERVICE.getAllByUserId(userId));
+                .prepareSuccessMessage(userLogService.getAllByUserId(userId));
     }
 
     @GetMapping("/user-image/get-all")
     public ResponseMessage<List<UserImageModel>> getAllUserImageModel() {
         return new ResponseMessage<List<UserImageModel>>()
-                .prepareSuccessMessage(USER_IMAGE_SERVICE.getAllUserImageModel());
+                .prepareSuccessMessage(userImageService.getAllUserImageModel());
     }
 
     @DeleteMapping("/user/delete/{userId}")
     public ResponseMessage<BaseUserModel> deleteUser(@PathVariable Long userId) {
         return new ResponseMessage<BaseUserModel>()
-                .prepareSuccessMessage(USER_SERVICE.deleteUserByAdmin(userId));
+                .prepareSuccessMessage(userService.deleteUserByAdmin(userId));
     }
 }

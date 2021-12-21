@@ -26,17 +26,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
     @Autowired
-    private CourseService COURSE_SERVICE;
+    private CourseService courseService;
     @Autowired
-    private UserService USER_SERVICE;
+    private UserService userService;
     @Autowired
-    private UserImageService USER_IMAGE_SERVICE;
-    private final CommentRepository COMMENT_REPOSITORY;
-    private final CommentConverter COMMENT_CONVERTER;
+    private UserImageService userImageService;
+    private final CommentRepository commentRepository;
+    private final CommentConverter commentConverter;
 
     @Override
     public Comment save(Comment comment) {
-        return COMMENT_REPOSITORY.save(comment);
+        return commentRepository.save(comment);
     }
 
     @Override
@@ -44,43 +44,43 @@ public class CommentServiceImpl implements CommentService {
         validateVariablesForNullOrIsEmpty(createCommentModel);
         validateLengthVariables(createCommentModel);
 
-        Course course = COURSE_SERVICE.getById(createCommentModel.getCourseId());
-        User user = USER_SERVICE.getCurrentUser();
+        Course course = courseService.getById(createCommentModel.getCourseId());
+        User user = userService.getCurrentUser();
         String commentText = createCommentModel.getComment();
 
         Comment comment = new Comment();
         comment.setCourseComment(commentText);
         comment.setUser(user);
         comment.setCourse(course);
-        UserImage userImage = USER_IMAGE_SERVICE.getUserImageByUserId(user.getId());
+        UserImage userImage = userImageService.getUserImageByUserId(user.getId());
         if (userImage != null) {
             comment.setUserImageUrl(userImage.getUserImageUrl());
         }
         save(comment);
-        return COMMENT_CONVERTER.convertFromEntity(comment);
+        return commentConverter.convertFromEntity(comment);
     }
 
     @Override
     public Comment getById(Long id) {
-        return COMMENT_REPOSITORY.findById(id).orElse(null);
+        return commentRepository.findById(id).orElse(null);
     }
 
     @Override
     public CommentModel getCommentModelById(Long id) {
-        return COMMENT_CONVERTER.convertFromEntity(getById(id));
+        return commentConverter.convertFromEntity(getById(id));
     }
 
     @Override
     public List<Comment> getAll() {
-        return COMMENT_REPOSITORY.findAll();
+        return commentRepository.findAll();
     }
 
     @Override
     public List<CommentModel> getAllCommentModelByCourseId(Long courseId) {
-        return COMMENT_REPOSITORY
+        return commentRepository
                 .findAllByCourse_Id(courseId)
                 .stream()
-                .map(COMMENT_CONVERTER::convertFromEntity)
+                .map(commentConverter::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -93,15 +93,15 @@ public class CommentServiceImpl implements CommentService {
         validateLengthVariables(updateCommentModel);
 
         dataComment.setCourseComment(updateCommentModel.getComment());
-        COMMENT_REPOSITORY.save(dataComment);
-        return COMMENT_CONVERTER.convertFromEntity(dataComment);
+        commentRepository.save(dataComment);
+        return commentConverter.convertFromEntity(dataComment);
     }
 
     @Override
     public CommentModel deleteComment(Long id) {
         Comment deleteComment = getDataCommentByIdWithCheckAccess(id, true);
-        COMMENT_REPOSITORY.delete(deleteComment);
-        return COMMENT_CONVERTER.convertFromEntity(deleteComment);
+        commentRepository.delete(deleteComment);
+        return commentConverter.convertFromEntity(deleteComment);
     }
 
     private void validateVariablesForNullOrIsEmpty(BaseCommentModel baseCommentModel) {
@@ -114,7 +114,7 @@ public class CommentServiceImpl implements CommentService {
                 throw new ApiFailException("Course id is not specified");
             else {
                 Long curseId = createCommentModel.getCourseId();
-                Course course = COURSE_SERVICE.getById(curseId);
+                Course course = courseService.getById(curseId);
                 if (course == null)
                     throw new ApiFailException("Course by id " + curseId + " not found");
             }
@@ -135,11 +135,11 @@ public class CommentServiceImpl implements CommentService {
         if (dataComment == null)
             throw new ApiFailException("Comment by id " + id + " not found");
 
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long currentUserId = userService.getCurrentUser().getId();
         Long authorCommentId = dataComment.getUser().getId();
 
         if (isDelete) {
-            Long authorCourseId = COURSE_SERVICE.getById(dataComment.getCourse().getId()).getUser().getId();
+            Long authorCourseId = courseService.getById(dataComment.getCourse().getId()).getUser().getId();
             if (!currentUserId.equals(authorCommentId) && !currentUserId.equals(authorCourseId))
                 throw new ApiFailException("Access is denied");
         } else {

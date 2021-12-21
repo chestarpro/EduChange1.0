@@ -15,59 +15,59 @@ import java.util.List;
 @RequestMapping("/api/course")
 @RequiredArgsConstructor
 public class CourseController {
-    private final CourseService COURSE_SERVICE;
+    private final CourseService courseService;
 
     @PostMapping("/create")
     public ResponseMessage<CourseDataModel> save(@RequestBody CreateCourseModel createCourseModel) {
         return new ResponseMessage<CourseDataModel>()
-                .prepareSuccessMessage(COURSE_SERVICE.createCourse(createCourseModel));
+                .prepareSuccessMessage(courseService.createCourse(createCourseModel));
     }
 
     @PutMapping("/update")
     public ResponseMessage<CourseDataModel> update(@RequestBody UpdateCourseModel updateCourseModel) {
         return new ResponseMessage<CourseDataModel>()
-                .prepareSuccessMessage(COURSE_SERVICE.updateCourse(updateCourseModel));
+                .prepareSuccessMessage(courseService.updateCourse(updateCourseModel));
     }
 
     @GetMapping("/get/by-id/{id}")
     public ResponseMessage<CourseDataModel> getById(@PathVariable Long id) {
         return new ResponseMessage<CourseDataModel>()
-                .prepareSuccessMessage(COURSE_SERVICE.getCourseModelById(id));
+                .prepareSuccessMessage(courseService.getCourseModelById(id));
     }
 
     @GetMapping("/get-all")
     public ResponseMessage<List<CourseDataModel>> getAll() {
         return new ResponseMessage<List<CourseDataModel>>()
-                .prepareSuccessMessage(COURSE_SERVICE.getAllCourseDataModel());
+                .prepareSuccessMessage(courseService.getAllCourseDataModel());
     }
 
     @GetMapping("/get-all/by-user-id/{userId}")
     public ResponseMessage<List<CourseDataModel>> gatAllByUserId(@PathVariable Long userId) {
         return new ResponseMessage<List<CourseDataModel>>()
-                .prepareSuccessMessage(COURSE_SERVICE.getAllCourseDataModelByUserId(userId));
+                .prepareSuccessMessage(courseService.getAllCourseDataModelByUserId(userId));
     }
 
     @GetMapping("get-all/by-name/{courseName}")
     public ResponseMessage<List<CourseDataModel>> getAllByCourseName(@PathVariable String courseName) {
         return new ResponseMessage<List<CourseDataModel>>()
-                .prepareSuccessMessage(COURSE_SERVICE.getAllCourseDataModelByCourseName(courseName));
+                .prepareSuccessMessage(courseService.getAllCourseDataModelByCourseName(courseName));
     }
 
     @GetMapping("/get-all/by-category-id/{categoryId}")
     public ResponseMessage<List<CourseDataModel>> getAllByCategoryId(@PathVariable Long categoryId) {
         return new ResponseMessage<List<CourseDataModel>>()
-                .prepareSuccessMessage(COURSE_SERVICE.getAllCourseDataModelByCategoryId(categoryId));
+                .prepareSuccessMessage(courseService.getAllCourseDataModelByCategoryId(categoryId));
     }
 
     @GetMapping("/get-all/by-category-name/{categoryName}")
     public ResponseMessage<List<CourseDataModel>> getAllByCategoryName(@PathVariable String categoryName) {
         return new ResponseMessage<List<CourseDataModel>>()
-                .prepareSuccessMessage(COURSE_SERVICE.getAllCourseDataModelByCategoryName(categoryName));
+                .prepareSuccessMessage(courseService.getAllCourseDataModelByCategoryName(categoryName));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseMessage<CourseModel> delete(@PathVariable Long id) {
         return new ResponseMessage<CourseModel>()
-                .prepareSuccessMessage(COURSE_SERVICE.deleteCourseById(id));
+                .prepareSuccessMessage(courseService.deleteCourseById(id));
     }
 }

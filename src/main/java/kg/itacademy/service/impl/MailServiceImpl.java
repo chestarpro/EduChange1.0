@@ -20,20 +20,17 @@ public class MailServiceImpl implements MailService {
             "If this is you, then follow the link and enter the password reset key: ";
 
     @Autowired
-    private UserService USER_SERVICE;
+    private UserService userService;
 
     @Autowired
     private JavaMailSender javaMailSender;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private Environment environment;
 
     @Override
     public boolean send(String email) {
-        User user = USER_SERVICE.getByEmail(email);
+        User user = userService.getByEmail(email);
         if (user == null) return false;
         String encodeEmail = new String(Base64.getEncoder().encode(email.getBytes()));
         try {

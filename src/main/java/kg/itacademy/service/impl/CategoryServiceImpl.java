@@ -16,18 +16,18 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
-    private final CategoryRepository CATEGORY_REPOSITORY;
-    private final CategoryConverter CATEGORY_CONVERTER;
+    private final CategoryRepository categoryRepository;
+    private final CategoryConverter categoryConverter;
 
     @Override
     public Category save(Category category) {
-        return CATEGORY_REPOSITORY.save(category);
+        return categoryRepository.save(category);
     }
 
     @Override
     public CategoryModel createCategory(String categoryName) {
         validateCategoryName(categoryName);
-        Category category = CATEGORY_REPOSITORY.findByCategoryName(categoryName).orElse(null);
+        Category category = categoryRepository.findByCategoryName(categoryName).orElse(null);
 
         if (category != null)
             throw new ApiFailException("Category " + categoryName + " already exists");
@@ -36,37 +36,37 @@ public class CategoryServiceImpl implements CategoryService {
         category.setCategoryName(categoryName.toLowerCase(Locale.ROOT));
         save(category);
 
-        return CATEGORY_CONVERTER.convertFromEntity(category);
+        return categoryConverter.convertFromEntity(category);
     }
 
     @Override
     public Category getById(Long id) {
-        return CATEGORY_REPOSITORY.findById(id).orElse(null);
+        return categoryRepository.findById(id).orElse(null);
     }
 
     @Override
     public CategoryModel getCategoryModelById(Long id) {
-        return CATEGORY_CONVERTER.convertFromEntity(getById(id));
+        return categoryConverter.convertFromEntity(getById(id));
     }
 
     @Override
     public CategoryModel getByCategoryName(String categoryName) {
-        return CATEGORY_CONVERTER
-                .convertFromEntity(CATEGORY_REPOSITORY
+        return categoryConverter
+                .convertFromEntity(categoryRepository
                         .findByCategoryName(categoryName.toLowerCase(Locale.ROOT))
                         .orElse(null));
     }
 
     @Override
     public List<Category> getAll() {
-        return CATEGORY_REPOSITORY.findAll();
+        return categoryRepository.findAll();
     }
 
     @Override
     public List<CategoryModel> getAllCategoryModel() {
         return getAll()
                 .stream()
-                .map(CATEGORY_CONVERTER::convertFromEntity)
+                .map(categoryConverter::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
@@ -85,7 +85,7 @@ public class CategoryServiceImpl implements CategoryService {
         String updateCategoryName = categoryModel.getCategoryName();
         validateCategoryName(updateCategoryName);
         dataCategory.setCategoryName(updateCategoryName.toLowerCase(Locale.ROOT));
-        CATEGORY_REPOSITORY.save(dataCategory);
+        categoryRepository.save(dataCategory);
         return categoryModel;
     }
 

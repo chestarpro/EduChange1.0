@@ -19,6 +19,7 @@ public class LessonConverter extends BaseConverter<LessonModel, Lesson> {
                 .id(entityToConvert.getId())
                 .lessonInfo(entityToConvert.getLessonInfo())
                 .lessonUrl(entityToConvert.getLessonUrl())
+                .isVisible(entityToConvert.getIsVisible())
                 .courseId(entityToConvert.getCourse().getId())
                 .build();
     }
@@ -30,6 +31,7 @@ public class LessonConverter extends BaseConverter<LessonModel, Lesson> {
         lesson.setId(modelToConvert.getId());
         lesson.setLessonInfo(modelToConvert.getLessonInfo());
         lesson.setLessonUrl(modelToConvert.getLessonUrl());
+        lesson.setIsVisible(modelToConvert.getIsVisible());
 
         if (modelToConvert.getCourseId() != null) {
             Course course = new Course();

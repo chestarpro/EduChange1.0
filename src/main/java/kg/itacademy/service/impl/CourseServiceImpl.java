@@ -22,28 +22,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
     @Autowired
-    private CourseImageService COURSE_IMAGE_SERVICE;
+    private CourseImageService courseImageService;
     @Autowired
-    private LikeService LIKE_SERVICE;
+    private LikeService likeService;
     @Autowired
-    private UserService USER_SERVICE;
-    @Autowired
-    @Lazy
-    private LessonService LESSON_SERVICE;
+    private UserService userService;
     @Autowired
     @Lazy
-    private CommentService COMMENT_SERVICE;
+    private LessonService lessonService;
     @Autowired
     @Lazy
-    private CourseProgramService PROGRAM_SERVICE;
-    private final RegexUtil REGEX_UTIL;
-    private final CourseConverter COURSE_CONVERTER;
-    private final CourseRepository COURSE_REPOSITORY;
-    private final CategoryService CATEGORY_SERVICE;
+    private CommentService commentService;
+    @Autowired
+    @Lazy
+    private CourseProgramService courseProgramService;
+    private final RegexUtil regexUtil;
+    private final CourseConverter courseConverter;
+    private final CourseRepository courseRepository;
+    private final CategoryService categoryService;
 
     @Override
     public Course save(Course course) {
-        return COURSE_REPOSITORY.save(course);
+        return courseRepository.save(course);
     }
 
     @Override
@@ -53,13 +53,13 @@ public class CourseServiceImpl implements CourseService {
         validateVariablesForNullOrIsEmpty(createCourseModel);
 
         Course course = initCourse(createCourseModel);
-        COURSE_REPOSITORY.save(course);
+        courseRepository.save(course);
         return getCourseDataModelByCourseId(course.getId());
     }
 
     @Override
     public Course getById(Long id) {
-        return COURSE_REPOSITORY.findById(id).orElse(null);
+        return courseRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<Course> getAll() {
-        return COURSE_REPOSITORY.findAll();
+        return courseRepository.findAll();
     }
 
     @Override
@@ -83,18 +83,18 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseDataModel getCourseDataModelByCourseId(Long courseId) {
         CourseDataModel courseDataModel = new CourseDataModel();
-        courseDataModel.setCourseModel(COURSE_CONVERTER.convertFromEntity(getById(courseId)));
-        courseDataModel.setImageModel(COURSE_IMAGE_SERVICE.getCourseImageModelByCourseId(courseId));
-        courseDataModel.setLessonCount(LESSON_SERVICE.getCountLessonByCourseId(courseId));
-        courseDataModel.setPrograms(PROGRAM_SERVICE.getAllCourseProgramModelByCourseId(courseId));
-        courseDataModel.setLikes(LIKE_SERVICE.getAllLikeModelByCourseId(courseId));
-        courseDataModel.setComments(COMMENT_SERVICE.getAllCommentModelByCourseId(courseId));
+        courseDataModel.setCourseModel(courseConverter.convertFromEntity(getById(courseId)));
+        courseDataModel.setImageModel(courseImageService.getCourseImageModelByCourseId(courseId));
+        courseDataModel.setLessonCount(lessonService.getCountLessonByCourseId(courseId));
+        courseDataModel.setPrograms(courseProgramService.getAllCourseProgramModelByCourseId(courseId));
+        courseDataModel.setLikes(likeService.getAllLikeModelByCourseId(courseId));
+        courseDataModel.setComments(commentService.getAllCommentModelByCourseId(courseId));
         return courseDataModel;
     }
 
     @Override
     public List<CourseDataModel> getAllCourseDataModelByCourseName(String courseName) {
-        return COURSE_REPOSITORY.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
+        return courseRepository.findAllByCourseName(courseName.toLowerCase(Locale.ROOT))
                 .stream()
                 .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseDataModel> getAllCourseDataModelByCategoryName(String categoryName) {
-        return COURSE_REPOSITORY.findAllByCategoryName(categoryName.toLowerCase(Locale.ROOT))
+        return courseRepository.findAllByCategoryName(categoryName.toLowerCase(Locale.ROOT))
                 .stream()
                 .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
@@ -110,7 +110,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseDataModel> getAllCourseDataModelByCategoryId(Long id) {
-        return COURSE_REPOSITORY.findAllByCategory_Id(id)
+        return courseRepository.findAllByCategory_Id(id)
                 .stream()
                 .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
@@ -118,7 +118,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<CourseDataModel> getAllCourseDataModelByUserId(Long userId) {
-        return COURSE_REPOSITORY.findAllByUser_Id(userId)
+        return courseRepository.findAllByUser_Id(userId)
                 .stream()
                 .map(i -> getCourseDataModelByCourseId(i.getId()))
                 .collect(Collectors.toList());
@@ -135,15 +135,15 @@ public class CourseServiceImpl implements CourseService {
         validateLengthVariables(updateCourseModel);
 
         setVariablesForUpdateCourse(dataCourse, updateCourseModel);
-        COURSE_REPOSITORY.save(dataCourse);
+        courseRepository.save(dataCourse);
         return getCourseDataModelByCourseId(courseId);
     }
 
     @Override
     public CourseModel deleteCourseById(Long id) {
         Course deleteCourse = getDataCourseByIdWithCheckAccess(id);
-        COURSE_REPOSITORY.deleteById(id);
-        return COURSE_CONVERTER.convertFromEntity(deleteCourse);
+        courseRepository.deleteById(id);
+        return courseConverter.convertFromEntity(deleteCourse);
     }
 
     private Course initCourse(CreateCourseModel createCourseModel) {
@@ -160,7 +160,7 @@ public class CourseServiceImpl implements CourseService {
         course.setPhoneNumber(createCourseModel.getPhoneNumber());
         course.setEmail(createCourseModel.getEmail());
         course.setPrice(createCourseModel.getPrice());
-        course.setUser(USER_SERVICE.getCurrentUser());
+        course.setUser(userService.getCurrentUser());
         return course;
     }
 
@@ -173,7 +173,7 @@ public class CourseServiceImpl implements CourseService {
         if (dataCourse == null)
             throw new ApiFailException("Course by id " + id + " not found");
 
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long currentUserId = userService.getCurrentUser().getId();
         Long authorCourseId = dataCourse.getUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
@@ -184,9 +184,9 @@ public class CourseServiceImpl implements CourseService {
 
     private void validateEmailAndPhoneNumber(BaseCourseModel baseCourseModel) {
         if (baseCourseModel.getEmail() != null)
-            REGEX_UTIL.validateEmail(baseCourseModel.getEmail());
+            regexUtil.validateEmail(baseCourseModel.getEmail());
         if (baseCourseModel.getPhoneNumber() != null) {
-            REGEX_UTIL.validatePhoneNumber(baseCourseModel.getPhoneNumber());
+            regexUtil.validatePhoneNumber(baseCourseModel.getPhoneNumber());
         }
     }
 
@@ -239,7 +239,7 @@ public class CourseServiceImpl implements CourseService {
         if (categoryId == null)
             throw new ApiFailException("Category is not specified");
         else {
-            Category category = CATEGORY_SERVICE.getById(categoryId);
+            Category category = categoryService.getById(categoryId);
             if (category == null)
                 throw new ApiFailException("Category by id " + categoryId + " not found");
         }
@@ -265,15 +265,13 @@ public class CourseServiceImpl implements CourseService {
     public void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseModel updateCourseModel) {
         Long categoryId = updateCourseModel.getCategoryId();
         if (categoryId != null) {
-            Category category = CATEGORY_SERVICE.getById(categoryId);
+            Category category = categoryService.getById(categoryId);
             if (category == null)
                 throw new ApiFailException("Category by id " + categoryId + " not found");
         }
+
         if (updateCourseModel.getCourseName() != null && updateCourseModel.getCourseName().isEmpty())
             throw new ApiFailException("Course name is not filled");
-
-        if (updateCourseModel.getPhoneNumber() != null && updateCourseModel.getPhoneNumber().isEmpty())
-            throw new ApiFailException("Phone number is not filled");
 
         if (updateCourseModel.getCourseShortInfo() != null && updateCourseModel.getCourseShortInfo().isEmpty())
             throw new ApiFailException("Short info is not filled");
@@ -283,9 +281,6 @@ public class CourseServiceImpl implements CourseService {
 
         if (updateCourseModel.getCourseInfo() != null && updateCourseModel.getCourseInfo().isEmpty())
             throw new ApiFailException("Course info is not filled");
-
-        if (updateCourseModel.getCourseInfoUrl() != null && updateCourseModel.getCourseInfoUrl().isEmpty())
-            throw new ApiFailException("Info url is not filled");
 
         if (updateCourseModel.getPrice() != null && updateCourseModel.getPrice().compareTo(BigDecimal.ZERO) < 0)
             throw new ApiFailException("Wrong balance format");

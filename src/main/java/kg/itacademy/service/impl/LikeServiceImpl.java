@@ -21,43 +21,43 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LikeServiceImpl implements LikeService {
     @Autowired
-    private CourseService COURSE_SERVICE;
+    private CourseService courseService;
     @Autowired
-    private UserService USER_SERVICE;
-    private final LikeRepository LIKE_REPOSITORY;
-    private final LikeConverter LIKE_CONVERTER;
+    private UserService userService;
+    private final LikeRepository likeRepository;
+    private final LikeConverter likeConverter;
 
     @Override
     public Like save(Like like) {
-        return LIKE_REPOSITORY.save(like);
+        return likeRepository.save(like);
     }
 
     @Override
     public LikeModel createLikeByCourseId(Long courseId) {
-        User user = USER_SERVICE.getCurrentUser();
-        Like like = LIKE_REPOSITORY
+        User user = userService.getCurrentUser();
+        Like like = likeRepository
                 .findByCourse_IdAndUser_Id(courseId, user.getId())
                 .orElse(null);
 
         if (like != null)
             throw new ApiFailException("Like is already exists");
 
-        Course course = COURSE_SERVICE.getById(courseId);
+        Course course = courseService.getById(courseId);
         like = new Like();
         like.setCourse(course);
         like.setUser(user);
         save(like);
-        return LIKE_CONVERTER.convertFromEntity(like);
+        return likeConverter.convertFromEntity(like);
     }
 
     @Override
     public Like getById(Long id) {
-        return LIKE_REPOSITORY.findById(id).orElse(null);
+        return likeRepository.findById(id).orElse(null);
     }
 
     @Override
     public LikeModel getLikeModelById(Long id) {
-        return LIKE_CONVERTER.convertFromEntity(getById(id));
+        return likeConverter.convertFromEntity(getById(id));
     }
 
     @Override
@@ -67,23 +67,23 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public List<LikeModel> getAllLikeModelByCourseId(Long id) {
-        return LIKE_REPOSITORY
+        return likeRepository
                 .findAllByCourse_Id(id)
                 .stream()
-                .map(LIKE_CONVERTER::convertFromEntity)
+                .map(likeConverter::convertFromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public LikeModel deleteLike(Long courseId) {
-        Long currentUserId = USER_SERVICE.getCurrentUser().getId();
+        Long currentUserId = userService.getCurrentUser().getId();
 
-        Like dataLike = LIKE_REPOSITORY.findByCourse_IdAndUser_Id(courseId, currentUserId).orElse(null);
+        Like dataLike = likeRepository.findByCourse_IdAndUser_Id(courseId, currentUserId).orElse(null);
 
         if (dataLike == null)
             throw new ApiFailException("Like not found");
 
-        LIKE_REPOSITORY.delete(dataLike);
-        return LIKE_CONVERTER.convertFromEntity(dataLike);
+        likeRepository.delete(dataLike);
+        return likeConverter.convertFromEntity(dataLike);
     }
 }
