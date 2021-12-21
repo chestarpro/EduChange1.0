@@ -254,6 +254,9 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkBaningStatus(User user) {
+        if (user.getIsActive() == -1)
+            throw new ApiFailException("User not found");
+        
         if (user.getIsActive() == 0) {
             UserLog userLog = USER_LOG_SERVICE.getLastLogByUserId(user.getId());
             if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(5)))
