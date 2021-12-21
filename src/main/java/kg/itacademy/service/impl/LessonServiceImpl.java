@@ -79,9 +79,6 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public List<LessonModel> getAllByCourseId(Long courseId) {
-        if (!checkThePurchaseOfTheCourse(courseId))
-            throw new ApiFailException("Access is denied");
-
         return lessonRepository
                 .findAllByCourse_Id(courseId)
                 .stream()
@@ -136,21 +133,7 @@ public class LessonServiceImpl implements LessonService {
 
         return dataLesson;
     }
-
-    private boolean checkThePurchaseOfTheCourse(Long courseId) {
-        Long currentUserId = userService.getCurrentUser().getId();
-        Course course = courseService.getById(courseId);
-
-        UserCourseMapping userCourseMapping = userCourseMappingService
-                .getByCourseIdAndUserId(courseId, currentUserId);
-
-        if (userCourseMapping == null) {
-            if (!course.getUser().getId().equals(currentUserId))
-                return false;
-        }
-        return true;
-    }
-
+    
     private void validateLengthVariables(BaseLessonModel baseLessonModel) {
         if (baseLessonModel.getLessonInfo() != null && baseLessonModel.getLessonInfo().length() > 1000)
             throw new ApiFailException("Exceeded character limit (1000) for lesson info");
