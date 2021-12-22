@@ -117,9 +117,7 @@ public class UserImageServiceImpl implements UserImageService {
     private void updateUserImageUrlForCommentsByUserId(Long userId, String url) {
         List<Comment> comments = commentRepository.findAllByUser_Id(userId);
         if (!comments.isEmpty()) {
-            for (Comment comment : comments) {
-                comment.setUserImageUrl(url);
-            }
+            comments.forEach(comment -> comment.setUserImageUrl(url));
             commentRepository.saveAll(comments);
         }
     }
