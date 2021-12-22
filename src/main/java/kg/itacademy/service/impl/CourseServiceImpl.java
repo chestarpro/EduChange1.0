@@ -146,12 +146,12 @@ public class CourseServiceImpl implements CourseService {
 
     private Course initCourse(CreateCourseModel createCourseModel) {
         Course course = new Course();
-        if (createCourseModel.getCategoryId() != null) {
-            Category category = new Category();
-            category.setId(createCourseModel.getCategoryId());
-            course.setCategory(category);
-        }
+        Category category = new Category();
+        if (createCourseModel.getCategoryId() == null) {
+            category.setId(8L);
+        } else category.setId(createCourseModel.getCategoryId());
 
+        course.setCategory(category);
         course.setCourseName(createCourseModel.getCourseName().toLowerCase(Locale.ROOT));
         course.setCourseShortInfo(createCourseModel.getCourseShortInfo());
         course.setCourseInfo(createCourseModel.getCourseInfo());
@@ -166,18 +166,18 @@ public class CourseServiceImpl implements CourseService {
 
     private Course getDataCourseByIdWithCheckAccess(Long id) {
         if (id == null)
-            throw new ApiFailException("Course id not specified");
+            throw new ApiFailException("Не указан ID курса");
 
         Course dataCourse = getById(id);
 
         if (dataCourse == null)
-            throw new ApiFailException("Course by id " + id + " not found");
+            throw new ApiFailException("Курс под ID " + id + " не найден");
 
         Long currentUserId = userService.getCurrentUser().getId();
         Long authorCourseId = dataCourse.getUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
-            throw new ApiFailException("Access is denied");
+            throw new ApiFailException("Доступ ограничен");
 
         return dataCourse;
     }
@@ -192,13 +192,11 @@ public class CourseServiceImpl implements CourseService {
 
     private void validateLengthVariables(BaseCourseModel baseCourseModel) {
         if (baseCourseModel.getCourseShortInfo() != null && baseCourseModel.getCourseShortInfo().length() > 100)
-            throw new ApiFailException("Exceeded character limit (100) for short info");
-
+            throw new ApiFailException("Длинна символов короткой информации о курсе ограниченно(100)");
         if (baseCourseModel.getCourseInfoTitle() != null && baseCourseModel.getCourseInfoTitle().length() > 100)
-            throw new ApiFailException("Exceeded character limit (100) for title info");
-
+            throw new ApiFailException("Длинна символов заголовка информации ограниченно(100)");
         if (baseCourseModel.getCourseInfo() != null && baseCourseModel.getCourseInfo().length() > 1000)
-            throw new ApiFailException("Exceeded character limit (1000) for course info");
+            throw new ApiFailException("Длинна символов информации о курсе ограниченно(1000)");
     }
 
     private void setVariablesForUpdateCourse(Course course, UpdateCourseModel updateCourseModel) {
@@ -235,23 +233,21 @@ public class CourseServiceImpl implements CourseService {
 
     public void validateVariablesForNullOrIsEmpty(CreateCourseModel createCourseModel) {
         if (createCourseModel.getCourseName() == null || createCourseModel.getCourseName().isEmpty())
-            throw new ApiFailException("Course name is not filled");
+            throw new ApiFailException("Название курса не заполнено");
         if (createCourseModel.getCourseShortInfo() == null || createCourseModel.getCourseShortInfo().isEmpty())
-            throw new ApiFailException("Short info is not filled");
+            throw new ApiFailException("Короткая информация о курсе не заполнено");
         if (createCourseModel.getPrice() == null)
-            throw new ApiFailException("Price is not specified");
+            throw new ApiFailException("Цена курса не указана");
         else if (createCourseModel.getPrice().compareTo(BigDecimal.ZERO) < 0)
-            throw new ApiFailException("Wrong price format");
+            throw new ApiFailException("Не правильный формат");
     }
 
     public void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseModel updateCourseModel) {
         if (updateCourseModel.getCourseName() != null && updateCourseModel.getCourseName().isEmpty())
-            throw new ApiFailException("Course name is not filled");
-
+            throw new ApiFailException("Название курса не заполнено");
         if (updateCourseModel.getCourseShortInfo() != null && updateCourseModel.getCourseShortInfo().isEmpty())
-            throw new ApiFailException("Short info is not filled");
-
+            throw new ApiFailException("Короткая информация о курсе не заполнено");
         if (updateCourseModel.getPrice() != null && updateCourseModel.getPrice().compareTo(BigDecimal.ZERO) < 0)
-            throw new ApiFailException("Wrong balance format");
+            throw new ApiFailException("Не правильный формат");
     }
 }

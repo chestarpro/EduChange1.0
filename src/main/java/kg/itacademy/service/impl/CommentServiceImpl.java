@@ -106,45 +106,46 @@ public class CommentServiceImpl implements CommentService {
 
     private void validateVariablesForNullOrIsEmpty(BaseCommentModel baseCommentModel) {
         if (baseCommentModel.getComment() == null || baseCommentModel.getComment().isEmpty())
-            throw new ApiFailException("Comment is not filled");
+            throw new ApiFailException("Комментарий не заполнен");
 
         if (baseCommentModel instanceof CreateCommentModel) {
             CreateCommentModel createCommentModel = (CreateCommentModel) baseCommentModel;
             if (createCommentModel.getCourseId() == null)
-                throw new ApiFailException("Course id is not specified");
+                throw new ApiFailException("Не указан ID курса");
             else {
-                Long curseId = createCommentModel.getCourseId();
-                Course course = courseService.getById(curseId);
+                Long courseId = createCommentModel.getCourseId();
+                Course course = courseService.getById(courseId);
                 if (course == null)
-                    throw new ApiFailException("Course by id " + curseId + " not found");
+                    throw new ApiFailException("Курс под ID " + courseId + " не найден");
             }
         }
     }
 
     private void validateLengthVariables(BaseCommentModel baseCommentModel) {
         if (baseCommentModel.getComment() != null && baseCommentModel.getComment().length() > 1000)
-            throw new ApiFailException("Exceeded character limit (1000) for comment");
+            throw new ApiFailException("Длинна символов ограниченно(1000)");
     }
 
     private Comment getDataCommentByIdWithCheckAccess(Long id, boolean isDelete) {
         if (id == null)
-            throw new ApiFailException("Comment id is not specified");
+            throw new ApiFailException("Не указан ID комментария");
 
         Comment dataComment = getById(id);
 
         if (dataComment == null)
-            throw new ApiFailException("Comment by id " + id + " not found");
+            throw new ApiFailException("Комментарий под ID " + id + " не найден");
 
         Long currentUserId = userService.getCurrentUser().getId();
         Long authorCommentId = dataComment.getUser().getId();
 
+        String access = "Доступ ограничен";
         if (isDelete) {
             Long authorCourseId = courseService.getById(dataComment.getCourse().getId()).getUser().getId();
             if (!currentUserId.equals(authorCommentId) && !currentUserId.equals(authorCourseId))
-                throw new ApiFailException("Access is denied");
+                throw new ApiFailException(access);
         } else {
             if (!currentUserId.equals(authorCommentId))
-                throw new ApiFailException("Access is denied");
+                throw new ApiFailException(access);
         }
         return dataComment;
     }

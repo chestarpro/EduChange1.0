@@ -62,7 +62,7 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public List<Like> getAll() {
-        return null;
+        return likeRepository.findAll();
     }
 
     @Override
@@ -77,9 +77,7 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public LikeModel deleteLike(Long courseId) {
         Long currentUserId = userService.getCurrentUser().getId();
-
         Like dataLike = likeRepository.findByCourse_IdAndUser_Id(courseId, currentUserId).orElse(null);
-
         if (dataLike == null)
             throw new ApiFailException("Like not found");
 

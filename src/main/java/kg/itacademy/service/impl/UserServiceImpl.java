@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserProfileDataModel getBasicAuthorizHeaderByAuthorizModel(UserAuthorizModel userAuthorizModel) {
         User user = userRepository.findByUsername(userAuthorizModel.getUsername())
-                .orElseThrow(() -> new ApiFailException("Invalid username or password"));
+                .orElseThrow(() -> new ApiFailException("Неправильное имя пользователя или пароль"));
 
         boolean isPasswordIsCorrect = passwordEncoder.matches(userAuthorizModel.getPassword(), user.getPassword());
 
@@ -157,9 +157,9 @@ public class UserServiceImpl implements UserService {
 
         String newPassword = resetPasswordModel.getPassword();
         if (newPassword == null || newPassword.isEmpty())
-            throw new ApiFailException("Password is not filled");
+            throw new ApiFailException("Password не заполнен");
         if (newPassword.length() < 6)
-            throw new ApiFailException("The number of password characters must be more than 5");
+            throw new ApiFailException("Количество символов пароля должно быть более 5");
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
@@ -188,14 +188,14 @@ public class UserServiceImpl implements UserService {
 
     private User getDataUserWithCheckAccess(Long userId) {
         if (userId == null)
-            throw new ApiFailException("User id not specified");
+            throw new ApiFailException("Не указан id пользователя");
 
         User dataUser = getById(userId);
         if (dataUser == null)
-            throw new ApiFailException("User by id " + userId + " not found");
+            throw new ApiFailException("Пользователь под ID " + userId + " не найден");
 
         if (!userId.equals(getCurrentUser().getId()))
-            throw new ApiFailException("Access is denied");
+            throw new ApiFailException("Доступ ограничен");
 
         return dataUser;
     }
@@ -208,37 +208,37 @@ public class UserServiceImpl implements UserService {
 
     private void validateVariablesForNullOrIsEmpty(CreateUserModel createUserModel) {
         if (createUserModel.getFullName() == null || createUserModel.getFullName().isEmpty())
-            throw new ApiFailException("Full name is not filled");
+            throw new ApiFailException("Full name не заполнен");
         if (createUserModel.getUsername() == null || createUserModel.getUsername().isEmpty())
-            throw new ApiFailException("Username is not filled");
+            throw new ApiFailException("Username не заполнен");
         if (createUserModel.getEmail() == null || createUserModel.getEmail().isEmpty())
-            throw new ApiFailException("Email is not filled");
+            throw new ApiFailException("Email не заполнен");
         if (createUserModel.getPassword() == null || createUserModel.getPassword().isEmpty())
-            throw new ApiFailException("Password is not filled");
+            throw new ApiFailException("Password не заполнен");
     }
 
     private void validateVariablesForNullOrIsEmptyUpdate(UpdateUserModel userModel) {
         if (userModel.getEmail() != null && userModel.getFullName().isEmpty())
-            throw new ApiFailException("Full name is not filled");
+            throw new ApiFailException("Full name не заполнен");
         if (userModel.getUsername() != null && userModel.getUsername().isEmpty())
-            throw new ApiFailException("Username is not filled");
+            throw new ApiFailException("Username не заполнен");
         if (userModel.getEmail() != null && userModel.getEmail().isEmpty())
-            throw new ApiFailException("Email is not filled");
+            throw new ApiFailException("Email is не заполнен");
         if (userModel.getPassword() != null && userModel.getPassword().isEmpty())
-            throw new ApiFailException("Password is not filled");
+            throw new ApiFailException("Password не заполнен");
     }
 
     private void validateLengthVariables(BaseUserModel baseUserModel) {
         if (baseUserModel.getFullName() != null && baseUserModel.getFullName().length() > 100)
-            throw new ApiFailException("Exceeded character limit (100) for full name");
+            throw new ApiFailException("Длинна символов full name ограниченно(100)");
         if (baseUserModel.getUsername() != null && baseUserModel.getUsername().length() > 100)
-            throw new ApiFailException("Exceeded character limit (100) for username");
+            throw new ApiFailException("Длинна символов username ограниченно(100)");
         if (baseUserModel.getEmail() != null && baseUserModel.getEmail().length() > 100)
-            throw new ApiFailException("Exceeded character limit (100) for email");
+            throw new ApiFailException("Длинна символов email ограниченно(100)");
         if (baseUserModel.getPassword() != null && baseUserModel.getPassword().length() > 100)
-            throw new ApiFailException("Exceeded character limit (100) for password");
+            throw new ApiFailException("Длинна символов password ограниченно(100)");
         else if (baseUserModel.getPassword() != null && baseUserModel.getPassword().length() < 6)
-            throw new ApiFailException("The number of password characters must be more than 5");
+            throw new ApiFailException("Количество символов пароля должно быть более 5");
     }
 
     private void checkUsernameAndEmail(BaseUserModel baseUserModel) {
@@ -246,20 +246,20 @@ public class UserServiceImpl implements UserService {
         User dataUserByEmail = getByEmail(baseUserModel.getEmail());
 
         if (dataUserByUserName != null)
-            throw new ApiFailException("Such user " + dataUserByUserName.getUsername() + " already exists");
+            throw new ApiFailException("Username " + dataUserByUserName.getUsername() + " уже существует");
 
         if (dataUserByEmail != null)
-            throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " is already in use");
+            throw new ApiFailException("Email " + dataUserByEmail.getEmail() + " уже используется");
     }
 
     private void checkUserActiveStatus(User user) {
         if (user.getIsActive() == -1)
-            throw new ApiFailException("User nut found");
+            throw new ApiFailException("Пользователь не найден");
         if (user.getIsActive() == 0) {
             UserLog userLog = userLogService.getLastLogByUserId(user.getId());
             if (LocalDateTime.now().isAfter(userLog.getCreateDate().plusMinutes(5)))
                 setInActiveUser(user, 1L);
-            else throw new ApiFailException("You are blocked for 5 minutes");
+            else throw new ApiFailException("Вы были заблокированный на 5 минут");
         }
     }
 
@@ -272,7 +272,7 @@ public class UserServiceImpl implements UserService {
             if (needToBan)
                 setInActiveUser(user, 0L);
 
-            throw new ApiFailException("Invalid username or password");
+            throw new ApiFailException("Неправильное имя пользователя или пароль");
         }
     }
 

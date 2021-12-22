@@ -61,7 +61,7 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     @Override
     public List<CourseProgram> getAll() {
-        return null;
+        return courseProgramRepository.findAll();
     }
 
     @Override
@@ -94,49 +94,49 @@ public class CourseProgramServiceImpl implements CourseProgramService {
 
     private CourseProgram getDataCourseProgramByIdWithCheckAccess(Long id) {
         if (id == null)
-            throw new ApiFailException("Course program is not specified");
+            throw new ApiFailException("Не указан ID программы курса");
 
         CourseProgram dataCourseProgram = getById(id);
 
         if (dataCourseProgram == null)
-            throw new ApiFailException("Course program by id " + id + " not found");
+            throw new ApiFailException("Программа курса под ID " + id + " не найдена");
 
         Long currentUserId = userService.getCurrentUser().getId();
         Long authorCourseId = dataCourseProgram.getCourse().getUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
-            throw new ApiFailException("Access is denied");
+            throw new ApiFailException("Доступ ограничен");
 
         return dataCourseProgram;
     }
 
     private void validateLengthVariables(BaseCourseProgramModel baseCourseProgramModel) {
         if (baseCourseProgramModel.getTitle() != null && baseCourseProgramModel.getTitle().length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for title program");
+            throw new ApiFailException("Длинна символов заголовка программы ограниченно(50)");
         if (baseCourseProgramModel.getDescription() != null && baseCourseProgramModel.getDescription().length() > 1000)
-            throw new ApiFailException("Exceeded character limit (1000) for program description");
+            throw new ApiFailException("Длинна символов описании программы ограниченно(1000)");
     }
 
     private void validateVariablesForNullOrIsEmpty(CreateCourseProgramModel createCourseProgramModel) {
         if (createCourseProgramModel.getTitle() == null || createCourseProgramModel.getTitle().isEmpty())
-            throw new ApiFailException("Title program is not filled");
+            throw new ApiFailException("Заголовок программы не заполнен");
         if (createCourseProgramModel.getDescription() == null || createCourseProgramModel.getDescription().isEmpty())
-            throw new ApiFailException("Program description is not filled");
+            throw new ApiFailException("Описание программы не заполнено");
         if (createCourseProgramModel.getCourseId() == null)
-            throw new ApiFailException("Course id is not specified");
+            throw new ApiFailException("Не указан ID курса");
         else {
-            Long curseId = createCourseProgramModel.getCourseId();
-            Course course = courseService.getById(curseId);
+            Long courseId = createCourseProgramModel.getCourseId();
+            Course course = courseService.getById(courseId);
             if (course == null)
-                throw new ApiFailException("Course by id " + curseId + " not found");
+                throw new ApiFailException("Курс под ID " + courseId + " не найден");
         }
     }
 
     private void validateVariablesForNullOrIsEmptyUpdate(UpdateCourseProgramModel updateCourseProgramModel) {
         if (updateCourseProgramModel.getTitle() != null && updateCourseProgramModel.getTitle().isEmpty())
-            throw new ApiFailException("Title program is not filled");
+            throw new ApiFailException("Заголовок программы не заполнен");
         if (updateCourseProgramModel.getDescription() != null && updateCourseProgramModel.getDescription().isEmpty())
-            throw new ApiFailException("Program description is not filled");
+            throw new ApiFailException("Описание программы не заполнено");
     }
 
     private void setVariablesForUpdateCourseProgram(CourseProgram courseProgram, UpdateCourseProgramModel updateCourseProgramModel) {

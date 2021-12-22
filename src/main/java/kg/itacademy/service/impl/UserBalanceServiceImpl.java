@@ -59,25 +59,31 @@ public class UserBalanceServiceImpl implements UserBalanceService {
     public UserBalanceModel toUpBalance(UpdateUserBalanceModel updateUserBalanceModel) {
         String username = updateUserBalanceModel.getUsername();
 
-        if (username == null || username.isEmpty())
-            throw new ApiFailException("Username is not filled");
-
-        BigDecimal balance = updateUserBalanceModel.getBalance();
-
-        if (balance == null)
-            throw new ApiFailException("User balance is not filled");
-
-        if (balance.compareTo(BigDecimal.ZERO) <= 0)
-            throw new ApiFailException("Amount must not be less than or equal to 0");
-
-        User dataUser = userService.getByUsername(username);
-
-        if (dataUser == null)
-            throw new ApiFailException("User " + username + " not found");
+        User dataUser = getUserWithValidateUsername(username);
+        BigDecimal balance = getBalanceWithValidate(updateUserBalanceModel.getBalance());
 
         UserBalance dataUserBalance = getUserBalanceByUserId(dataUser.getId());
         dataUserBalance.setBalance(dataUserBalance.getBalance().add(balance));
         userBalanceRepository.save(dataUserBalance);
         return userBalanceConverter.convertFromEntity(dataUserBalance);
+    }
+
+    private User getUserWithValidateUsername(String username) {
+        if (username == null || username.isEmpty())
+            throw new ApiFailException("Username не заполнен");
+        User dataUser = userService.getByUsername(username);
+        if (dataUser == null)
+            throw new ApiFailException("Пользователь " + username + " не найден");
+
+        return dataUser;
+    }
+
+    private BigDecimal getBalanceWithValidate(BigDecimal balance) {
+        if (balance == null)
+            throw new ApiFailException("Баланс пользователя не заполнен");
+        if (balance.compareTo(BigDecimal.ZERO) <= 0)
+            throw new ApiFailException("Сумма не должна быть меньше или равна 0");
+
+        return balance;
     }
 }

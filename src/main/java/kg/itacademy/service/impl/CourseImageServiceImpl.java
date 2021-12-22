@@ -39,7 +39,7 @@ public class CourseImageServiceImpl implements CourseImageService {
         CourseImage courseImage = courseImageRepository.findByCourse_Id(courseId).orElse(null);
 
         if (courseImage != null)
-            throw new ApiFailException("Course image is already");
+            throw new ApiFailException("Изображение курса готово");
 
         String savedImageUrl = ImageUtil.saveImageInCloudinary(multipartFile);
         courseImage = new CourseImage();
@@ -97,12 +97,12 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     private Course getDataCourseByCourseIdWithCheckAccess(Long courseId) {
         if (courseId == null)
-            throw new ApiFailException("Course id not specified");
+            throw new ApiFailException("Не указан ID курса");
 
         Course course = courseService.getById(courseId);
 
         if (course == null)
-            throw new ApiFailException("Course by id " + courseId + " not found");
+            throw new ApiFailException("Курс под ID " + courseId + " не найден");
 
         checkAccess(course.getUser().getId());
         return course;
@@ -110,12 +110,12 @@ public class CourseImageServiceImpl implements CourseImageService {
 
     private CourseImage getDataCourseImageByIdWithCheckAccess(Long id) {
         if (id == null)
-            throw new ApiFailException("Course image id not specified");
+            throw new ApiFailException("Не указан ID изображения круса");
 
         CourseImage dataCourseImage = getById(id);
 
         if (dataCourseImage == null)
-            throw new ApiFailException("Course image by id " + id + " not found");
+            throw new ApiFailException("Изображение курса под ID " + id + " не найдено");
 
         Long authorCourseId = dataCourseImage.getCourse().getUser().getId();
         checkAccess(authorCourseId);
@@ -126,6 +126,6 @@ public class CourseImageServiceImpl implements CourseImageService {
         Long currentUserId = userService.getCurrentUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
-            throw new ApiFailException("Access is denied");
+            throw new ApiFailException("Доступ ограничен");
     }
 }

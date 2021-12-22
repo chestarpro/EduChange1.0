@@ -30,12 +30,11 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findByCategoryName(categoryName).orElse(null);
 
         if (category != null)
-            throw new ApiFailException("Category " + categoryName + " already exists");
+            throw new ApiFailException("Категория " + categoryName + " уже существует");
 
         category = new Category();
         category.setCategoryName(categoryName.toLowerCase(Locale.ROOT));
         save(category);
-
         return categoryConverter.convertFromEntity(category);
     }
 
@@ -75,12 +74,12 @@ public class CategoryServiceImpl implements CategoryService {
         Long categoryId = categoryModel.getId();
 
         if (categoryId == null)
-            throw new ApiFailException("Category id is not specified");
+            throw new ApiFailException("Не указан ID категории");
 
         Category dataCategory = getById(categoryId);
 
         if (dataCategory == null)
-            throw new ApiFailException("Category by id " + categoryId + " not found");
+            throw new ApiFailException("Категория под ID " + categoryId + " не найдена");
 
         String updateCategoryName = categoryModel.getCategoryName();
         validateCategoryName(updateCategoryName);
@@ -91,8 +90,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     private void validateCategoryName(String categoryName) {
         if (categoryName == null || categoryName.isEmpty())
-            throw new ApiFailException("Category name is not filled");
+            throw new ApiFailException("Название категории не заполнено");
         if (categoryName.length() > 50)
-            throw new ApiFailException("Exceeded character limit (50) for category name");
+            throw new ApiFailException("Длинна символов ограниченно(50)");
     }
 }

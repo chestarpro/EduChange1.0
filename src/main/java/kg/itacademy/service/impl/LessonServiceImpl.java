@@ -117,47 +117,45 @@ public class LessonServiceImpl implements LessonService {
 
     private Lesson getDataLessonByIdWithCheckAccess(Long id) {
         if (id == null)
-            throw new ApiFailException("Lesson id not specified");
+            throw new ApiFailException("Не указан ID урока");
 
         Lesson dataLesson = getById(id);
 
         if (dataLesson == null)
-            throw new ApiFailException("Lesson by id " + id + " not found");
+            throw new ApiFailException("Урок под ID " + id + " не найден");
 
         Long currentUserId = userService.getCurrentUser().getId();
         Long authorCourseId = dataLesson.getCourse().getUser().getId();
 
         if (!currentUserId.equals(authorCourseId))
-            throw new ApiFailException("Access is denied");
+            throw new ApiFailException("Доступ ограничен");
 
         return dataLesson;
     }
 
     private void validateLengthVariables(BaseLessonModel baseLessonModel) {
         if (baseLessonModel.getLessonInfo() != null && baseLessonModel.getLessonInfo().length() > 1000)
-            throw new ApiFailException("Exceeded character limit (1000) for lesson info");
+            throw new ApiFailException("Длинна символов информации урока ограниченно(1000)");
     }
 
     private void validateVariablesForNullOrIsEmpty(CreateLessonModel createLessonModel) {
         if (createLessonModel.getLessonInfo() == null || createLessonModel.getLessonInfo().isEmpty())
-            throw new ApiFailException("The description of the lesson is not specified");
+            throw new ApiFailException("Информация об уроке не заполнено");
         if (createLessonModel.getIsVisible() == null)
             throw new ApiFailException("Lesson visible is not specified");
         if (createLessonModel.getCourseId() == null)
-            throw new ApiFailException("Course id is not specified");
+            throw new ApiFailException("Не казан ID курса");
         else {
-            Long curseId = createLessonModel.getCourseId();
-            Course course = courseService.getById(curseId);
+            Long courseId = createLessonModel.getCourseId();
+            Course course = courseService.getById(courseId);
             if (course == null)
-                throw new ApiFailException("Course by id " + curseId + " not found");
+                throw new ApiFailException("Курс под ID " + courseId + " не найден");
         }
     }
 
     private void validateVariablesForNullOrIsEmptyUpdate(UpdateLessonModel updateLessonModel) {
         if (updateLessonModel.getLessonInfo() != null && updateLessonModel.getLessonInfo().isEmpty())
-            throw new ApiFailException("The description of the lesson is not specified");
-        if (updateLessonModel.getLessonUrl() != null && updateLessonModel.getLessonUrl().isEmpty())
-            throw new ApiFailException("The description of the lesson is not specified");
+            throw new ApiFailException("Информация об уроке не заполнено");
     }
 
     private void setVariablesForUpdateLesson(Lesson lesson, UpdateLessonModel updateLessonModel) {

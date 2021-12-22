@@ -40,23 +40,13 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
 
     @Override
     public UserCourseMappingModel createByCourseId(Long courseId) {
-        Course dataCourse = courseService.getById(courseId);
-
-        if (dataCourse == null)
-            throw new ApiFailException("Course by id " + courseId + " not found");
+        Course dataCourse = getCourseWithCheckForNull(courseId);
 
         User user = userService.getCurrentUser();
         Long currentUserId = user.getId();
         Long authorCourseId = dataCourse.getUser().getId();
 
-        UserCourseMapping dataUserCourseMapping = getByCourseIdAndUserId(courseId, currentUserId);
-
-        if (dataUserCourseMapping != null)
-            throw new ApiFailException("Bought already!");
-
-        if (authorCourseId.equals(currentUserId))
-            throw new ApiFailException("User " + user.getUsername() + " is the author of the course");
-
+        validatePurchaseWasMade(courseId, currentUserId, authorCourseId);
         transaction(dataCourse.getPrice(), currentUserId, authorCourseId);
         return userCourseMappingConverter.convertFromEntity(save(new UserCourseMapping(user, dataCourse)));
     }
@@ -97,7 +87,7 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
         UserBalance currentUserBalance = userBalanceService.getUserBalanceByUserId(currentUserId);
 
         if (currentUserBalance.getBalance().compareTo(coursePrice) < 0)
-            throw new ApiFailException("Not enough balance");
+            throw new ApiFailException("Недостаточно средств");
 
         currentUserBalance.setBalance(currentUserBalance.getBalance().subtract(coursePrice));
         userBalanceService.save(currentUserBalance);
@@ -105,5 +95,21 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
         UserBalance authorUserBalance = userBalanceService.getUserBalanceByUserId(authorCourseUserId);
         authorUserBalance.setBalance(authorUserBalance.getBalance().add(coursePrice));
         userBalanceService.save(authorUserBalance);
+    }
+
+    private void validatePurchaseWasMade(Long courseId,  Long currentUserId, Long authorCourseId) {
+        UserCourseMapping dataUserCourseMapping = getByCourseIdAndUserId(courseId, currentUserId);
+        if (dataUserCourseMapping != null)
+            throw new ApiFailException("Курс уже приобретен");
+        if (authorCourseId.equals(currentUserId))
+            throw new ApiFailException("Автор не может купить свои курсы");
+    }
+
+    private Course getCourseWithCheckForNull(Long courseId) {
+        Course dataCourse = courseService.getById(courseId);
+        if (dataCourse == null)
+            throw new ApiFailException("Курс под ID " + courseId + " не найден");
+
+        return dataCourse;
     }
 }
