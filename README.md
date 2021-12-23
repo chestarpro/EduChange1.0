@@ -25,4 +25,5 @@ Swagger: https://educhange.herokuapp.com/swagger-ui.html
 11.	 Сброс пароля пользователя через email адрес.
 
 Инструменты и технологии для создания web приложения(backend):
+
 PostgreSQL, Spring Boot, Spring Data, Spring Security, Maven, Swagger, Cloudinary.
