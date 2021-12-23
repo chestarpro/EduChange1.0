@@ -35,14 +35,14 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public LikeModel createLikeByCourseId(Long courseId) {
         User user = userService.getCurrentUser();
+        Course course = courseService.getById(courseId);
+
         Like like = likeRepository
                 .findByCourse_IdAndUser_Id(courseId, user.getId())
                 .orElse(null);
 
-        if (like != null)
-            throw new ApiFailException("Like is already exists");
+        validateLike(course, like);
 
-        Course course = courseService.getById(courseId);
         like = new Like();
         like.setCourse(course);
         like.setUser(user);
@@ -83,5 +83,13 @@ public class LikeServiceImpl implements LikeService {
 
         likeRepository.delete(dataLike);
         return likeConverter.convertFromEntity(dataLike);
+    }
+
+    private void validateLike(Course course, Like like) {
+        if (course == null)
+            throw new ApiFailException("Course not found");
+
+        if (like != null)
+            throw new ApiFailException("Like is already exists");
     }
 }

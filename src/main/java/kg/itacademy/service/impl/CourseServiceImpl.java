@@ -83,6 +83,8 @@ public class CourseServiceImpl implements CourseService {
     public CourseDataModel getCourseDataModelByCourseId(Long courseId) {
         CourseDataModel courseDataModel = new CourseDataModel();
         Course course = getById(courseId);
+        if (course == null)
+            throw new ApiFailException("Course not found");
         User user = userService.getById(course.getUser().getId());
         courseDataModel.setAuthorFullName(user.getFullName());
         courseDataModel.setCourseModel(courseConverter.convertFromEntity(course));

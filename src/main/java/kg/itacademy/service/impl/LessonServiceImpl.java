@@ -132,7 +132,7 @@ public class LessonServiceImpl implements LessonService {
 
         return dataLesson;
     }
-
+    
     private void validateLengthVariables(BaseLessonModel baseLessonModel) {
         if (baseLessonModel.getLessonInfo() != null && baseLessonModel.getLessonInfo().length() > 1000)
             throw new ApiFailException("Длинна символов информации урока ограниченно(1000)");
