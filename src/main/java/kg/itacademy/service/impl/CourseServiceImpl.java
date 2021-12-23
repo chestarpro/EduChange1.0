@@ -3,6 +3,7 @@ package kg.itacademy.service.impl;
 import kg.itacademy.converter.CourseConverter;
 import kg.itacademy.entity.Category;
 import kg.itacademy.entity.Course;
+import kg.itacademy.entity.User;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.course.*;
 import kg.itacademy.repository.CourseRepository;
@@ -81,7 +82,10 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public CourseDataModel getCourseDataModelByCourseId(Long courseId) {
         CourseDataModel courseDataModel = new CourseDataModel();
-        courseDataModel.setCourseModel(courseConverter.convertFromEntity(getById(courseId)));
+        Course course = getById(courseId);
+        User user = userService.getById(course.getUser().getId());
+        courseDataModel.setAuthorFullName(user.getFullName());
+        courseDataModel.setCourseModel(courseConverter.convertFromEntity(course));
         courseDataModel.setImageModel(courseImageService.getCourseImageModelByCourseId(courseId));
         courseDataModel.setLessonCount(lessonService.getCountLessonByCourseId(courseId));
         courseDataModel.setPrograms(courseProgramService.getAllCourseProgramModelByCourseId(courseId));

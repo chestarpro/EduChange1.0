@@ -8,6 +8,7 @@ import kg.itacademy.entity.UserCourseMapping;
 import kg.itacademy.exception.ApiFailException;
 import kg.itacademy.model.course.CourseDataModel;
 import kg.itacademy.model.UserCourseMappingModel;
+import kg.itacademy.model.user.BaseUserModel;
 import kg.itacademy.repository.UserCourseMappingRepository;
 import kg.itacademy.service.CourseService;
 import kg.itacademy.service.UserBalanceService;
@@ -59,6 +60,16 @@ public class UserCourseMappingServiceImpl implements UserCourseMappingService {
     @Override
     public UserCourseMappingModel getUserCourseMappingModelById(Long id) {
         return userCourseMappingConverter.convertFromEntity(getById(id));
+    }
+
+    @Override
+    public List<BaseUserModel> getAllCustomersByCourseId(Long courseId) {
+        return userCourseMappingRepository
+                .findAllByCourse_Id(courseId)
+                .stream()
+                .map(UserCourseMapping::getUser)
+                .map(i -> userService.getUserModelById(i.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override

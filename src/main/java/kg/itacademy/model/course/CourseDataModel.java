@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseDataModel {
+    private String authorFullName;
     private CourseModel courseModel;
     private CourseImageModel imageModel;
     private Long lessonCount;
