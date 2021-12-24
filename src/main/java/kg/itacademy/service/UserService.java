@@ -25,7 +25,7 @@ public interface UserService extends BaseService<User> {
 
     BaseUserModel getUserModelById(Long id);
 
-    UserProfileDataModel getUserProfileDataModelById(Long id);
+    UserProfileDataModel getCurrentUserProfileDataModel();
 
     BaseUserModel getCurrentUserModel();
 

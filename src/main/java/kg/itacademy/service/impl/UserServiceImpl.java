@@ -111,10 +111,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserProfileDataModel getUserProfileDataModelById(Long id) {
-        if (!getCurrentUser().getId().equals(id))
-            throw new ApiFailException("Доступ ограничен");
-        return getUserProfileDataModelByUserId(null, id);
+    public UserProfileDataModel getCurrentUserProfileDataModel() {
+        Long currentUserId = getCurrentUser().getId();
+        return getUserProfileDataModelByUserId(null, currentUserId);
     }
 
     @Override
