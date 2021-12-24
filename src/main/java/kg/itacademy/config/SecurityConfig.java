@@ -34,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/api/user/update").authenticated()
                 .antMatchers(HttpMethod.DELETE, "/api/user/delete").authenticated()
                 .antMatchers(HttpMethod.GET, "/api/user/get-by-id/{id}").authenticated()
+                .antMatchers(HttpMethod.GET, "/get-updated-profile-by-id/{id}").authenticated()
 
                 .antMatchers(HttpMethod.POST, "/api/course-image/create/{courseId}").authenticated()
                 .antMatchers(HttpMethod.PUT, "/api/course-image/update/{id}").authenticated()

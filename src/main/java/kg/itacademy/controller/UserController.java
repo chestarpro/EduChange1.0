@@ -30,6 +30,12 @@ public class UserController {
                 .prepareSuccessMessage(userService.getUserModelById(id));
     }
 
+    @GetMapping("/get-updated-profile-by-id/{id}")
+    public ResponseMessage<UserProfileDataModel> getUpdateUserProfileById(@PathVariable Long id) {
+        return new ResponseMessage<UserProfileDataModel>()
+                .prepareSuccessMessage(userService.getUserProfileDataModelById(id));
+    }
+
     @PutMapping("/update")
     public ResponseMessage<UserProfileDataModel> update(@RequestBody UpdateUserModel updateUserModel) {
         return new ResponseMessage<UserProfileDataModel>()
