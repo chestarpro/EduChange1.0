@@ -197,8 +197,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private void validateLengthVariables(BaseCourseModel baseCourseModel) {
-        if (baseCourseModel.getCourseShortInfo() != null && baseCourseModel.getCourseShortInfo().length() > 100)
-            throw new ApiFailException("Длинна символов короткой информации о курсе ограниченно(100)");
+        if (baseCourseModel.getCourseShortInfo() != null && baseCourseModel.getCourseShortInfo().length() > 300)
+            throw new ApiFailException("Длинна символов короткой информации о курсе ограниченно(300)");
         if (baseCourseModel.getCourseInfoTitle() != null && baseCourseModel.getCourseInfoTitle().length() > 100)
             throw new ApiFailException("Длинна символов заголовка информации ограниченно(100)");
         if (baseCourseModel.getCourseInfo() != null && baseCourseModel.getCourseInfo().length() > 1000)
