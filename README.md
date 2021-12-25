@@ -1,6 +1,7 @@
 # EduChange1.0 
 
 Swagger: https://educhange.herokuapp.com/swagger-ui.html
+Frontend: https://github.com/alinur05/EC
 
 # Миссия и цели проекта:
 1.	Создать платформу для онлайн курсов, по обучению навыкам, с разными направлениями и создания собственных курсов.
